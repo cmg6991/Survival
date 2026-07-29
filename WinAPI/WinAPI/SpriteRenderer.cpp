@@ -1,0 +1,172 @@
+#include "SpriteRenderer.h"
+#include "Transform.h"
+#include "CameraManager.h"
+#include "GameObject.h"
+#include "Vector2.h"
+#include "ResourceManager.h"
+#include "TileManager.h"
+
+SpriteRenderer::SpriteRenderer(string imageName)
+    : m_imageName(imageName), m_transform(nullptr), m_resourceManager(nullptr), m_pivot(-1, -1),
+    m_width(0), m_height(0)
+{
+}
+
+SpriteRenderer::~SpriteRenderer()
+{
+}
+
+void SpriteRenderer::Init()
+{
+    m_transform = static_cast<Transform*>(m_gameObject->GetElement(ElementType::Transform));
+    Gdiplus::Bitmap* bitmap = m_resourceManager->GetImage(m_imageName);
+
+    m_width = bitmap->GetWidth();
+    m_height = bitmap->GetHeight();
+
+    if (m_pivot.x < 0)
+    {
+        m_pivot.x = m_width * 0.5f;
+    }
+
+    if (m_pivot.y < 0)
+    {
+        m_pivot.y = (float)m_height;
+    }
+
+    if (m_frameWidth == 0)
+        m_frameWidth = m_width;
+
+    if (m_frameHeight == 0)
+        m_frameHeight = m_height;
+
+    /*int frameWidth = bitmap->GetWidth() / 6;
+    int frameHeight = bitmap->GetHeight() / 5;
+
+    for (int row = 0; row < 5; row++)
+    {
+        for (int col = 0; col < 6; col++)
+        {
+            m_frames[row][col] = bitmap->Clone(col * frameWidth, row * frameHeight,frameWidth,frameHeight, PixelFormat32bppARGB);
+        }
+    }
+
+    for (int row = 0; row < 5; row++)
+    {
+        for (int col = 0; col < 6; col++)
+        {
+            m_flipFrames[row][col] = CreateFlip(m_frames[row][col]);
+        }
+    }*/
+}
+
+void SpriteRenderer::FixedUpdate()
+{
+}
+
+void SpriteRenderer::Update(float deltaTime)
+{
+}
+
+void SpriteRenderer::LateUpdate()
+{
+}
+
+void SpriteRenderer::PreRender()
+{
+}
+
+void SpriteRenderer::Render(Graphics& graphics)
+{
+    int TILE_W = TileManager::GetInstance().GetTileWidth();
+    int TILE_H = TileManager::GetInstance().GetTileHeight();
+
+    MathEngine::Vector2 screen = TileManager::GetInstance().TileToScreen(m_transform->GetPostion());
+
+    int screenX = (int)(screen.x - CameraManager::GetInstance().GetX());
+    int screenY = (int)(screen.y - CameraManager::GetInstance().GetY());
+
+    screenY += TILE_H / 2;
+
+    Gdiplus::Bitmap* bitmap = m_resourceManager->GetImage(m_imageName);
+    ////DrawBitmap(graphics,bitmap,screenX - (int)m_pivot.x, screenY - (int)m_pivot.y);
+    //DrawBitmap(hdc, bitmap,screenX - (int)m_pivot.x,screenY - (int)m_pivot.y);
+    //Ellipse(hdc, screenX-10, screenY-10, screenX + 10, screenY + 10);
+
+    Rect src( m_srcX,m_srcY, m_frameWidth, m_frameHeight);
+
+    //Rect dst(screenX - (int)m_pivot.x, screenY - (int)m_pivot.y,m_frameWidth,m_frameHeight);
+    //graphics.DrawImage( bitmap, dst, src.X, src.Y,src.Width, src.Height,UnitPixel);
+
+    if (!m_flip)
+    {
+        Rect dst(
+            screenX - (int)m_pivot.x,
+            screenY - (int)m_pivot.y,
+            m_frameWidth,
+            m_frameHeight);
+
+        graphics.DrawImage(
+            bitmap,
+            dst,
+            src.X,
+            src.Y,
+            src.Width,
+            src.Height,
+            UnitPixel);
+    }
+    else
+    {
+        Rect dst(
+            screenX + (int)m_pivot.x,
+            screenY - (int)m_pivot.y,
+            -m_frameWidth,      // À½¼ö!
+            m_frameHeight);
+
+        graphics.DrawImage(
+            bitmap,
+            dst,
+            src.X,
+            src.Y,
+            src.Width,
+            src.Height,
+            UnitPixel);
+    }
+}
+
+void SpriteRenderer::PostRender(HDC hdc)
+{
+}
+
+void SpriteRenderer::Release()
+{
+}
+
+ElementType SpriteRenderer::GetElementType() const
+{
+	return ElementType::SpriteRenderer;
+}
+
+GameObject* SpriteRenderer::GetGameObject() const
+{
+	return m_gameObject;
+}
+
+void SpriteRenderer::SetGameObject(GameObject* gameObject)
+{
+    m_gameObject = gameObject;
+}
+
+Bitmap* SpriteRenderer::CreateFlip(Bitmap* src)
+{
+    Bitmap* flip = new Bitmap(src->GetWidth(),src->GetHeight(),PixelFormat32bppARGB);
+
+    Graphics g(flip);
+
+    g.TranslateTransform((REAL)src->GetWidth(), 0);
+    g.ScaleTransform(-1, 1);
+
+    g.DrawImage(src, 0, 0);
+
+    return flip;
+}
