@@ -35,17 +35,11 @@ void ResourceManager::Release()
 //    m_images.insert({ key, bitmap });
 //}
 
-void ResourceManager::AddImage(
-    const std::string& key,
-    const std::string& path)
+void ResourceManager::AddImage(const std::string& key, const std::string& path)
 {
-    std::wstring wpath(
-        path.begin(),
-        path.end());
+    std::wstring wpath( path.begin(), path.end());
 
-    Bitmap* bitmap =
-        Bitmap::FromFile(
-            wpath.c_str());
+    Bitmap* bitmap = Bitmap::FromFile(wpath.c_str());
 
     if (bitmap == nullptr)
         return;
@@ -53,8 +47,7 @@ void ResourceManager::AddImage(
     m_images[key] = bitmap;
 }
 
-Gdiplus::Bitmap* ResourceManager::GetImage(
-    const std::string& key)
+Gdiplus::Bitmap* ResourceManager::GetImage(const std::string& key)
 {
     return m_images[key];
 }
