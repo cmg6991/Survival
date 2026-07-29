@@ -27,8 +27,8 @@ public:
 private:
 	HWND m_hWnd;
 	WinInit* m_winInit;
-	HDC m_hdc;
-	HBITMAP m_hBitmap;
+	//HDC m_hdc;
+	//HBITMAP m_hBitmap;
 
 	float m_x;
 	float m_y;

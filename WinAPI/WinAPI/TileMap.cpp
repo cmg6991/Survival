@@ -22,14 +22,14 @@ void TileMap::Init()
     }
 }
 
-void TileMap::Render(Graphics& graphics,ResourceManager* resourceManager)
+void TileMap::Render(ID2D1DeviceContext* context,ResourceManager* resourceManager)
 {
     int TILE_W = TileManager::GetInstance().GetTileWidth();
     int TILE_H = TileManager::GetInstance().GetTileHeight();
 
     for (int y = 0; y < HEIGHT; y++)
     {
-        for (int x = 0; x < WIDTH; x++)
+        /*for (int x = 0; x < WIDTH; x++)
         {
             MathEngine::Vector2 screen = TileManager::GetInstance().TileToScreen({ (float)x, (float)y });
 
@@ -44,7 +44,7 @@ void TileMap::Render(Graphics& graphics,ResourceManager* resourceManager)
             }
 
             DrawBitmap(graphics,bitmap, screenX,screenY);
-        }
+        }*/
     }
 }
 

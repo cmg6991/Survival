@@ -184,19 +184,19 @@ void Player::PreRender()
 {
 }
 
-void Player::Render(Graphics& graphics)
+void Player::Render(ID2D1DeviceContext* context)
 {
     MathEngine::Vector2 screen = TileManager::GetInstance().TileToScreen( m_transform->GetPostion());
 
     int screenX = (int)(screen.x - CameraManager::GetInstance().GetX());
     int screenY = (int)(screen.y - CameraManager::GetInstance().GetY());
 
-    Pen pen(Color(255, 255, 0, 0), 2.0f);
+    //Pen pen(Color(255, 255, 0, 0), 2.0f);
 
-    graphics.DrawEllipse( &pen,screenX - 5,screenY - 5, 10,10);
+    //graphics.DrawEllipse( &pen,screenX - 5,screenY - 5, 10,10);
 }
 
-void Player::PostRender(HDC hdc)
+void Player::PostRender(ID2D1DeviceContext* context)
 {
 }
 

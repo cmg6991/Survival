@@ -13,7 +13,7 @@ public:
 	void SetBlocked(int x, int y, bool blocked);
 
 
-	void RenderDebug(Gdiplus::Graphics& graphics);
+	//void RenderDebug(ID2D1DeviceContext* context);
 
 private:
 	static const int WIDTH = 100;

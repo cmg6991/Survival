@@ -1,4 +1,5 @@
 #include "GameEngine.h"
+#include "Graphics.h"
 
 #include "CameraManager.h"
 #include "InputManager.h"
@@ -16,10 +17,6 @@
 #include "Wall.h"
 #include <algorithm>
 
-#include <gdiplus.h>
-using namespace Gdiplus;
-ULONG_PTR g_GdiToken;
-
 GameEngine::GameEngine() : m_tileMap(nullptr),m_resourceManager(nullptr), m_tree(nullptr),m_collisionManager(nullptr)
 {
 	m_tileMap = new TileMap;
@@ -36,10 +33,6 @@ GameEngine::~GameEngine()
 
 void GameEngine::Init(const HWND hwnd)
 {
-	GdiplusStartupInput gdiplusStartupInput;
-
-	GdiplusStartup(&g_GdiToken,&gdiplusStartupInput,NULL);
-
 	InputManager::GetInstance().Init(hwnd);
 	CameraManager::GetInstance().Init();
 
@@ -55,7 +48,7 @@ void GameEngine::Init(const HWND hwnd)
 	m_resourceManager->AddImage("Wall_W", "Resource/castle_wall(7).png");
 	m_resourceManager->AddImage("Tile_W", "Resource/tile1.png");
 
-	TileManager::GetInstance().Init(m_resourceManager->GetImage("Tile_W"));
+	//TileManager::GetInstance().Init(m_resourceManager->GetImage("Tile_W"));
 
 	GameObject* playerObj = new GameObject("Player");
 
@@ -121,7 +114,7 @@ void GameEngine::Update()
 	CameraManager::GetInstance().Follow(m_player->GetTransform());
 }
 
-void GameEngine::Render(HDC hdc)
+void GameEngine::Render(ID2D1DeviceContext* context)
 {
 	std::sort(m_objects.begin(),m_objects.end(),[](GameObject* a, GameObject* b)
 		{
@@ -131,15 +124,12 @@ void GameEngine::Render(HDC hdc)
 			return ta->GetPostion().y <tb->GetPostion().y;
 		});
 
-	Graphics graphics(hdc);
-	m_tileMap->Render(graphics, m_resourceManager);
 
 	for (GameObject* obj : m_objects)
 	{
-		obj->Render(graphics);
+		obj->Render(context);
 	}
-	m_collisionManager->RenderDebug(graphics);
-
+	//m_collisionManager->RenderDebug(context);
 }
 
 void GameEngine::Release()
@@ -159,8 +149,6 @@ void GameEngine::Release()
 
 	delete m_collisionManager;
 	m_collisionManager = nullptr;
-
-	GdiplusShutdown(g_GdiToken);
 }
 
 void GameEngine::CreateWall(float x, float y,const string& imageName)

@@ -1,5 +1,6 @@
 #include "GameObject.h"
 #include "pch.h"
+#include "Graphics.h"
 
 GameObject::GameObject(std::string name) :m_name(name), m_elements((int)ElementType::End, nullptr)
 {
@@ -57,7 +58,7 @@ void GameObject::PreRender()
 	}
 }
 
-void GameObject::Render(Graphics& graphics)
+void GameObject::Render(ID2D1DeviceContext* context)
 {
 	if (m_isDraw)
 	{
@@ -65,19 +66,19 @@ void GameObject::Render(Graphics& graphics)
 		{
 			if (m_elements[i] != nullptr)
 			{
-				m_elements[i]->Render(graphics);
+				m_elements[i]->Render(context);
 			}
 		}
 	}
 }
 
-void GameObject::PostRender(HDC hdc)
+void GameObject::PostRender(ID2D1DeviceContext* context)
 {
 	for (int i = 0; i < (int)ElementType::End; i++)
 	{
 		if (m_elements[i] != nullptr)
 		{
-			m_elements[i]->PostRender(hdc);
+			m_elements[i]->PostRender(context);
 		}
 	}
 }

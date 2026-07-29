@@ -1,5 +1,6 @@
 #pragma once
 #include "pch.h"
+#include "Graphics.h"
 
 enum class ElementType
 {
@@ -24,8 +25,8 @@ public:
 	virtual void LateUpdate() abstract;
 
 	virtual void PreRender() abstract;
-	virtual void Render(Graphics& graphics) abstract;
-	virtual void PostRender(HDC hdc) abstract;
+	virtual void Render(ID2D1DeviceContext* context) abstract;
+	virtual void PostRender(ID2D1DeviceContext* context) abstract;
 
 	virtual void Release() abstract;
 

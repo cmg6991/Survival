@@ -6,42 +6,67 @@
 #include <dxgi1_2.h>
 
 #include <d2d1_1.h>
-#include <d2d1_1helper.h>
+#include <dwrite.h>
 
-#include <wrl/client.h>
-using Microsoft::WRL::ComPtr;
+#pragma comment(lib,"d2d1.lib")
+#pragma comment(lib,"d3d11.lib")
+#pragma comment(lib,"dxgi.lib")
+#pragma comment(lib,"dwrite.lib")
+
+#define GRAPHICS Graphics::GetInstance()
 
 class Graphics
 {
 public:
-	Graphics();
-	~Graphics();
+	static Graphics& GetInstance()
+	{
+		static Graphics instance;
+		return instance;
+	}
 
 	bool Init(HWND hWnd);
 
-	inline void BeginDraw() { deviceContext->BeginDraw(); }
-	inline void EndDraw() { deviceContext->EndDraw(); swapChain->Present(1, 0); }
-	//inline void Resize(UINT width, UINT height) { deviceContext->Resize(D2D1::SizeU(width, height)); }
+	void BeginRender();
+	void EndRender();
 
 	void ClearScreen(float r, float g, float b);
-	void DrawCircle(float x, float y, float radius, float r, float g, float b, float a);
-
-	//inline const ComPtr<ID2D1HwndRenderTarget>& GetRenderTarget() {return renderTarget;}
-	inline const ComPtr<ID2D1DeviceContext>& GetDeviceContext() { return deviceContext; }
-	inline const ComPtr<ID2D1Factory1>& GetFactory() { return factory; }
+	ID2D1DeviceContext* GetContext()
+	{
+		return m_deviceContext;
+	}
 
 private:
-	// D3D11
-	ComPtr<ID3D11Device>        d3dDevice;
-	ComPtr<ID3D11DeviceContext> d3dContext;
-	ComPtr<IDXGISwapChain1>     swapChain;
+	Graphics();
+	~Graphics();
 
-	// D2D1
-	ComPtr<ID2D1Factory1>       factory;
-	ComPtr<ID2D1Device>         d2dDevice;
-	ComPtr<ID2D1DeviceContext>  deviceContext;  // used instead of HwndRenderTarget
-	ComPtr<ID2D1Bitmap1>        targetBitmap;   // bitmap wrapping the SwapChain buffer
 
-	// brush
-	ComPtr<ID2D1SolidColorBrush> brush;
+	Graphics(const Graphics&) = delete;
+	Graphics& operator=(const Graphics&) = delete;
+
+	HWND m_hwnd;
+
+
+	// D3D
+	ID3D11Device* m_d3dDevice;
+	ID3D11DeviceContext* m_d3dContext;
+
+
+	// DXGI
+	IDXGISwapChain1* m_swapChain;
+
+
+	// D2D
+	ID2D1Factory1* m_factory;
+	ID2D1Device* m_device;
+
+	ID2D1DeviceContext* m_deviceContext;
+
+	ID2D1Bitmap1* m_targetBitmap;
+
+
+	ID2D1SolidColorBrush* m_brush;
+
+private:
+
+	void Release();
 };

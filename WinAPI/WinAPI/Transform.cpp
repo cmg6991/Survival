@@ -28,11 +28,11 @@ void Transform::PreRender()
 {
 }
 
-void Transform::Render(Graphics& graphics)
+void Transform::Render(ID2D1DeviceContext* context)
 {
 }
 
-void Transform::PostRender(HDC hdc)
+void Transform::PostRender(ID2D1DeviceContext* context)
 {
 }
 

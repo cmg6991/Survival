@@ -2,6 +2,7 @@
 
 #include "pch.h"
 #include "GameObject.h"
+#include "Graphics.h"
 
 class TileMap;
 class Player;
@@ -17,7 +18,7 @@ public:
 
 	void Init(const HWND hwnd);
 	void Update();
-	void Render(HDC hdc);
+	void Render(ID2D1DeviceContext* context);
 	void Release();
 
 	void CreateWall(float x, float y, const string& imageName);

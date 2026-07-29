@@ -23,8 +23,8 @@ public:
 	virtual void LateUpdate() override;
 
 	virtual void PreRender() override;
-	virtual void Render(Graphics& graphics) override;
-	virtual void PostRender(HDC hdc) override;
+	virtual void Render(ID2D1DeviceContext* context) override;
+	virtual void PostRender(ID2D1DeviceContext* context) override;
 
 	virtual void Release() override;
 

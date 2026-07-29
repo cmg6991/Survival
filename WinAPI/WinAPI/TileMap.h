@@ -1,8 +1,6 @@
 #pragma once
 #include <windows.h>
-#include <gdiplus.h>
-
-using namespace Gdiplus;
+#include "Graphics.h"
 
 enum class TileType
 {
@@ -26,7 +24,7 @@ class TileMap
 public:
     void Init();
 
-    void Render(Graphics& graphics,ResourceManager* resourceManager);
+    void Render(ID2D1DeviceContext* context ,ResourceManager* resourceManager);
 
     bool IsWall(int tileX, int tileY);
 

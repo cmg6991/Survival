@@ -2,6 +2,7 @@
 
 #include "pch.h"
 #include "ElementBase.h"
+#include "Graphics.h"
 
 class GameObject
 {
@@ -15,8 +16,8 @@ public:
     void LateUpdate();
 
     void PreRender();
-    void Render(Graphics& graphics);
-    void PostRender(HDC hdc);
+    void Render(ID2D1DeviceContext* context);
+    void PostRender(ID2D1DeviceContext* context);
 
     void Release();
 

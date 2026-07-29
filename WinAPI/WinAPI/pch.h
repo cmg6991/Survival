@@ -5,8 +5,4 @@
 #include <vector>
 #include <string>
 
-#include <gdiplus.h>
-
-using namespace Gdiplus;
-
 using namespace std;

@@ -42,20 +42,20 @@
 //}
 #include <gdiplus.h>
 
-using namespace Gdiplus;
+//using namespace Gdiplus;
 
-inline void DrawBitmap(Graphics& graphics,
-    Bitmap* bitmap,
-    int x,
-    int y)
-{
-    if (bitmap == nullptr)
-        return;
-
-    graphics.DrawImage(
-        bitmap,
-        x,
-        y,
-        bitmap->GetWidth(),
-        bitmap->GetHeight());
-}
+//inline void DrawBitmap(Graphics& graphics,
+//    Bitmap* bitmap,
+//    int x,
+//    int y)
+//{
+//    if (bitmap == nullptr)
+//        return;
+//
+//    graphics.DrawImage(
+//        bitmap,
+//        x,
+//        y,
+//        bitmap->GetWidth(),
+//        bitmap->GetHeight());
+//}

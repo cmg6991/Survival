@@ -1,134 +1,213 @@
 #include "Graphics.h"
 
-#pragma comment(lib, "d2d1.lib")
-#pragma comment(lib, "d3d11.lib")
-#pragma comment(lib, "dxgi.lib")
-#pragma comment(lib, "dxguid.lib")
+Graphics::Graphics()
+{
+	m_hwnd = nullptr;
+	m_d3dDevice = nullptr;
+	m_d3dContext = nullptr;
+	m_swapChain = nullptr;
+	m_factory = nullptr;
+	m_device = nullptr;
+	m_deviceContext = nullptr;
+	m_targetBitmap = nullptr;
+	m_brush = nullptr;
+}
 
-Graphics::Graphics() {}
-
-Graphics::~Graphics() {}
+Graphics::~Graphics()
+{
+	Release();
+}
 
 bool Graphics::Init(HWND hWnd)
 {
+#define CHECK_HR(hr, msg)\
+if(FAILED(hr))\
+{\
+    MessageBox(nullptr, msg, L"Graphics Error", MB_OK);\
+    return false;\
+}
+
+	m_hwnd = hWnd;
+
+	UINT flag = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
+
 	HRESULT hr;
 
-	// 1. Create D3D11 Device + SwapChain
-	UINT creationFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT; // required for D2D interop
-#ifdef _DEBUG
-	creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
-#endif
-
-	D3D_FEATURE_LEVEL featureLevels[] = { D3D_FEATURE_LEVEL_11_0 };
-	D3D_FEATURE_LEVEL featureLevel;
+	D3D_FEATURE_LEVEL level;
 
 	hr = D3D11CreateDevice(
-		nullptr,                        // default adapter
+		nullptr,
 		D3D_DRIVER_TYPE_HARDWARE,
 		nullptr,
-		creationFlags,
-		featureLevels, ARRAYSIZE(featureLevels),
+		flag,
+		nullptr,
+		0,
 		D3D11_SDK_VERSION,
-		d3dDevice.GetAddressOf(),
-		&featureLevel,
-		d3dContext.GetAddressOf()
+		&m_d3dDevice,
+		&level,
+		&m_d3dContext
 	);
+	CHECK_HR(hr, L"D3D11CreateDevice 실패");
 	if (FAILED(hr)) return false;
 
-	// DXGI Factory -> SwapChain
-	ComPtr<IDXGIDevice1> dxgiDevice;
-	hr = d3dDevice.As(&dxgiDevice);
+	IDXGIDevice* dxgiDevice = nullptr;
+	hr = m_d3dDevice->QueryInterface(IID_PPV_ARGS(&dxgiDevice));
+	CHECK_HR(hr, L"QueryInterface DXGI 실패");
 	if (FAILED(hr)) return false;
 
-	ComPtr<IDXGIAdapter> dxgiAdapter;
-	hr = dxgiDevice->GetAdapter(dxgiAdapter.GetAddressOf());
-	if (FAILED(hr)) return false;
+	IDXGIAdapter* adapter = nullptr;
+	hr = dxgiDevice->GetAdapter(&adapter);
+	CHECK_HR(hr, L"GetAdapter 실패");
+	if (FAILED(hr))
+	{
+		dxgiDevice->Release();
+		return false;
+	}
 
-	ComPtr<IDXGIFactory2> dxgiFactory;
-	hr = dxgiAdapter->GetParent(IID_PPV_ARGS(dxgiFactory.GetAddressOf()));
-	if (FAILED(hr)) return false;
+	IDXGIFactory2* factory = nullptr;
+	hr = adapter->GetParent(IID_PPV_ARGS(&factory));
+	CHECK_HR(hr, L"DXGI Factory 실패");
+	if (FAILED(hr))
+	{
+		adapter->Release();
+		dxgiDevice->Release();
+		return false;
+	}
 
+	// 3. 스왑체인 생성
 	RECT rc;
 	GetClientRect(hWnd, &rc);
-	UINT width = rc.right - rc.left;
-	UINT height = rc.bottom - rc.top;
+	DXGI_SWAP_CHAIN_DESC1 desc{};
+	desc.Width = rc.right - rc.left;
+	desc.Height = rc.bottom - rc.top;
+	desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+	desc.BufferCount = 2;
+	desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	desc.SampleDesc.Count = 1;
+	desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+	desc.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
 
-	DXGI_SWAP_CHAIN_DESC1 swapDesc = {};
-	swapDesc.Width = width;
-	swapDesc.Height = height;
-	swapDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM; // recommended format for D2D
-	swapDesc.SampleDesc.Count = 1;
-	swapDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	swapDesc.BufferCount = 2;
-	swapDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
-
-	hr = dxgiFactory->CreateSwapChainForHwnd(
-		d3dDevice.Get(), hWnd,
-		&swapDesc, nullptr, nullptr,
-		swapChain.GetAddressOf()
+	hr = factory->CreateSwapChainForHwnd(
+		m_d3dDevice,
+		hWnd,
+		&desc,
+		nullptr,
+		nullptr,
+		&m_swapChain
 	);
-	if (FAILED(hr)) return false;
+	CHECK_HR(hr, L"SwapChain 생성 실패");
+	if (FAILED(hr))
+	{
+		factory->Release();
+		adapter->Release();
+		dxgiDevice->Release();
+		return false;
+	}
 
-	// 2. D2D1 Factory -> Device -> DeviceContext
-	D2D1_FACTORY_OPTIONS options = {};
-#ifdef _DEBUG
-	options.debugLevel = D2D1_DEBUG_LEVEL_INFORMATION;
-#endif
-
+	// 4. D2D 팩토리 / 디바이스 생성 (dxgiDevice가 아직 살아있는 상태에서 사용)
 	hr = D2D1CreateFactory(
 		D2D1_FACTORY_TYPE_SINGLE_THREADED,
 		__uuidof(ID2D1Factory1),
-		&options,
-		reinterpret_cast<void**>(factory.GetAddressOf())
-	);
-	if (FAILED(hr)) return false;
-
-	hr = factory->CreateDevice(dxgiDevice.Get(), d2dDevice.GetAddressOf());
-	if (FAILED(hr)) return false;
-
-	hr = d2dDevice->CreateDeviceContext(
-		D2D1_DEVICE_CONTEXT_OPTIONS_NONE,
-		deviceContext.GetAddressOf()
-	);
-	if (FAILED(hr)) return false;
-
-	// 3. SwapChain back buffer -> D2D1Bitmap1 (bind as render target)
-	ComPtr<IDXGISurface> dxgiSurface;
-	hr = swapChain->GetBuffer(0, IID_PPV_ARGS(dxgiSurface.GetAddressOf()));
-	if (FAILED(hr)) return false;
-
-	D2D1_BITMAP_PROPERTIES1 bitmapProps = D2D1::BitmapProperties1(
-		D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
-		D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED)
+		nullptr,
+		reinterpret_cast<void**>(&m_factory)
 	);
 
-	hr = deviceContext->CreateBitmapFromDxgiSurface(
-		dxgiSurface.Get(),
-		&bitmapProps,
-		targetBitmap.GetAddressOf()
-	);
+	CHECK_HR(hr, L"D2D Factory 실패");
+	if (FAILED(hr))
+	{
+		factory->Release();
+		adapter->Release();
+		dxgiDevice->Release();
+		return false;
+	}
+
+	hr = m_factory->CreateDevice(dxgiDevice, &m_device);
+	CHECK_HR(hr, L"D2D Device 실패");
+	if (FAILED(hr))
+	{
+		factory->Release();
+		adapter->Release();
+		dxgiDevice->Release();
+		return false;
+	}
+
+	// 이제 dxgiDevice, adapter, factory 다 썼으니 해제
+	factory->Release();
+	adapter->Release();
+	dxgiDevice->Release();
+
+	// 5. D2D 디바이스 컨텍스트 생성
+	hr = m_device->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &m_deviceContext);
+	CHECK_HR(hr, L"D2D DeviceContext 실패");
 	if (FAILED(hr)) return false;
 
-	// Set DeviceContext's render target to the back buffer bitmap
-	deviceContext->SetTarget(targetBitmap.Get());
+	// 6. 스왑체인의 백버퍼로부터 타겟 비트맵 생성
+	IDXGISurface* surface = nullptr;
+	hr = m_swapChain->GetBuffer(0, IID_PPV_ARGS(&surface));
+	CHECK_HR(hr, L"SwapChain GetBuffer 실패");
+	if (FAILED(hr)) return false;
 
-	// 4. Create brush
-	hr = deviceContext->CreateSolidColorBrush(
-		D2D1::ColorF(0, 0, 0, 0),
-		brush.GetAddressOf()
+	D2D1_BITMAP_PROPERTIES1 prop =
+		D2D1::BitmapProperties1(
+			D2D1_BITMAP_OPTIONS_TARGET |
+			D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
+			D2D1::PixelFormat(
+				DXGI_FORMAT_B8G8R8A8_UNORM,
+				D2D1_ALPHA_MODE_PREMULTIPLIED
+			)
+		);
+
+	hr = m_deviceContext->CreateBitmapFromDxgiSurface(
+		surface,
+		&prop,
+		&m_targetBitmap
 	);
+	CHECK_HR(hr, L"Target Bitmap 생성 실패");
+	surface->Release();
+	if (FAILED(hr)) return false;
+
+	m_deviceContext->SetTarget(m_targetBitmap);
+
+	// 7. 브러시 생성
+	hr = m_deviceContext->CreateSolidColorBrush(
+		D2D1::ColorF(D2D1::ColorF::White),
+		&m_brush
+	);
+	CHECK_HR(hr, L"Brush 생성 실패");
 	if (FAILED(hr)) return false;
 
 	return true;
 }
 
-void Graphics::ClearScreen(float r, float g, float b)
+void Graphics::BeginRender()
 {
-	deviceContext->Clear(D2D1::ColorF(r, g, b));
+	m_deviceContext->BeginDraw();
 }
 
-void Graphics::DrawCircle(float x, float y, float radius, float r, float g, float b, float a)
+void Graphics::EndRender()
 {
-	brush->SetColor(D2D1::ColorF(r, g, b, a));
-	deviceContext->DrawEllipse(D2D1::Ellipse(D2D1::Point2F(x, y), radius, radius), brush.Get(), 3.0f);
+	m_deviceContext->EndDraw();
+	m_swapChain->Present(1, 0);
+}
+
+void Graphics::ClearScreen(float r, float g, float b)
+{
+	m_deviceContext->Clear(D2D1::ColorF(r, g, b));
+}
+
+//void Graphics::DrawCircle(float x, float y, float radius, float r, float g, float b, float a)
+//{
+//	brush->SetColor(D2D1::ColorF(r, g, b, a));
+//	deviceContext->DrawEllipse(D2D1::Ellipse(D2D1::Point2F(x, y), radius, radius), brush.Get(), 3.0f);
+//}
+void Graphics::Release()
+{
+	if (m_brush) { m_brush->Release(); m_brush = nullptr; }
+	if (m_targetBitmap) { m_targetBitmap->Release(); m_targetBitmap = nullptr; }
+	if (m_deviceContext) { m_deviceContext->Release(); m_deviceContext = nullptr; }
+	if (m_device) { m_device->Release(); m_device = nullptr; }
+	if (m_factory) { m_factory->Release(); m_factory = nullptr; }
+	if (m_swapChain) { m_swapChain->Release(); m_swapChain = nullptr; }
+	if (m_d3dContext) { m_d3dContext->Release(); m_d3dContext = nullptr; }
+	if (m_d3dDevice) { m_d3dDevice->Release(); m_d3dDevice = nullptr; }
 }

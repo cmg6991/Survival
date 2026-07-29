@@ -2,11 +2,12 @@
 #include "Singleton.h"
 #include "pch.h"
 #include "Vector2.h"
+#include "Graphics.h"
 
 class TileManager :public Singleton<TileManager>
 {
 public:
-	void Init(Bitmap* bitmap);
+	void Init(ID2D1DeviceContext* context);
 
 	MathEngine::Vector2 TileToScreen(const MathEngine::Vector2& tilePos);
 	MathEngine::Vector2 ScreenToTile(const MathEngine::Vector2& screenPos);

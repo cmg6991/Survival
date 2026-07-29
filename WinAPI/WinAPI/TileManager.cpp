@@ -1,9 +1,10 @@
 #include "TileManager.h"
 
-void TileManager::Init(Bitmap* bitmap)
+void TileManager::Init(ID2D1DeviceContext* context)
 {
-	m_tileWidth = bitmap->GetWidth();
-	m_tileHeight = bitmap->GetHeight();
+	D2D1_SIZE_U size = context->GetPixelSize();
+	m_tileWidth = size.width;
+	m_tileHeight = size.height;
 }
 
 MathEngine::Vector2 TileManager::TileToScreen(const MathEngine::Vector2& tilePos)

@@ -51,11 +51,11 @@ void Animator::PreRender()
 {
 }
 
-void Animator::Render(Graphics& graphics)
+void Animator::Render(ID2D1DeviceContext* context)
 {
 }
 
-void Animator::PostRender(HDC hdc)
+void Animator::PostRender(ID2D1DeviceContext* context)
 {
 }
 

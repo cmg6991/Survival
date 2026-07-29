@@ -18,8 +18,8 @@ public:
 	virtual void LateUpdate() override;
 
 	virtual void PreRender() override;
-	virtual void Render(Graphics& graphics) override;
-	virtual void PostRender(HDC hdc) override;
+	virtual void Render(ID2D1DeviceContext* context) override;
+	virtual void PostRender(ID2D1DeviceContext* context) override;
 
 	virtual void Release() override;
 
@@ -43,7 +43,7 @@ public:
 
 	void SetFlip(bool flip) { m_flip = flip; }
 
-	Bitmap* CreateFlip(Bitmap* src);
+	//Bitmap* CreateFlip(Bitmap* src);
 
 private:
 	string m_imageName;
@@ -54,13 +54,6 @@ private:
 
 	int m_width;
 	int m_height;
-
-//private:
-//	Bitmap* m_frames[5][6];
-//	Bitmap* m_flipFrames[5][6];
-//
-//	int m_row;
-//	int m_frame;
 
 private:
 	int m_srcX = 0;

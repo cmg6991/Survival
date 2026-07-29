@@ -19,10 +19,11 @@ SpriteRenderer::~SpriteRenderer()
 void SpriteRenderer::Init()
 {
     m_transform = static_cast<Transform*>(m_gameObject->GetElement(ElementType::Transform));
-    Gdiplus::Bitmap* bitmap = m_resourceManager->GetImage(m_imageName);
+    ID2D1Bitmap* bitmap = m_resourceManager->GetImage(m_imageName);
 
-    m_width = bitmap->GetWidth();
-    m_height = bitmap->GetHeight();
+    D2D1_SIZE_U size = bitmap->GetPixelSize();
+    m_width = size.width;
+    m_height = size.height;
 
     if (m_pivot.x < 0)
     {
@@ -76,7 +77,7 @@ void SpriteRenderer::PreRender()
 {
 }
 
-void SpriteRenderer::Render(Graphics& graphics)
+void SpriteRenderer::Render(ID2D1DeviceContext* context)
 {
     int TILE_W = TileManager::GetInstance().GetTileWidth();
     int TILE_H = TileManager::GetInstance().GetTileHeight();
@@ -88,53 +89,62 @@ void SpriteRenderer::Render(Graphics& graphics)
 
     screenY += TILE_H / 2;
 
-    Gdiplus::Bitmap* bitmap = m_resourceManager->GetImage(m_imageName);
+    ID2D1Bitmap* bitmap = m_resourceManager->GetImage(m_imageName);
+
+    D2D1_RECT_F destRect = D2D1::RectF(
+        screenX - (int)m_pivot.x, screenY - (int)m_pivot.y,
+        m_frameWidth,
+        m_frameHeight
+    );
+
+    context->DrawBitmap(bitmap, destRect);
+
     ////DrawBitmap(graphics,bitmap,screenX - (int)m_pivot.x, screenY - (int)m_pivot.y);
     //DrawBitmap(hdc, bitmap,screenX - (int)m_pivot.x,screenY - (int)m_pivot.y);
     //Ellipse(hdc, screenX-10, screenY-10, screenX + 10, screenY + 10);
 
-    Rect src( m_srcX,m_srcY, m_frameWidth, m_frameHeight);
+    //Rect src( m_srcX,m_srcY, m_frameWidth, m_frameHeight);
 
-    //Rect dst(screenX - (int)m_pivot.x, screenY - (int)m_pivot.y,m_frameWidth,m_frameHeight);
-    //graphics.DrawImage( bitmap, dst, src.X, src.Y,src.Width, src.Height,UnitPixel);
+    ////Rect dst(screenX - (int)m_pivot.x, screenY - (int)m_pivot.y,m_frameWidth,m_frameHeight);
+    ////graphics.DrawImage( bitmap, dst, src.X, src.Y,src.Width, src.Height,UnitPixel);
 
-    if (!m_flip)
-    {
-        Rect dst(
-            screenX - (int)m_pivot.x,
-            screenY - (int)m_pivot.y,
-            m_frameWidth,
-            m_frameHeight);
+    //if (!m_flip)
+    //{
+    //    Rect dst(
+    //        screenX - (int)m_pivot.x,
+    //        screenY - (int)m_pivot.y,
+    //        m_frameWidth,
+    //        m_frameHeight);
 
-        graphics.DrawImage(
-            bitmap,
-            dst,
-            src.X,
-            src.Y,
-            src.Width,
-            src.Height,
-            UnitPixel);
-    }
-    else
-    {
-        Rect dst(
-            screenX + (int)m_pivot.x,
-            screenY - (int)m_pivot.y,
-            -m_frameWidth,      // 음수!
-            m_frameHeight);
+    //    graphics.DrawImage(
+    //        bitmap,
+    //        dst,
+    //        src.X,
+    //        src.Y,
+    //        src.Width,
+    //        src.Height,
+    //        UnitPixel);
+    //}
+    //else
+    //{
+    //    Rect dst(
+    //        screenX + (int)m_pivot.x,
+    //        screenY - (int)m_pivot.y,
+    //        -m_frameWidth,      // 음수!
+    //        m_frameHeight);
 
-        graphics.DrawImage(
-            bitmap,
-            dst,
-            src.X,
-            src.Y,
-            src.Width,
-            src.Height,
-            UnitPixel);
-    }
+    //    graphics.DrawImage(
+    //        bitmap,
+    //        dst,
+    //        src.X,
+    //        src.Y,
+    //        src.Width,
+    //        src.Height,
+    //        UnitPixel);
+    //}
 }
 
-void SpriteRenderer::PostRender(HDC hdc)
+void SpriteRenderer::PostRender(ID2D1DeviceContext* context)
 {
 }
 
@@ -157,16 +167,16 @@ void SpriteRenderer::SetGameObject(GameObject* gameObject)
     m_gameObject = gameObject;
 }
 
-Bitmap* SpriteRenderer::CreateFlip(Bitmap* src)
-{
-    Bitmap* flip = new Bitmap(src->GetWidth(),src->GetHeight(),PixelFormat32bppARGB);
-
-    Graphics g(flip);
-
-    g.TranslateTransform((REAL)src->GetWidth(), 0);
-    g.ScaleTransform(-1, 1);
-
-    g.DrawImage(src, 0, 0);
-
-    return flip;
-}
+//Bitmap* SpriteRenderer::CreateFlip(Bitmap* src)
+//{
+//    Bitmap* flip = new Bitmap(src->GetWidth(),src->GetHeight(),PixelFormat32bppARGB);
+//
+//    Graphics g(flip);
+//
+//    g.TranslateTransform((REAL)src->GetWidth(), 0);
+//    g.ScaleTransform(-1, 1);
+//
+//    g.DrawImage(src, 0, 0);
+//
+//    return flip;
+//}
