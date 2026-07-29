@@ -11,6 +11,10 @@
 *.gch
 *.pch
 
+# Visual Studio 임시 파일
+*.ipch
+.vs/
+
 # Linker files
 *.ilk
 
