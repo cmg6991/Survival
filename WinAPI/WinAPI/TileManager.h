@@ -7,7 +7,7 @@
 class TileManager :public Singleton<TileManager>
 {
 public:
-	void Init(ID2D1DeviceContext* context);
+	void Init(ID2D1Bitmap* tileImage);
 
 	MathEngine::Vector2 TileToScreen(const MathEngine::Vector2& tilePos);
 	MathEngine::Vector2 ScreenToTile(const MathEngine::Vector2& screenPos);

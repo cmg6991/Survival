@@ -22,6 +22,17 @@ void GameObject::Init()
 	}
 }
 
+void GameObject::FixedUpdate()
+{
+	for (int i = 0; i < (int)ElementType::End; i++)
+	{
+		if (m_elements[i] != nullptr)
+		{
+			m_elements[i]->FixedUpdate();
+		}
+	}
+}
+
 void GameObject::Update(float deltaTime)
 {
 	if (m_isActive)

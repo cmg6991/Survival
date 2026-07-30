@@ -79,7 +79,7 @@ void SpriteRenderer::PreRender()
 
 void SpriteRenderer::Render(ID2D1DeviceContext* context)
 {
-    int TILE_W = TileManager::GetInstance().GetTileWidth();
+    /*int TILE_W = TileManager::GetInstance().GetTileWidth();
     int TILE_H = TileManager::GetInstance().GetTileHeight();
 
     MathEngine::Vector2 screen = TileManager::GetInstance().TileToScreen(m_transform->GetPostion());
@@ -97,7 +97,7 @@ void SpriteRenderer::Render(ID2D1DeviceContext* context)
         m_frameHeight
     );
 
-    context->DrawBitmap(bitmap, destRect);
+    context->DrawBitmap(bitmap, destRect);*/
 
     ////DrawBitmap(graphics,bitmap,screenX - (int)m_pivot.x, screenY - (int)m_pivot.y);
     //DrawBitmap(hdc, bitmap,screenX - (int)m_pivot.x,screenY - (int)m_pivot.y);
@@ -142,6 +142,70 @@ void SpriteRenderer::Render(ID2D1DeviceContext* context)
     //        src.Height,
     //        UnitPixel);
     //}
+
+    int TILE_W = TileManager::GetInstance().GetTileWidth();
+    int TILE_H = TileManager::GetInstance().GetTileHeight();
+
+    MathEngine::Vector2 screen = TileManager::GetInstance().TileToScreen(m_transform->GetPostion());
+
+    float screenX = screen.x - CameraManager::GetInstance().GetX();
+    float screenY = screen.y - CameraManager::GetInstance().GetY();
+
+    screenY += TILE_H / 2.0f;
+
+    ID2D1Bitmap* bitmap = m_resourceManager->GetImage(m_imageName);
+    if (bitmap == nullptr) return;
+
+    float left = screenX - m_pivot.x;
+    float top = screenY - m_pivot.y;
+
+    D2D1_RECT_F destRect = D2D1::RectF(
+        left,
+        top,
+        left + m_frameWidth,   // right = left + width
+        top + m_frameHeight    // bottom = top + height
+    );
+
+    D2D1_RECT_F srcRect = D2D1::RectF(
+        (float)m_srcX,
+        (float)m_srcY,
+        (float)(m_srcX + m_frameWidth),
+        (float)(m_srcY + m_frameHeight)
+    );
+
+    if (!m_flip)
+    {
+        context->DrawBitmap(
+            bitmap,
+            destRect,
+            1.0f,
+            D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR,
+            srcRect
+        );
+    }
+    else
+    {
+        D2D1_MATRIX_3X2_F oldTransform;
+        context->GetTransform(&oldTransform);
+
+        float centerX = (destRect.left + destRect.right) * 0.5f;
+        float centerY = (destRect.top + destRect.bottom) * 0.5f;
+
+        D2D1_MATRIX_3X2_F flipMatrix =
+            D2D1::Matrix3x2F::Scale(-1.0f, 1.0f, D2D1::Point2F(centerX, centerY)) * oldTransform;
+
+        context->SetTransform(flipMatrix);
+
+        context->DrawBitmap(
+            bitmap,
+            destRect,
+            1.0f,
+            D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR,
+            srcRect
+        );
+
+        context->SetTransform(oldTransform);
+    }
 }
 
 void SpriteRenderer::PostRender(ID2D1DeviceContext* context)

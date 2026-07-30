@@ -1,5 +1,6 @@
 #pragma once
 #include "pch.h"
+#include "Graphics.h"
 
 class CollisionManager
 {
@@ -13,7 +14,7 @@ public:
 	void SetBlocked(int x, int y, bool blocked);
 
 
-	//void RenderDebug(ID2D1DeviceContext* context);
+	void RenderDebug(ID2D1DeviceContext* context);
 
 private:
 	static const int WIDTH = 100;

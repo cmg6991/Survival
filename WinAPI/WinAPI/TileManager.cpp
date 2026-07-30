@@ -1,8 +1,8 @@
 #include "TileManager.h"
 
-void TileManager::Init(ID2D1DeviceContext* context)
+void TileManager::Init(ID2D1Bitmap* tileImage)
 {
-	D2D1_SIZE_U size = context->GetPixelSize();
+	D2D1_SIZE_U size = tileImage->GetPixelSize();
 	m_tileWidth = size.width;
 	m_tileHeight = size.height;
 }

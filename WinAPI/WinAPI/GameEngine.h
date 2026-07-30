@@ -4,11 +4,8 @@
 #include "GameObject.h"
 #include "Graphics.h"
 
-class TileMap;
-class Player;
+class SceneManager;
 class ResourceManager;
-class CollisionManager;
-class Tree;
 
 class GameEngine
 {
@@ -21,15 +18,12 @@ public:
 	void Render(ID2D1DeviceContext* context);
 	void Release();
 
-	void CreateWall(float x, float y, const string& imageName);
+	//void CreateWall(float x, float y, const string& imageName);
 
 private:
-	TileMap* m_tileMap;
-	Player* m_player;
 	ResourceManager* m_resourceManager;
-	CollisionManager* m_collisionManager;
-	Tree* m_tree;
-	
-	vector<GameObject*> m_objects;
+	SceneManager* m_sceneManager;
+
+	//vector<GameObject*> m_objects;
 };
 
