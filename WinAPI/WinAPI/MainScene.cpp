@@ -34,7 +34,7 @@ void MainScene::Init()
 	m_resourceManager->AddImage("Wall_N", "Resource/castle_wall(7).png");
 	m_resourceManager->AddImage("Wall_S", "Resource/castle_wall(7).png");
 	m_resourceManager->AddImage("Wall_W", "Resource/castle_wall(7).png");
-	m_resourceManager->AddImage("Tile_W", "Resource/Tile1.png");
+	m_resourceManager->AddImage("Tile_W", "Resource/tile.png");
 	GameObject* playerObj = new GameObject("Player");
 
 	Transform* tr = new Transform();
