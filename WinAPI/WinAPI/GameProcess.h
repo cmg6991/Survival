@@ -33,5 +33,7 @@ private:
 	float m_x;
 	float m_y;
 
+	float m_deltaTime = 0.0f;
+
 	GameEngine* m_gameEngine;
 };

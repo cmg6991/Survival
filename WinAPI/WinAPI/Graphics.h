@@ -35,6 +35,8 @@ public:
 		return m_deviceContext;
 	}
 
+	void DrawString(const wchar_t* text, float x, float y);
+
 private:
 	Graphics();
 	~Graphics();
@@ -65,6 +67,10 @@ private:
 
 
 	ID2D1SolidColorBrush* m_brush;
+
+private:
+	IDWriteFactory* m_writeFactory;
+	IDWriteTextFormat* m_textFormat;
 
 private:
 

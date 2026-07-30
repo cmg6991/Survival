@@ -14,7 +14,7 @@ public:
 	~GameEngine();
 
 	void Init(const HWND hwnd);
-	void Update();
+	void Update(float deltaTime);
 	void Render(ID2D1DeviceContext* context);
 	void Release();
 

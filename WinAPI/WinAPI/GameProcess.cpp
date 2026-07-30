@@ -45,6 +45,7 @@ void GameProcess::Loop()
 	using namespace std::chrono;
 
 	auto prevTime = steady_clock::now();
+	auto fpsTime = steady_clock::now();
 	auto frameStart = steady_clock::now();
 
 	int frameCount = 0;
@@ -53,6 +54,10 @@ void GameProcess::Loop()
 
 	while (true)
 	{
+		auto currentTime = steady_clock::now();
+
+		m_deltaTime = duration<float>(currentTime - prevTime).count();
+		prevTime = currentTime;
 		// Update
 		windowsMessage = m_winInit->ProcessMessage();
 
@@ -70,18 +75,15 @@ void GameProcess::Loop()
 
 		frameCount++;
 
-		auto currentTime = steady_clock::now();
-
-		float elapsed = duration<float>(currentTime - prevTime).count();
+		float elapsed = duration<float>(currentTime - fpsTime).count();
 
 		if (elapsed >= 1.0f)
 		{
 			fps = frameCount / elapsed;
 
 			frameCount = 0;
-			prevTime = currentTime;
+			fpsTime = currentTime;
 		}
-
 
 		// Frame Time °è»ê
 		auto frameEnd = steady_clock::now();
@@ -96,9 +98,10 @@ void GameProcess::Loop()
 
 		swprintf_s(
 			title,
-			L"FPS : %.1f | Frame : %.3f ms",
+			L"FPS : %.1f | Frame : %.3f ms | Delta:%.5f",
 			fps,
-			frameTime
+			frameTime,
+			m_deltaTime
 		);
 
 		SetWindowText(m_hWnd, title);
@@ -124,7 +127,7 @@ void GameProcess::FixedUpdate()
 
 void GameProcess::Update()
 {
-	m_gameEngine->Update();
+	m_gameEngine->Update(m_deltaTime);
 }
 
 void GameProcess::LateUpdate()

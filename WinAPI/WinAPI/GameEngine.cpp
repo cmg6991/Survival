@@ -7,6 +7,7 @@
 #include "CollisionManager.h"
 #include "TileManager.h"
 #include "SceneManager.h"
+#include "TimeManager.h"
 
 #include "Animator.h"
 #include "TileMap.h"
@@ -37,6 +38,7 @@ void GameEngine::Init(const HWND hwnd)
 {
 	InputManager::GetInstance().Init(hwnd);
 	CameraManager::GetInstance().Init();
+	TimeManager::GetInstance().Init();
 	m_resourceManager->Init();
 	m_sceneManager->Init(m_resourceManager);
 
@@ -99,7 +101,7 @@ void GameEngine::Init(const HWND hwnd)
 	//}
 }
 
-void GameEngine::Update()
+void GameEngine::Update(float deltaTime)
 {
 	/*InputManager::GetInstance().Update();
 
@@ -109,7 +111,8 @@ void GameEngine::Update()
 	}
 
 	CameraManager::GetInstance().Follow(m_player->GetTransform());*/
-	m_sceneManager->Update(0.016f);
+	TimeManager::GetInstance().Update(deltaTime);
+	m_sceneManager->Update(deltaTime);
 	m_sceneManager->LateUpdate();
 }
 
@@ -136,6 +139,25 @@ void GameEngine::Render(ID2D1DeviceContext* context)
 	m_sceneManager->PreRender();
 	m_sceneManager->Render(context);
 	m_sceneManager->PostRender(context);
+	int day =
+		TimeManager::GetInstance().GetDay();
+
+	int hour =
+		TimeManager::GetInstance().GetHour();
+
+	int minute =
+		TimeManager::GetInstance().GetMinute();
+
+	wchar_t text[100];
+	swprintf_s(
+		text,
+		L"Day %d  %02d:%02d   [%s]",
+		day,
+		hour,
+		minute,
+		TimeManager::GetInstance().GetPhaseString()
+	);
+	GRAPHICS.DrawString(text,20,20);
 }
 
 void GameEngine::Release()

@@ -11,6 +11,8 @@ Graphics::Graphics()
 	m_deviceContext = nullptr;
 	m_targetBitmap = nullptr;
 	m_brush = nullptr;
+	m_textFormat = nullptr;
+	m_writeFactory = nullptr;
 }
 
 Graphics::~Graphics()
@@ -176,6 +178,29 @@ if(FAILED(hr))\
 	CHECK_HR(hr, L"Brush 생성 실패");
 	if (FAILED(hr)) return false;
 
+	hr = DWriteCreateFactory(
+		DWRITE_FACTORY_TYPE_SHARED,
+		__uuidof(IDWriteFactory),
+		reinterpret_cast<IUnknown**>(&m_writeFactory)
+	);
+
+	CHECK_HR(hr, L"DirectWrite Factory 생성 실패");
+	if (FAILED(hr)) return false;
+
+	hr = m_writeFactory->CreateTextFormat(
+		L"맑은 고딕",
+		nullptr,
+		DWRITE_FONT_WEIGHT_NORMAL,
+		DWRITE_FONT_STYLE_NORMAL,
+		DWRITE_FONT_STRETCH_NORMAL,
+		24.0f,
+		L"",
+		&m_textFormat
+	);
+
+	CHECK_HR(hr, L"TextFormat 생성 실패");
+	if (FAILED(hr)) return false;
+
 	return true;
 }
 
@@ -200,8 +225,38 @@ void Graphics::ClearScreen(float r, float g, float b)
 //	brush->SetColor(D2D1::ColorF(r, g, b, a));
 //	deviceContext->DrawEllipse(D2D1::Ellipse(D2D1::Point2F(x, y), radius, radius), brush.Get(), 3.0f);
 //}
+
+void Graphics::DrawString(const wchar_t* text, float x, float y)
+{
+	m_deviceContext->DrawTextW(
+		text,
+		wcslen(text),
+		m_textFormat,
+		D2D1::RectF(
+			x,
+			y,
+			500,
+			50
+		),
+		m_brush
+	);
+}
+
+
 void Graphics::Release()
 {
+	if (m_textFormat)
+	{
+		m_textFormat->Release();
+		m_textFormat = nullptr;
+	}
+
+
+	if (m_writeFactory)
+	{
+		m_writeFactory->Release();
+		m_writeFactory = nullptr;
+	}
 	if (m_brush) { m_brush->Release(); m_brush = nullptr; }
 	if (m_targetBitmap) { m_targetBitmap->Release(); m_targetBitmap = nullptr; }
 	if (m_deviceContext) { m_deviceContext->Release(); m_deviceContext = nullptr; }

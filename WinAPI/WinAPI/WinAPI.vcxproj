@@ -148,6 +148,7 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TileManager.h" />
     <ClInclude Include="TileMap.h" />
+    <ClInclude Include="TimeManager.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="Tree.h" />
     <ClInclude Include="Vector2.h" />
@@ -173,6 +174,7 @@
     <ClCompile Include="SpriteRenderer.cpp" />
     <ClCompile Include="TileManager.cpp" />
     <ClCompile Include="TileMap.cpp" />
+    <ClCompile Include="TimeManager.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="Tree.cpp" />
     <ClCompile Include="Vector2.cpp" />
