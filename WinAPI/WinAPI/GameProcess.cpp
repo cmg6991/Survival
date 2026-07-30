@@ -3,6 +3,7 @@
 #include "CameraManager.h"
 #include "GameEngine.h"
 #include "Graphics.h"
+#include <chrono>
 
 GameProcess::GameProcess() 
 	: m_hWnd(NULL), m_winInit(nullptr),m_x(500),m_y(500),m_gameEngine(nullptr)/*m_hdc(NULL),m_hBitmap(NULL)*/
@@ -40,6 +41,16 @@ void GameProcess::Init(HINSTANCE hInstance)
 void GameProcess::Loop()
 {
 	MSG windowsMessage = {};
+
+	using namespace std::chrono;
+
+	auto prevTime = steady_clock::now();
+	auto frameStart = steady_clock::now();
+
+	int frameCount = 0;
+	float fps = 0.0f;
+	float frameTime = 0.0f;
+
 	while (true)
 	{
 		// Update
@@ -56,6 +67,41 @@ void GameProcess::Loop()
 		PreRender();
 		Render();
 		PostRender();
+
+		frameCount++;
+
+		auto currentTime = steady_clock::now();
+
+		float elapsed = duration<float>(currentTime - prevTime).count();
+
+		if (elapsed >= 1.0f)
+		{
+			fps = frameCount / elapsed;
+
+			frameCount = 0;
+			prevTime = currentTime;
+		}
+
+
+		// Frame Time 계산
+		auto frameEnd = steady_clock::now();
+
+		frameTime = duration<float, milli>(frameEnd - frameStart).count();
+
+		frameStart = frameEnd;
+
+
+		// 표시
+		wchar_t title[128];
+
+		swprintf_s(
+			title,
+			L"FPS : %.1f | Frame : %.3f ms",
+			fps,
+			frameTime
+		);
+
+		SetWindowText(m_hWnd, title);
 
 		LateUpdate();
 	}
