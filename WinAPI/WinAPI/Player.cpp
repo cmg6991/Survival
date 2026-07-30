@@ -16,7 +16,7 @@ using namespace std;
 
 Player::Player() 
     : m_transform(nullptr), m_targetPos(0), 
-    m_moveSpeed(20.f), m_tileMap(nullptr), m_collisionManager(nullptr),m_animator(nullptr),m_sprite(nullptr)
+    m_moveSpeed(10.f), m_tileMap(nullptr), m_collisionManager(nullptr),m_animator(nullptr),m_sprite(nullptr)
 {
 }
 
@@ -40,22 +40,33 @@ void Player::FixedUpdate()
 
 void Player::Update(float deltaTime)
 {
-    if (InputManager::GetInstance().IsGetKeyDown('A'))
-        m_targetPos.x--;
+    MathEngine::Vector2 current = m_transform->GetPostion();
 
-    if (InputManager::GetInstance().IsGetKeyDown('D'))
-        m_targetPos.x++;
+    MathEngine::Vector2 freeDir = { 0,0 };
 
-    if (InputManager::GetInstance().IsGetKeyDown('W'))
-        m_targetPos.y--;
+    if (InputManager::GetInstance().IsGetKey('A'))
+        freeDir.x--;
 
-    if (InputManager::GetInstance().IsGetKeyDown('S'))
-        m_targetPos.y++;
+    if (InputManager::GetInstance().IsGetKey('D'))
+        freeDir.x++;
+
+    if (InputManager::GetInstance().IsGetKey('W'))
+        freeDir.y--;
+
+    if (InputManager::GetInstance().IsGetKey('S'))
+        freeDir.y++;
+
+    bool isKeyMoving = (freeDir.Magnitude() > 0.001f);
+
+    if (isKeyMoving)
+    {
+        m_isAutoMoving = false;
+        m_targetPos = current; // 목표점 개념을 현재 위치로 리셋해서 자동이동 잔재 제거
+    }
 
     // 마우스 좌클릭 이동
     if (InputManager::GetInstance().IsGetKeyDown(VK_LBUTTON))
     {
-        m_debugTarget = m_targetPos;
         MathEngine::Vector2 mousePos = InputManager::GetInstance().GetMousePosition();
 
         MathEngine::Vector2 world =
@@ -73,10 +84,42 @@ void Player::Update(float deltaTime)
         {
             m_targetPos.x = tileX;
             m_targetPos.y = tileY;
+            m_isAutoMoving = true;
         }
     }
-    MathEngine::Vector2 current = m_transform->GetPostion();
-    MathEngine::Vector2 dir =m_targetPos - current;
+
+    MathEngine::Vector2 dir = { 0, 0 };
+    MathEngine::Vector2 nextPos = current;
+
+    if (m_isAutoMoving)
+    {
+        // 기존 방식: 목표점까지 부드럽게 자동 이동
+        dir = m_targetPos - current;
+        float dist = dir.Magnitude();
+
+        if (dist > 0.001f)
+        {
+            dir = dir.Normalize();
+            float moveAmount = m_moveSpeed * deltaTime;
+
+            if (moveAmount >= dist)
+                nextPos = m_targetPos;
+            else
+                nextPos = current + dir * moveAmount;
+        }
+        else
+        {
+            m_isAutoMoving = false; // 도착하면 자동이동 종료
+        }
+    }
+    else if (isKeyMoving)
+    {
+        // 새 방식: 키 입력 방향으로 즉시 이동, 떼면 즉시 멈춤
+        dir = freeDir.Normalize();
+        nextPos = current + dir * m_moveSpeed * deltaTime;
+    }
+
+    //MathEngine::Vector2 dir =m_targetPos - current;
 
     int dx = 0;
     int dy = 0;
@@ -139,39 +182,56 @@ void Player::Update(float deltaTime)
         m_sprite->SetFlip(true);
     }
 
-    float dist = dir.Magnitude();
+    //float dist = dir.Magnitude();
 
-    if (dist > 0.001f)
+    //if (dist > 0.001f)
+    //{
+    //    dir = dir.Normalize();
+
+    //    float moveAmount = m_moveSpeed * deltaTime;
+
+    //    MathEngine::Vector2 nextPos;
+
+    //    if (moveAmount >= dist)
+    //    {
+    //        nextPos = m_targetPos;
+    //    }
+    //    else
+    //    {
+    //        nextPos = current + dir * moveAmount;
+    //    }
+
+    //    // 이동하려는 위치의 타일 계산
+    //    int tileX = (int)round(nextPos.x);
+    //    int tileY = (int)round(nextPos.y);
+
+    //    // 벽이 아니면 이동
+    //    if (!m_collisionManager->IsBlocked(tileX, tileY))
+    //    {
+    //        current = nextPos;
+    //        m_transform->SetPosition(current);
+    //    }
+    //    else
+    //    {
+    //        // 벽에 닿았으면 이동 중지
+    //        m_targetPos = current;
+    //    }
+    //}
+        // 실제 이동 (충돌 체크 후 적용)
+    if (isKeyMoving || m_isAutoMoving)
     {
-        dir = dir.Normalize();
-
-        float moveAmount = m_moveSpeed * deltaTime;
-
-        MathEngine::Vector2 nextPos;
-
-        if (moveAmount >= dist)
-        {
-            nextPos = m_targetPos;
-        }
-        else
-        {
-            nextPos = current + dir * moveAmount;
-        }
-
-        // 이동하려는 위치의 타일 계산
         int tileX = (int)round(nextPos.x);
         int tileY = (int)round(nextPos.y);
 
-        // 벽이 아니면 이동
         if (!m_collisionManager->IsBlocked(tileX, tileY))
         {
             current = nextPos;
             m_transform->SetPosition(current);
         }
-        else
+        else if (m_isAutoMoving)
         {
-            // 벽에 닿았으면 이동 중지
-            m_targetPos = current;
+            m_targetPos = current; // 자동이동 중 벽 만나면 멈춤
+            m_isAutoMoving = false;
         }
     }
 }

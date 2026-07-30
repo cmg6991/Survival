@@ -47,6 +47,7 @@ void MainScene::Init()
 	SpriteRenderer* sprite = new SpriteRenderer("Player");
 	Animator* animator = new Animator();
 	sprite->SetPivot(230, 370);
+	sprite->SetScale(0.3f);
 	player->SetTileMap(m_tileMap);
 	player->SetCollisionManager(m_collisionManager);
 	playerObj->SetElement(tr, ElementType::Transform);

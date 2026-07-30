@@ -40,6 +40,9 @@ public:
 	void SetCollisionManager(CollisionManager* collisionManager) { m_collisionManager = collisionManager; }
 
 private:
+	bool m_isAutoMoving = false;
+
+private:
 	Transform* m_transform;
 	float m_moveSpeed;
 	MathEngine::Vector2 m_targetPos;

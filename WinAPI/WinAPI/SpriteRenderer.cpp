@@ -156,14 +156,19 @@ void SpriteRenderer::Render(ID2D1DeviceContext* context)
     ID2D1Bitmap* bitmap = m_resourceManager->GetImage(m_imageName);
     if (bitmap == nullptr) return;
 
-    float left = screenX - m_pivot.x;
-    float top = screenY - m_pivot.y;
+    float scaledWidth = m_frameWidth * m_scale;
+    float scaledHeight = m_frameHeight * m_scale;
+    float scaledPivotX = m_pivot.x * m_scale;
+    float scaledPivotY = m_pivot.y * m_scale;
+
+    float left = screenX - scaledPivotX;
+    float top = screenY - scaledPivotY;
 
     D2D1_RECT_F destRect = D2D1::RectF(
         left,
         top,
-        left + m_frameWidth,   // right = left + width
-        top + m_frameHeight    // bottom = top + height
+        left + scaledWidth,   // right = left + width
+        top + scaledHeight    // bottom = top + height
     );
 
     D2D1_RECT_F srcRect = D2D1::RectF(

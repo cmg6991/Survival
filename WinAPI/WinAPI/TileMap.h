@@ -29,8 +29,8 @@ public:
     bool IsWall(int tileX, int tileY);
 
 private:
-    static const int WIDTH = 20;
-    static const int HEIGHT = 20;
+    static const int WIDTH = 100;
+    static const int HEIGHT = 100;
 
     Tile m_tiles[HEIGHT][WIDTH];
 };

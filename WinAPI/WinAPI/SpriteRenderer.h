@@ -30,6 +30,7 @@ public:
 
 	void SetResourceManager(ResourceManager* resourceManager) {m_resourceManager = resourceManager; }
 	void SetPivot(float x, float y) { m_pivot.x = x, m_pivot.y = y; }
+	void SetScale(float scale) { m_scale = scale; }
 
 	void SetFrameRect(int srcX, int srcY, int frameWidth, int frameHeight)
 	{
@@ -61,4 +62,5 @@ private:
 	int m_frameWidth = 0;
 	int m_frameHeight = 0;
 	bool m_flip = false;
+	float m_scale = 1.0f;
 };
