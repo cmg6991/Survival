@@ -8,6 +8,7 @@
 #include "TileManager.h"
 #include "SceneManager.h"
 #include "TimeManager.h"
+#include "DataManager.h"
 
 #include "Animator.h"
 #include "TileMap.h"
@@ -39,6 +40,7 @@ void GameEngine::Init(const HWND hwnd)
 	InputManager::GetInstance().Init(hwnd);
 	CameraManager::GetInstance().Init();
 	TimeManager::GetInstance().Init();
+	DataManager::GetInstance().Init();
 	m_resourceManager->Init();
 	m_sceneManager->Init(m_resourceManager);
 

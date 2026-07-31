@@ -5,6 +5,9 @@
 #include "CollisionManager.h"
 #include "InputManager.h"
 #include "CameraManager.h"
+#include "DataManager.h"
+#include "TimeManager.h"
+#include "SaveManager.h"
 
 #include "Player.h"
 #include "GameObject.h"
@@ -29,19 +32,19 @@ void MainScene::Init()
 {
 	m_tileMap->Init();
 	m_resourceManager->Init();
-	m_resourceManager->AddImage("Player", "Resource/Character0_Walk.png");
-	m_resourceManager->AddImage("Wall_E", "Resource/castle_wall(7).png");
-	m_resourceManager->AddImage("Wall_N", "Resource/castle_wall(7).png");
-	m_resourceManager->AddImage("Wall_S", "Resource/castle_wall(7).png");
-	m_resourceManager->AddImage("Wall_W", "Resource/castle_wall(7).png");
-	m_resourceManager->AddImage("Tile_W", "Resource/tile.png");
+
+	for (const ImageData& img : DataManager::GetInstance().GetImageList())
+	{
+		m_resourceManager->AddImage(img.keyString, img.path);
+	}
+
 	GameObject* playerObj = new GameObject("Player");
 
 	Transform* tr = new Transform();
 
 	//tr->SetPosition(8.5);
-	tr->SetFloatX(10);
-	tr->SetFloatY(5);
+	//tr->SetFloatX(10);
+	//tr->SetFloatY(5);
 
 	Player* player = new Player();
 	SpriteRenderer* sprite = new SpriteRenderer("Player");
@@ -59,23 +62,27 @@ void MainScene::Init()
 	m_objects.push_back(playerObj);
 	m_player = player;
 
-	for (int x = 1; x <= 20; x++)
+	LoadMap(DataManager::GetInstance().GetMap("MainMap"));
+
+	TimeManager::GetInstance().Init();
+
+	if (SaveManager::HasSaveFile())
 	{
-		CreateWall(x, 1, "Wall_N");
+		SaveData data;
+		SaveManager::Load(data);
+
+		Transform* playerTr = static_cast<Transform*>(m_player->GetGameObject()->GetElement(ElementType::Transform));
+		playerTr->SetPosition({ data.playerX, data.playerY });
+
+		TimeManager::GetInstance().SetTime(data.day, data.hour, data.minute);
+
+		//m_waveManager->StartWave(data.currentWave);
+	}
+	else
+	{
+		//m_waveManager->StartWave(1);
 	}
 
-	for (int x = 1; x <= 20; x++)
-	{
-		CreateWall(x, 20, "Wall_S");
-	}
-	for (int y = 2; y < 20; y++)
-	{
-		CreateWall(1, y, "Wall_W");
-	}
-	for (int y = 2; y < 20; y++)
-	{
-		CreateWall(20, y, "Wall_E");
-	}
 }
 
 void MainScene::FixedUpdate()
@@ -114,6 +121,8 @@ void MainScene::PostRender(ID2D1DeviceContext* context)
 
 void MainScene::Release()
 {
+	SaveGame();
+
 	delete m_tileMap;
 	m_tileMap = nullptr;
 
@@ -121,6 +130,24 @@ void MainScene::Release()
 	m_collisionManager = nullptr;
 
 	Scene::Release();
+}
+
+void MainScene::SaveGame()
+{
+	OutputDebugStringA("=== SaveGame È£ÃâµÊ ===\n");
+	SaveData data;
+
+	Transform* playerTr = static_cast<Transform*>(m_player->GetGameObject()->GetElement(ElementType::Transform));
+	data.playerX = playerTr->GetPostion().x;
+	data.playerY = playerTr->GetPostion().y;
+
+	data.day = TimeManager::GetInstance().GetDay();
+	data.hour = TimeManager::GetInstance().GetHour();
+	data.minute = TimeManager::GetInstance().GetMinute();
+
+	//data.currentWave = m_waveManager->GetCurrentWave();
+
+	SaveManager::Save(data);
 }
 
 void MainScene::CreateWall(float x, float y, const string& imageName)
@@ -140,4 +167,33 @@ void MainScene::CreateWall(float x, float y, const string& imageName)
 	wallObj->Init();
 
 	m_collisionManager->SetBlocked(x, y, true);
+}
+
+void MainScene::LoadMap(const vector<string>& mapData)
+{
+	for (int y = 0; y < (int)mapData.size(); y++)
+	{
+		const string& row = mapData[y];
+		for (int x = 0; x < (int)row.size(); x++)
+		{
+			char tile = row[x];
+
+			if (tile == '#')
+			{
+				string wallImage = "Wall_N";
+				if (y == 0) wallImage = "Wall_N";
+				else if (y == (int)mapData.size() - 1) wallImage = "Wall_S";
+				else if (x == 0) wallImage = "Wall_W";
+				else if (x == (int)row.size() - 1) wallImage = "Wall_E";
+
+				CreateWall((float)x, (float)y, wallImage);
+			}
+			else if (tile == 'P')
+			{
+				Transform* playerTr = static_cast<Transform*>(m_player->GetGameObject()->GetElement(ElementType::Transform));
+				playerTr->SetFloatX((float)x);
+				playerTr->SetFloatY((float)y);
+			}
+		}
+	}
 }

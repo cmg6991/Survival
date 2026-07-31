@@ -23,9 +23,12 @@ public:
 	void PostRender(ID2D1DeviceContext* context) override;
 
 	void Release() override;
+	void SaveGame();
 
 private:
 	void CreateWall(float x, float y, const string& imageName);
+	void LoadMap(const vector<string>& mapData);
+
 private:
 	TileMap* m_tileMap;
 	ResourceManager* m_resourceManager;

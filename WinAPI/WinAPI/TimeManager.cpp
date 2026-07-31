@@ -26,9 +26,9 @@ void TimeManager::Update(float deltaTime)
 
     // 현실 60초 = 게임 10분
 
-    if (m_gameMinuteTimer >= 60.0f)
+    if (m_gameMinuteTimer >=10.0f)
     {
-        m_gameMinuteTimer -= 60.0f;
+        m_gameMinuteTimer -= 10.0f;
         // 게임 시간 10분 증가
         m_minute += 10;
     }
@@ -82,25 +82,19 @@ bool TimeManager::IsNight() const
 
 TimePhase TimeManager::GetTimePhase() const
 {
-    if (m_hour >= 0 && m_hour < 6)
-    {
-        return TimePhase::Dawn;
-    }
-
-
-    if (m_hour >= 6 && m_hour < 9)
+    if (m_hour >= 6 && m_hour < 12)
     {
         return TimePhase::Morning;
     }
 
 
-    if (m_hour >= 9 && m_hour < 18)
+    if (m_hour >= 12 && m_hour < 18)
     {
         return TimePhase::Day;
     }
 
 
-    if (m_hour >= 18 && m_hour < 21)
+    if (m_hour >= 18 && m_hour < 24)
     {
         return TimePhase::Evening;
     }
@@ -113,12 +107,6 @@ void TimeManager::OnTimePhaseChanged(TimePhase phase)
 {
     switch (phase)
     {
-
-    case TimePhase::Dawn:
-        OutputDebugString(L"새벽 시작\n");
-        break;
-
-
     case TimePhase::Morning:
         OutputDebugString(L"아침 시작\n");
         break;
@@ -145,8 +133,6 @@ const wchar_t* TimeManager::GetPhaseString() const
 {
     switch (GetTimePhase())
     {
-    case TimePhase::Dawn:
-        return L"새벽";
 
     case TimePhase::Morning:
         return L"아침";
@@ -162,4 +148,16 @@ const wchar_t* TimeManager::GetPhaseString() const
     }
 
     return L"";
+}
+
+void TimeManager::SetTime(int day, int hour, int minute)
+{
+    m_day = day;
+    m_hour = hour;
+    m_minute = minute;
+
+    m_gameMinuteTimer = 0.0f;
+
+    m_currentPhase = GetTimePhase();
+    m_previousPhase = m_currentPhase;
 }

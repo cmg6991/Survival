@@ -3,7 +3,6 @@
 
 enum class TimePhase
 {
-	Dawn,
 	Morning,
 	Day,
 	Evening,
@@ -30,9 +29,10 @@ public:
 	void OnTimePhaseChanged(TimePhase phase);
 
 	const wchar_t* GetPhaseString() const;
+	void SetTime(int day, int hour, int minute);
 
 private:
-	TimeManager() {};
+	TimeManager() : m_timer(0.f), m_day(0), m_hour(0), m_minute(0), m_timeScale(0.f), m_gameMinuteTimer(0) {};
 	~TimeManager() {};
 	
 private:

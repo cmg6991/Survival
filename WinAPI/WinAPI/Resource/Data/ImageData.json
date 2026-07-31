@@ -1,0 +1,9 @@
+
+[
+	{ "key": "Player", "path": "Resource/Character0_Walk.png" },
+	{ "key": "Wall_E", "path": "Resource/castle_wall(7).png" },
+	{ "key": "Wall_N", "path": "Resource/castle_wall(7).png" },
+	{ "key": "Wall_S", "path": "Resource/castle_wall(7).png" },
+	{ "key": "Wall_W", "path": "Resource/castle_wall(7).png" },
+	{ "key": "Tile_W", "path": "Resource/tile.png" }
+]
