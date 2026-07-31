@@ -134,7 +134,6 @@ void MainScene::Release()
 
 void MainScene::SaveGame()
 {
-	OutputDebugStringA("=== SaveGame »£√‚µ  ===\n");
 	SaveData data;
 
 	Transform* playerTr = static_cast<Transform*>(m_player->GetGameObject()->GetElement(ElementType::Transform));

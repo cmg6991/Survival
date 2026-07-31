@@ -39,7 +39,7 @@ bool SaveManager::Save(const SaveData& data, const string& filePath)
 		return false;
 	}
 
-	file << j.dump(4); // 4칸 들여쓰기로 저장 (사람이 읽기 편하게)
+	file << j.dump(4);
 	file.close();
 
 	return true;
