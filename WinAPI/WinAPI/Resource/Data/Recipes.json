@@ -1,0 +1,32 @@
+[
+  {
+    "id": "Recipe_CookedMeat",
+    "result": "CookedMeat",
+    "resultCount": 1,
+    "ingredients": [
+      {
+        "id": "Meat",
+        "count": 1
+      },
+      {
+        "id": "Wood",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "Recipe_Sword",
+    "result": "Sword",
+    "resultCount": 1,
+    "ingredients": [
+      {
+        "id": "Wood",
+        "count": 2
+      },
+      {
+        "id": "Stone",
+        "count": 3
+      }
+    ]
+  }
+]

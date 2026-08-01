@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "Singleton.h"
+#include "CraftData.h"
 
 enum class ImageKey
 {
@@ -32,16 +33,25 @@ public:
 
 	const vector<string>& GetMap(const string& mapName) const;
 
+	const vector<ItemData>& GetItemList() const { return m_items; }
+	const vector<RecipeData>& GetRecipeList() const { return m_recipes; }
+	const ItemData* FindItem(const string& id) const;
+
 private:
 	void LoadImageData(const string& filePath);
 	void LoadMapData(const string& filePath);
 
 	ImageKey StringToImageKey(const string& str) const;
 
+	void LoadItemData(const string& filePath);
+	void LoadRecipeData(const string& filePath);
+
 private:
 	vector<ImageData> m_images;
 	unordered_map<ImageKey, ImageData> m_imageMap;
 	unordered_map<string, vector<string>> m_maps;
+	vector<ItemData> m_items;
+	vector<RecipeData> m_recipes;
 
 private:
 	DataManager() {};

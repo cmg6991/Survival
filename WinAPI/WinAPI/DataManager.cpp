@@ -34,6 +34,15 @@ const vector<string>& DataManager::GetMap(const string& mapName) const
 	return it->second;
 }
 
+const ItemData* DataManager::FindItem(const string& id) const
+{
+	for (const ItemData& item : m_items)
+	{
+		if (item.id == id) return &item;
+	}
+	return nullptr;
+}
+
 void DataManager::LoadImageData(const string& filePath)
 {
 	std::ifstream file(filePath);
@@ -91,4 +100,49 @@ ImageKey DataManager::StringToImageKey(const string& str) const
 	if (str == "Tile_W")  return ImageKey::Tile_W;
 
 	return ImageKey::Count;
+}
+
+void DataManager::LoadItemData(const string& filePath)
+{
+	ifstream file(filePath);
+	if (!file.is_open()) return;
+
+	json j;
+	file >> j;
+
+	for (auto& item : j)
+	{
+		ItemData data;
+		data.id = item["id"].get<string>();
+		data.name = item["name"].get<string>();
+		data.image = item["image"].get<string>();
+		m_items.push_back(data);
+	}
+}
+
+void DataManager::LoadRecipeData(const string& filePath)
+{
+	ifstream file(filePath);
+	if (!file.is_open()) return;
+
+	json j;
+	file >> j;
+
+	for (auto& recipe : j)
+	{
+		RecipeData data;
+		data.id = recipe["id"].get<string>();
+		data.resultId = recipe["result"].get<string>();
+		data.resultCount = recipe.value("resultCount", 1);
+
+		for (auto& ing : recipe["ingredients"])
+		{
+			Ingredient ingredient;
+			ingredient.ingredientId = ing["id"].get<string>();
+			ingredient.count = ing["count"].get<int>();
+			data.ingredients.push_back(ingredient);
+		}
+
+		m_recipes.push_back(data);
+	}
 }

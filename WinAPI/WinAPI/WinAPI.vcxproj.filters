@@ -138,6 +138,12 @@
     <ClInclude Include="SaveManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="CraftData.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Inventory.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="InputManager.cpp">
@@ -216,6 +222,9 @@
       <Filter>소스 파일\Manager</Filter>
     </ClCompile>
     <ClCompile Include="SaveManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Inventory.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
