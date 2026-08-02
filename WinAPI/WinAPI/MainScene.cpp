@@ -42,10 +42,6 @@ void MainScene::Init()
 
 	Transform* tr = new Transform();
 
-	//tr->SetPosition(8.5);
-	//tr->SetFloatX(10);
-	//tr->SetFloatY(5);
-
 	Player* player = new Player();
 	SpriteRenderer* sprite = new SpriteRenderer("Player");
 	Animator* animator = new Animator();
@@ -62,6 +58,7 @@ void MainScene::Init()
 	m_objects.push_back(playerObj);
 	m_player = player;
 
+	RegisterTileHandlers();
 	LoadMap(DataManager::GetInstance().GetMap("MainMap"));
 
 	TimeManager::GetInstance().Init();
@@ -149,6 +146,22 @@ void MainScene::SaveGame()
 	SaveManager::Save(data);
 }
 
+void MainScene::RegisterTileHandlers()
+{
+	m_tileHandlers['P'] = [this](float x, float y)
+		{
+			Transform* playerTr = static_cast<Transform*>(m_player->GetGameObject()->GetElement(ElementType::Transform));
+			playerTr->SetFloatX(x);
+			playerTr->SetFloatY(y);
+		};
+
+	// 앞으로 몬스터/아이템/모닥불 등이 생기면 여기 계속 추가하면 됨
+	// 예시 (해당 클래스들 만드신 뒤 주석 해제):
+	// m_tileHandlers['M'] = [this](float x, float y) { CreateMonster(x, y); };
+	// m_tileHandlers['w'] = [this](float x, float y) { CreateItemPickup(x, y, "Wood", 1); };
+	// m_tileHandlers['C'] = [this](float x, float y) { CreateInteractable(x, y, InteractType::Campfire, "Campfire"); };
+}
+
 void MainScene::CreateWall(float x, float y, const string& imageName)
 {
 	GameObject* wallObj = CreateObject("Wall");
@@ -177,6 +190,7 @@ void MainScene::LoadMap(const vector<string>& mapData)
 		{
 			char tile = row[x];
 
+			// 벽은 방향 판별이 필요해서 예외로 별도 처리
 			if (tile == '#')
 			{
 				string wallImage = "Wall_N";
@@ -186,12 +200,14 @@ void MainScene::LoadMap(const vector<string>& mapData)
 				else if (x == (int)row.size() - 1) wallImage = "Wall_E";
 
 				CreateWall((float)x, (float)y, wallImage);
+				continue;
 			}
-			else if (tile == 'P')
+
+			// 그 외 문자는 등록된 핸들러로 위임
+			auto it = m_tileHandlers.find(tile);
+			if (it != m_tileHandlers.end())
 			{
-				Transform* playerTr = static_cast<Transform*>(m_player->GetGameObject()->GetElement(ElementType::Transform));
-				playerTr->SetFloatX((float)x);
-				playerTr->SetFloatY((float)y);
+				it->second((float)x, (float)y);
 			}
 		}
 	}

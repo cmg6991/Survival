@@ -2,12 +2,16 @@ C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\Animator.cpp;C:\Users\cmg
 C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\CameraManager.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\CameraManager.obj
 C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\CollisionManager.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\CollisionManager.obj
 C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\Constants.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\Constants.obj
+C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\CraftingManager.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\CraftingManager.obj
 C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\DataManager.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\DataManager.obj
 C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\GameEngine.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\GameEngine.obj
 C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\GameObject.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\GameObject.obj
 C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\GameProcess.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\GameProcess.obj
 C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\Graphics.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\Graphics.obj
 C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\InputManager.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\InputManager.obj
+C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\Interactable.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\Interactable.obj
+C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\Inventory.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\Inventory.obj
+C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\ItemPickUp.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\ItemPickUp.obj
 C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\MainScene.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\MainScene.obj
 C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\Player.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\Player.obj
 C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\ResourceManager.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\ResourceManager.obj

@@ -10,6 +10,8 @@ enum class ElementType
 	Player,
 	SpriteRenderer,
 	Wall,
+	ItemPickUp,
+	Interactable,
 	End
 };
 

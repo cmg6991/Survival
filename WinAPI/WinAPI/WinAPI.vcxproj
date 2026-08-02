@@ -129,6 +129,7 @@
     <ClInclude Include="CollisionManager.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="CraftData.h" />
+    <ClInclude Include="CraftingManager.h" />
     <ClInclude Include="DataManager.h" />
     <ClInclude Include="DrawUtil.h" />
     <ClInclude Include="ElementBase.h" />
@@ -138,7 +139,9 @@
     <ClInclude Include="GameProcess.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="InputManager.h" />
+    <ClInclude Include="Interactable.h" />
     <ClInclude Include="Inventory.h" />
+    <ClInclude Include="ItemPickUp.h" />
     <ClInclude Include="MainScene.h" />
     <ClInclude Include="MathUtils.h" />
     <ClInclude Include="pch.h" />
@@ -167,13 +170,16 @@
     <ClCompile Include="CameraManager.cpp" />
     <ClCompile Include="CollisionManager.cpp" />
     <ClCompile Include="Constants.cpp" />
+    <ClCompile Include="CraftingManager.cpp" />
     <ClCompile Include="DataManager.cpp" />
     <ClCompile Include="GameEngine.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameProcess.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="InputManager.cpp" />
+    <ClCompile Include="Interactable.cpp" />
     <ClCompile Include="Inventory.cpp" />
+    <ClCompile Include="ItemPickUp.cpp" />
     <ClCompile Include="MainScene.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="ResourceManager.cpp" />

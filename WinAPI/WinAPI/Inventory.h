@@ -13,6 +13,15 @@ public:
 	bool HasEnough(const string& itemId, int count) const;
 
 	bool IsFull() const;
-	//int GetSlotCount() const { return (int)m_items.size(); }
+	int GetSlotCount() const { return (int)m_items.size(); }
+	int GetMaxSlotCount() const { return m_maxSlotCount; }
+
+	const unordered_map<string, int>& GetAllItems() const { return m_items; }
+	void SetAllItems(const unordered_map<string, int>& items) { m_items = items; }
+
+private:
+	unordered_map<string, int> m_items;
+	int m_maxSlotCount;
+	int m_maxStackPerItem;
 };
 

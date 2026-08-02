@@ -26,7 +26,10 @@ public:
 	void SaveGame();
 
 private:
+	void RegisterTileHandlers();
 	void CreateWall(float x, float y, const string& imageName);
+	//void CreateInteractable(float x, float y, InteractType type)
+
 	void LoadMap(const vector<string>& mapData);
 
 private:
@@ -35,5 +38,6 @@ private:
 	CollisionManager* m_collisionManager;
 	Player* m_player;
 
+	unordered_map<char, function<void(float, float)>> m_tileHandlers;
 };
 
