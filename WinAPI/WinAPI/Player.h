@@ -3,6 +3,7 @@
 #include <windows.h>
 #include "ElementBase.h"
 #include "Vector2.h"
+#include "Inventory.h"
 
 class TileMap;
 class Transform;
@@ -39,6 +40,8 @@ public:
 	void SetTileMap(TileMap* map) { m_tileMap = map; }
 	void SetCollisionManager(CollisionManager* collisionManager) { m_collisionManager = collisionManager; }
 
+	Inventory* GetInventory() { return &m_inventory; }
+
 private:
 	bool m_isAutoMoving = false;
 
@@ -52,5 +55,7 @@ private:
 	CollisionManager* m_collisionManager;
 	Animator* m_animator;
 	SpriteRenderer* m_sprite;
+
+	Inventory m_inventory = Inventory(10, 50);
 };
 

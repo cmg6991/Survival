@@ -1,4 +1,5 @@
 #include "Interactable.h"
+#include "InteractType.h"
 
 Interactable::Interactable(InteractType type) : m_interactType(type)
 {

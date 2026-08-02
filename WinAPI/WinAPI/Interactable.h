@@ -1,11 +1,6 @@
 #pragma once
 #include "ElementBase.h"
-
-enum class InteractType
-{
-	CampFire,
-	WorkTable
-};
+#include "InteractType.h"
 
 class Interactable : public ElementBase
 {

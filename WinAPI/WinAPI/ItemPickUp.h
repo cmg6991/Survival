@@ -27,6 +27,8 @@ public:
 	virtual void SetGameObject(GameObject* gameObject) override;
 
 	bool IsCollected() const { return m_collected; }
+	const string& GetItemId() const { return m_itemId; }
+	int GetCount() const { return m_count; }
 
 private:
 	string m_itemId;

@@ -1,10 +1,12 @@
 #pragma once
 #include "Scene.h"
+#include "InteractType.h"
 
 class TileMap;
 class ResourceManager;
 class CollisionManager;
 class Player;
+class Interactable;
 
 class MainScene : public Scene
 {
@@ -28,7 +30,12 @@ public:
 private:
 	void RegisterTileHandlers();
 	void CreateWall(float x, float y, const string& imageName);
-	//void CreateInteractable(float x, float y, InteractType type)
+	void CreateInteractable(float x, float y, InteractType type, const string& imageKey);
+	void CreateItemPickUp(float x, float y, const string& itemId, int count);
+
+	void CheckItemPickUps();
+	Interactable* FindNearByInteractable();
+	void OnInteract(Interactable* target);
 
 	void LoadMap(const vector<string>& mapData);
 
@@ -39,5 +46,9 @@ private:
 	Player* m_player;
 
 	unordered_map<char, function<void(float, float)>> m_tileHandlers;
+
+	bool m_isCraftingOpen = false;
+	InteractType m_currentCraftingType = InteractType::CampFire;
+	int m_selectedRecipeIndex = 0;
 };
 
