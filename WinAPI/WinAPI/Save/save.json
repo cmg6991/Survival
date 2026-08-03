@@ -3,9 +3,9 @@
     "day": 1,
     "hour": 6,
     "inventory": {
-        "Item_Wood": 1
+        "Item_Wood": 3
     },
-    "minute": 0,
-    "playerX": 10.873161315917969,
-    "playerY": 11.873024940490723
+    "minute": 10,
+    "playerX": 15.606264114379883,
+    "playerY": 6.576547145843506
 }
