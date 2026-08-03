@@ -96,6 +96,15 @@ void Scene::DeleteObject(string name)
 	delete deleteObject;
 }
 
+void Scene::DeletePObject(GameObject* target)
+{
+	auto it = std::find(m_objects.begin(), m_objects.end(), target);
+	if (it == m_objects.end()) return;
+
+	m_objects.erase(it);
+	delete target;
+}
+
 GameObject* Scene::FindObject(string name)
 {
 	vector<GameObject*>::iterator findObject = find_if(m_objects.begin(), m_objects.end(), [=](GameObject* gameObject) {return gameObject->GetName() == name; });

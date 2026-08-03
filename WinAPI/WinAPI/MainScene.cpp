@@ -330,6 +330,10 @@ void MainScene::CheckItemPickUps()
 			}
 		}
 	}
+	for (GameObject* obj : toRemove)
+	{
+		DeletePObject(obj);
+	}
 }
 
 Interactable* MainScene::FindNearByInteractable()

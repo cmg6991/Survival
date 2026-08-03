@@ -25,6 +25,7 @@ public:
 	GameObject* CreateObject(string name);
 	void AddObject(GameObject* gameObject);
 	void DeleteObject(string name);
+	void DeletePObject(GameObject* target);
 	GameObject* FindObject(string name);
 
 	void DeleteAllObject();
