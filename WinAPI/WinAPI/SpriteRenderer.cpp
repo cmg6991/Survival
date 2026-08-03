@@ -240,17 +240,3 @@ void SpriteRenderer::SetGameObject(GameObject* gameObject)
 {
     m_gameObject = gameObject;
 }
-
-//Bitmap* SpriteRenderer::CreateFlip(Bitmap* src)
-//{
-//    Bitmap* flip = new Bitmap(src->GetWidth(),src->GetHeight(),PixelFormat32bppARGB);
-//
-//    Graphics g(flip);
-//
-//    g.TranslateTransform((REAL)src->GetWidth(), 0);
-//    g.ScaleTransform(-1, 1);
-//
-//    g.DrawImage(src, 0, 0);
-//
-//    return flip;
-//}

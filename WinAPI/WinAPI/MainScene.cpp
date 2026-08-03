@@ -253,7 +253,7 @@ void MainScene::CreateWall(float x, float y, const string& imageName)
 	tr->SetPosition({ x, y });
 
 	SpriteRenderer* sprite = new SpriteRenderer(imageName);
-	sprite->SetPivot(47, 112);
+	//sprite->SetPivot(47, 112);
 	sprite->SetResourceManager(m_resourceManager);
 
 	wallObj->SetElement(tr, ElementType::Transform);
@@ -272,7 +272,7 @@ void MainScene::CreateInteractable(float x, float y, InteractType type, const st
 	tr->SetPosition({ x, y });
 
 	SpriteRenderer* sprite = new SpriteRenderer(imageKey);
-	sprite->SetPivot(50, 90);
+	//sprite->SetPivot(50, 90);
 	sprite->SetResourceManager(m_resourceManager);
 
 	Interactable* interact = new Interactable(type);
@@ -294,7 +294,7 @@ void MainScene::CreateItemPickUp(float x, float y, const string& itemId, int cou
 	tr->SetPosition({ x, y });
 
 	SpriteRenderer* sprite = new SpriteRenderer(itemData->image);
-	sprite->SetPivot(20, 40);
+	//sprite->SetPivot(20, 40);
 	sprite->SetScale(2.f);
 	sprite->SetResourceManager(m_resourceManager);
 
