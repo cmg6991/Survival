@@ -141,25 +141,7 @@ void GameEngine::Render(ID2D1DeviceContext* context)
 	m_sceneManager->PreRender();
 	m_sceneManager->Render(context);
 	m_sceneManager->PostRender(context);
-	int day =
-		TimeManager::GetInstance().GetDay();
-
-	int hour =
-		TimeManager::GetInstance().GetHour();
-
-	int minute =
-		TimeManager::GetInstance().GetMinute();
-
-	wchar_t text[100];
-	swprintf_s(
-		text,
-		L"Day %d  %02d:%02d   [%s]",
-		day,
-		hour,
-		minute,
-		TimeManager::GetInstance().GetPhaseString()
-	);
-	GRAPHICS.DrawString(text,20,20);
+	
 }
 
 void GameEngine::Release()

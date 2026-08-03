@@ -19,6 +19,29 @@
 #include "ItemPickUp.h"
 #include "Inventory.h"
 
+wstring UTF8ToWString(const string& str)
+{
+	if (str.empty())
+		return L"";
+
+	int sizeNeeded = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, nullptr, 0);
+
+	wstring result(sizeNeeded, 0);
+
+	MultiByteToWideChar(
+		CP_UTF8,
+		0,
+		str.c_str(),
+		-1,
+		result.data(),
+		sizeNeeded
+	);
+
+	result.pop_back();
+
+	return result;
+}
+
 MainScene::MainScene(ResourceManager* resourceManager) 
 	: Scene("MainScene"), m_tileMap(nullptr), 
 	m_resourceManager(resourceManager), m_collisionManager(nullptr),
@@ -108,7 +131,7 @@ void MainScene::Update(float deltaTime)
 		{
 			const RecipeData& recipe = recipes[m_selectedRecipeIndex];
 
-			/*if (CraftingManager::Craft(recipe.id, m_player->GetInventory()))
+			if (CraftingManager::Craft(recipe.id, m_player->GetInventory()))
 			{
 				wstring resultId(recipe.resultId.begin(), recipe.resultId.end());
 				m_lastMessage = L"제작 성공: " + resultId;
@@ -116,7 +139,7 @@ void MainScene::Update(float deltaTime)
 			else
 			{
 				m_lastMessage = L"재료가 부족합니다";
-			}*/
+			}
 		}
 
 		if (InputManager::GetInstance().IsGetKeyDown(VK_ESCAPE))
@@ -158,6 +181,7 @@ void MainScene::Render(ID2D1DeviceContext* context)
 	Scene::Render(context);
 
 	m_collisionManager->RenderDebug(context);
+	RenderUI(context);
 }
 
 void MainScene::PostRender(ID2D1DeviceContext* context)
@@ -206,19 +230,19 @@ void MainScene::RegisterTileHandlers()
 
 	m_tileHandlers['C'] = [this](float x, float y)
 		{
-			//CreateInteractable(x, y, InteractType::CampFire, "Campfire"); // "Campfire" 이미지는 images.json에 등록 필요
+			CreateInteractable(x, y, InteractType::CampFire, "CampFire");
 		};
 
 	// 작업대
 	m_tileHandlers['T'] = [this](float x, float y)
 		{
-			//CreateInteractable(x, y, InteractType::WorkTable, "WorkTable");
+			CreateInteractable(x, y, InteractType::WorkTable, "WorkTable");
 		};
 	// 앞으로 몬스터/아이템/모닥불 등이 생기면 여기 계속 추가하면 됨
 	// 예시 (해당 클래스들 만드신 뒤 주석 해제):
 	// m_tileHandlers['M'] = [this](float x, float y) { CreateMonster(x, y); };
-	// m_tileHandlers['w'] = [this](float x, float y) { CreateItemPickup(x, y, "Wood", 1); };
-	// m_tileHandlers['C'] = [this](float x, float y) { CreateInteractable(x, y, InteractType::Campfire, "Campfire"); };
+	 m_tileHandlers['w'] = [this](float x, float y) { CreateItemPickUp(x, y, "Item_Wood", 1); };
+	 //m_tileHandlers['m'] = [this](float x, float y) { CreateItemPickUp(x, y, "Meat", 1); };
 }
 
 void MainScene::CreateWall(float x, float y, const string& imageName)
@@ -271,7 +295,7 @@ void MainScene::CreateItemPickUp(float x, float y, const string& itemId, int cou
 
 	SpriteRenderer* sprite = new SpriteRenderer(itemData->image);
 	sprite->SetPivot(20, 40);
-	sprite->SetScale(0.2f);
+	sprite->SetScale(2.f);
 	sprite->SetResourceManager(m_resourceManager);
 
 	ItemPickUp* pickup = new ItemPickUp(itemId, count);
@@ -330,7 +354,7 @@ void MainScene::OnInteract(Interactable* target)
 	m_currentCraftingType = target->GetInteractType();
 	m_isCraftingOpen = true;
 	m_selectedRecipeIndex = 0;
-	//m_lastMessage.clear();
+	m_lastMessage.clear();
 }
 
 void MainScene::LoadMap(const vector<string>& mapData)
@@ -361,6 +385,95 @@ void MainScene::LoadMap(const vector<string>& mapData)
 			{
 				it->second((float)x, (float)y);
 			}
+		}
+	}
+}
+
+void MainScene::RenderUI(ID2D1DeviceContext* context)
+{
+	int day =TimeManager::GetInstance().GetDay();
+	int hour =TimeManager::GetInstance().GetHour();
+	int minute =TimeManager::GetInstance().GetMinute();
+
+	wchar_t text[100];
+	swprintf_s(
+		text,
+		L"Day %d  %02d:%02d   [%s]",
+		day,
+		hour,
+		minute,
+		TimeManager::GetInstance().GetPhaseString()
+	);
+	GRAPHICS.DrawString(text, 20, 20);
+
+	// 인벤토리 표시
+	GRAPHICS.DrawString(L"[인벤토리]", 20, 70);
+
+	float invY = 100;
+	for (auto& pair : m_player->GetInventory()->GetAllItems())
+	{
+		const ItemData* item = DataManager::GetInstance().FindItem(pair.first);
+
+		wstring name;
+		if (item != nullptr)
+			name = UTF8ToWString(item->name);
+		else
+			name = UTF8ToWString(pair.first);
+
+		wchar_t line[100];
+		swprintf_s(line, L"%s x%d", name.c_str(), pair.second);
+
+		GRAPHICS.DrawString(line, 20, invY);
+		invY += 30;
+	}
+
+	// 상호작용 안내
+	Interactable* nearby = FindNearByInteractable();
+	if (nearby != nullptr && !m_isCraftingOpen)
+	{
+		GRAPHICS.DrawString(L"[E] 상호작용", 850, 950);
+	}
+
+	// 크래프팅 UI
+	if (m_isCraftingOpen)
+	{
+		GRAPHICS.DrawString(L"=== 제작 ===", 700, 300);
+
+		const vector<RecipeData>& recipes = DataManager::GetInstance().GetRecipeList();
+
+		float y = 340;
+		for (int i = 0; i < (int)recipes.size(); i++)
+		{
+			const RecipeData& recipe = recipes[i];
+
+			const ItemData* resultItem = DataManager::GetInstance().FindItem(recipe.resultId);
+
+			wstring resultName;
+			if (resultItem != nullptr)
+				resultName = wstring(resultItem->name.begin(), resultItem->name.end());
+			else
+				resultName = wstring(recipe.resultId.begin(), recipe.resultId.end());
+
+			bool canCraft = CraftingManager::CanCraft(recipe.id, m_player->GetInventory());
+
+			wchar_t line[150];
+			swprintf_s(
+				line,
+				L"%s%s %s",
+				(i == m_selectedRecipeIndex) ? L"> " : L"   ",
+				resultName.c_str(),
+				canCraft ? L"(제작 가능)" : L"(재료 부족)"
+			);
+
+			GRAPHICS.DrawString(line, 700, y);
+			y += 30;
+		}
+
+		GRAPHICS.DrawString(L"W/S: 선택   Enter: 제작   ESC: 닫기", 700, y + 20);
+
+		if (!m_lastMessage.empty())
+		{
+			GRAPHICS.DrawString(m_lastMessage.c_str(), 700, y + 60);
 		}
 	}
 }

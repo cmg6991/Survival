@@ -235,8 +235,8 @@ void Graphics::DrawString(const wchar_t* text, float x, float y)
 		D2D1::RectF(
 			x,
 			y,
-			500,
-			50
+			x+500,
+			y+50
 		),
 		m_brush
 	);

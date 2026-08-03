@@ -140,6 +140,7 @@
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="Interactable.h" />
+    <ClInclude Include="InteractType.h" />
     <ClInclude Include="Inventory.h" />
     <ClInclude Include="ItemPickUp.h" />
     <ClInclude Include="MainScene.h" />
@@ -204,7 +205,6 @@
     <Image Include="Resource\Player.bmp" />
     <Image Include="Resource\Streelamp.bmp" />
     <Image Include="Resource\Tile.bmp" />
-    <Image Include="Resource\Wall.bmp" />
     <Image Include="small.ico" />
     <Image Include="WinAPI.ico" />
   </ItemGroup>

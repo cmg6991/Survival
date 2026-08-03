@@ -1,9 +1,38 @@
-
 [
-	{ "key": "Player", "path": "Resource/Character0_Walk.png" },
-	{ "key": "Wall_E", "path": "Resource/castle_wall(7).png" },
-	{ "key": "Wall_N", "path": "Resource/castle_wall(7).png" },
-	{ "key": "Wall_S", "path": "Resource/castle_wall(7).png" },
-	{ "key": "Wall_W", "path": "Resource/castle_wall(7).png" },
-	{ "key": "Tile_W", "path": "Resource/tile.png" }
+	{
+		"key": "Player",
+		"path": "Resource/Character0_Walk.png"
+	},
+	{
+		"key": "Wall_E",
+		"path": "Resource/castle_wall(7).png"
+	},
+	{
+		"key": "Wall_N",
+		"path": "Resource/castle_wall(7).png"
+	},
+	{
+		"key": "Wall_S",
+		"path": "Resource/castle_wall(7).png"
+	},
+	{
+		"key": "Wall_W",
+		"path": "Resource/castle_wall(7).png"
+	},
+	{
+		"key": "Tile_W",
+		"path": "Resource/tile.png"
+	},
+	{
+		"key": "WorkTable",
+		"path": "Resource/tableShort_W.png"
+	},
+	{
+		"key": "CampFire",
+		"path": "Resource/corn(1).png"
+	},
+	{
+		"key": "Item_Wood",
+		"path": "Resource/stone_ground (4).png"
+	}
 ]

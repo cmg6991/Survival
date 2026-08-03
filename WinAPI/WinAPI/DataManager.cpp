@@ -5,6 +5,7 @@ void DataManager::Init()
 {
 	LoadImageData("Resource/Data/ImageData.json");
 	LoadMapData("Resource/Data/maps/MapData.json");
+	LoadItemData("Resource/Data/Items.json");
 }
 
 const string& DataManager::GetImagePath(ImageKey key) const
@@ -98,6 +99,9 @@ ImageKey DataManager::StringToImageKey(const string& str) const
 	if (str == "Wall_E")  return ImageKey::Wall_E;
 	if (str == "Wall_W")  return ImageKey::Wall_W;
 	if (str == "Tile_W")  return ImageKey::Tile_W;
+	if (str == "CampFire")  return ImageKey::CampFire;
+	if (str == "WorkTable")  return ImageKey::WorkTable;
+	if (str == "Item_Wood")  return ImageKey::Item_Wood;
 
 	return ImageKey::Count;
 }

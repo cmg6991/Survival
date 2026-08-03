@@ -2,8 +2,10 @@
     "currentWave": 1,
     "day": 1,
     "hour": 6,
-    "inventory": {},
-    "minute": 10,
-    "playerX": 13.905792236328125,
-    "playerY": 8.244500160217285
+    "inventory": {
+        "Item_Wood": 50
+    },
+    "minute": 40,
+    "playerX": 1.5670688152313232,
+    "playerY": 14.948067665100098
 }

@@ -38,6 +38,7 @@ private:
 	void OnInteract(Interactable* target);
 
 	void LoadMap(const vector<string>& mapData);
+	void RenderUI(ID2D1DeviceContext* context);
 
 private:
 	TileMap* m_tileMap;
@@ -50,5 +51,7 @@ private:
 	bool m_isCraftingOpen = false;
 	InteractType m_currentCraftingType = InteractType::CampFire;
 	int m_selectedRecipeIndex = 0;
+
+	wstring m_lastMessage;
 };
 

@@ -11,6 +11,9 @@ enum class ImageKey
 	Wall_E,
 	Wall_W,
 	Tile_W,
+	CampFire,
+	WorkTable,
+	Item_Wood,
 	Count
 };
 

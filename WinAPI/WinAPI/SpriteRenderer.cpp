@@ -21,6 +21,11 @@ void SpriteRenderer::Init()
     m_transform = static_cast<Transform*>(m_gameObject->GetElement(ElementType::Transform));
     ID2D1Bitmap* bitmap = m_resourceManager->GetImage(m_imageName);
 
+    if (bitmap == nullptr)
+    {
+        OutputDebugStringA(("[SpriteRenderer::Init] 이미지 로드 실패, 키: " + m_imageName + "\n").c_str());
+        return; // 크래시 방지
+    }
     D2D1_SIZE_U size = bitmap->GetPixelSize();
     m_width = size.width;
     m_height = size.height;

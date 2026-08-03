@@ -153,6 +153,9 @@
     <ClInclude Include="CraftingManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="InteractType.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="InputManager.cpp">
@@ -262,9 +265,6 @@
       <Filter>리소스 파일</Filter>
     </Image>
     <Image Include="Resource\Tile.bmp">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="Resource\Wall.bmp">
       <Filter>리소스 파일</Filter>
     </Image>
     <Image Include="Resource\Streelamp.bmp">
