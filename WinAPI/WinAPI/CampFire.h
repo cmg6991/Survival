@@ -2,13 +2,12 @@
 #include "ElementBase.h"
 #include "pch.h"
 
-class Transform;
-
-class ItemPickUp : public ElementBase
+class CampFire : public ElementBase
 {
 public:
-	ItemPickUp(string itemId, int count);
-	~ItemPickUp();
+	CampFire() {}
+	~CampFire() {}
+
 	virtual void Init() override;
 
 	virtual void FixedUpdate() override;
@@ -26,18 +25,13 @@ public:
 	virtual GameObject* GetGameObject() const override;
 	virtual void SetGameObject(GameObject* gameObject) override;
 
-	bool IsCollected() const { return m_collected; }
-	const string& GetItemId() const { return m_itemId; }
-	int GetCount() const { return m_count; }
-
-	void SetPositionId(const string& id) { m_positionId = id; }
-	const string& GetPositionId() const { return m_positionId; }
+	bool IsLit() const { return m_isLit;}
+	void AddFuel(int woodCount);
+	float GetRemainingTime() const { return m_burnTimer; }
 
 private:
-	string m_itemId;
-	int m_count;
-	Transform* m_transform;
-	bool m_collected = false;
-	string m_positionId;
+	bool m_isLit = false;
+	float m_burnTimer = 0.f;
+	const float m_burnTimePerWood = 30.0f;
 };
 

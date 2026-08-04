@@ -12,6 +12,7 @@ enum class ElementType
 	Wall,
 	ItemPickUp,
 	Interactable,
+	CampFire,
 	End
 };
 

@@ -25,6 +25,13 @@ bool SaveManager::Save(const SaveData& data, const string& filePath)
 	}
 	j["inventory"] = inventoryJson;
 
+	json collectedJson = json::array();
+	for (const string& id : data.collectedItemsIds)
+	{
+		collectedJson.push_back(id);
+	}
+	j["collectedItemsIds"] = collectedJson;
+
 	// 저장 폴더가 없으면 생성
 	filesystem::path path(filePath);
 	if (path.has_parent_path())
@@ -82,6 +89,15 @@ bool SaveManager::Load(SaveData& outData, const string& filePath)
 		for (auto& [key, value] : j["inventory"].items())
 		{
 			outData.inventory[key] = value.get<int>();
+		}
+	}
+
+	outData.collectedItemsIds.clear();
+	if (j.contains("collectedItemsIds"))
+	{
+		for (auto& id : j["collectedItemsIds"])
+		{
+			outData.collectedItemsIds.push_back(id.get<string>());
 		}
 	}
 

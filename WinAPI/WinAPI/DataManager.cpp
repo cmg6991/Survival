@@ -6,6 +6,7 @@ void DataManager::Init()
 	LoadImageData("Resource/Data/ImageData.json");
 	LoadMapData("Resource/Data/maps/MapData.json");
 	LoadItemData("Resource/Data/Items.json");
+	LoadRecipeData("Resource/Data/Recipes.json");
 }
 
 const string& DataManager::GetImagePath(ImageKey key) const
@@ -102,6 +103,9 @@ ImageKey DataManager::StringToImageKey(const string& str) const
 	if (str == "CampFire")  return ImageKey::CampFire;
 	if (str == "WorkTable")  return ImageKey::WorkTable;
 	if (str == "Item_Wood")  return ImageKey::Item_Wood;
+	if (str == "Item_Stone")  return ImageKey::Item_Stone;
+	if (str == "Item_Sword")  return ImageKey::Item_Sword;
+	if (str == "SideBarUI")  return ImageKey::SideBarUI;
 
 	return ImageKey::Count;
 }
@@ -138,7 +142,7 @@ void DataManager::LoadRecipeData(const string& filePath)
 		data.id = recipe["id"].get<string>();
 		data.resultId = recipe["result"].get<string>();
 		data.resultCount = recipe.value("resultCount", 1);
-
+		data.station = recipe.value("station", "");
 		for (auto& ing : recipe["ingredients"])
 		{
 			Ingredient ingredient;
@@ -149,4 +153,15 @@ void DataManager::LoadRecipeData(const string& filePath)
 
 		m_recipes.push_back(data);
 	}
+}
+
+vector<RecipeData> DataManager::GetRecipesByStation(const string& station) const
+{
+	vector<RecipeData> result;
+	for (const RecipeData& recipe : m_recipes)
+	{
+		if (recipe.station == station)
+			result.push_back(recipe);
+	}
+	return result;
 }

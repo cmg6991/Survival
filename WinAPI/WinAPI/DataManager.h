@@ -14,6 +14,9 @@ enum class ImageKey
 	CampFire,
 	WorkTable,
 	Item_Wood,
+	Item_Stone,
+	Item_Sword,
+	SideBarUI,
 	Count
 };
 
@@ -40,6 +43,7 @@ public:
 	const vector<RecipeData>& GetRecipeList() const { return m_recipes; }
 	const ItemData* FindItem(const string& id) const;
 
+	vector<RecipeData> GetRecipesByStation(const string& station) const;
 private:
 	void LoadImageData(const string& filePath);
 	void LoadMapData(const string& filePath);

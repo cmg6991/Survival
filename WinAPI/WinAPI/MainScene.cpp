@@ -9,6 +9,7 @@
 #include "TimeManager.h"
 #include "SaveManager.h"
 #include "CraftingManager.h"
+#include "UIManager.h"
 
 #include "Player.h"
 #include "GameObject.h"
@@ -18,6 +19,7 @@
 #include "Interactable.h"
 #include "ItemPickUp.h"
 #include "Inventory.h"
+#include "CampFire.h"
 
 wstring UTF8ToWString(const string& str)
 {
@@ -85,29 +87,31 @@ void MainScene::Init()
 	m_objects.push_back(playerObj);
 	m_player = player;
 
+	SaveData data;
+	bool hasSave = SaveManager::HasSaveFile();
+	if (hasSave)
+	{
+		SaveManager::Load(data);
+		m_collectedItemsIds.insert(data.collectedItemsIds.begin(), data.collectedItemsIds.end());
+	}
+
 	RegisterTileHandlers();
-	LoadMap(DataManager::GetInstance().GetMap("MainMap"));
+	LoadMap(DataManager::GetInstance().GetMap("MainMap")); // 이 시점에 m_collectedItemIds를 참조해서 이미 주운 자리는 스킵
 
 	TimeManager::GetInstance().Init();
 
-	if (SaveManager::HasSaveFile())
+	if (hasSave)
 	{
-		SaveData data;
-		SaveManager::Load(data);
-
 		Transform* playerTr = static_cast<Transform*>(m_player->GetGameObject()->GetElement(ElementType::Transform));
 		playerTr->SetPosition({ data.playerX, data.playerY });
 
 		TimeManager::GetInstance().SetTime(data.day, data.hour, data.minute);
 
 		m_player->GetInventory()->SetAllItems(data.inventory);
-		//m_waveManager->StartWave(data.currentWave);
 	}
-	else
-	{
-		//m_waveManager->StartWave(1);
-	}
-
+	UIManager::GetInstance().SetInventory(m_player->GetInventory());
+	UIManager::GetInstance().SetResourceManager(m_resourceManager);
+	UIManager::GetInstance().SetPlayer(m_player);
 }
 
 void MainScene::FixedUpdate()
@@ -117,9 +121,11 @@ void MainScene::FixedUpdate()
 void MainScene::Update(float deltaTime)
 {
 	InputManager::GetInstance().Update();
-	if (m_isCraftingOpen)
+	UIManager::GetInstance().Update(deltaTime);
+	/*if (m_isCraftingOpen)
 	{
-		const vector<RecipeData>& recipes = DataManager::GetInstance().GetRecipeList();
+		string station = InteractTypeToStationString(m_currentCraftingType);
+		vector<RecipeData> recipes = DataManager::GetInstance().GetRecipesByStation(station);
 
 		if (InputManager::GetInstance().IsGetKeyDown('W') && m_selectedRecipeIndex > 0)
 			m_selectedRecipeIndex--;
@@ -148,17 +154,96 @@ void MainScene::Update(float deltaTime)
 		}
 
 		return;
+	}*/
+
+	if (InputManager::GetInstance().IsGetKeyDown('I'))
+	{
+		UIManager::GetInstance().ToggleInventoryWindow();
+	}
+
+	if (UIManager::GetInstance().IsInventoryWindowOpen())
+	{
+		if (InputManager::GetInstance().IsGetKeyDown(VK_LBUTTON))
+		{
+			MathEngine::Vector2 mousePos =
+				InputManager::GetInstance().GetMousePosition();
+
+			UIManager::GetInstance().HandleInventoryClick(
+				mousePos.x,
+				mousePos.y
+			);
+		}
+
+		return;
+	}
+
+
+	if (UIManager::GetInstance().IsCraftingOpen())
+	{
+		string station = InteractTypeToStationString(UIManager::GetInstance().GetCraftingStation());
+		vector<RecipeData> recipes = DataManager::GetInstance().GetRecipesByStation(station);
+
+		if (InputManager::GetInstance().IsGetKeyDown(VK_LBUTTON))
+		{
+			MathEngine::Vector2 mousePos = InputManager::GetInstance().GetMousePosition();
+			UIManager::GetInstance().HandleCraftingInventoryClick(mousePos.x, mousePos.y);
+		}
+
+		if (InputManager::GetInstance().IsGetKeyDown('W'))
+			UIManager::GetInstance().MoveSelection(-1, (int)recipes.size());
+
+		if (InputManager::GetInstance().IsGetKeyDown('S'))
+			UIManager::GetInstance().MoveSelection(1, (int)recipes.size());
+
+		if (InputManager::GetInstance().IsGetKeyDown(VK_RETURN) && !recipes.empty())
+		{
+			const RecipeData& recipe = recipes[UIManager::GetInstance().GetSelectedRecipeIndex()];
+
+			if (CraftingManager::Craft(recipe.id, m_player->GetInventory()))
+				UIManager::GetInstance().ShowMessage(L"제작 성공: " + UTF8ToWString(recipe.resultId));
+			else
+				UIManager::GetInstance().ShowMessage(L"재료가 부족합니다");
+		}
+
+		if (InputManager::GetInstance().IsGetKeyDown(VK_ESCAPE))
+			UIManager::GetInstance().CloseCrafting();
+
+		return;
 	}
 
 	Scene::Update(deltaTime);
-
 	CameraManager::GetInstance().Follow(m_player->GetTransform());
-
 	CheckItemPickUps();
+
+	Interactable* nearby = FindNearByInteractable();
+	if (nearby != nullptr)
+	{
+		if (nearby->GetInteractType() == InteractType::CampFire)
+		{
+			CampFire* campFire = static_cast<CampFire*>(nearby->GetGameObject()->GetElement(ElementType::CampFire));
+			if (campFire->IsLit())
+			{
+				wchar_t buf[100];
+				swprintf_s(buf, L"[E] 요리하기 (남은 시간: %d초)", (int)campFire->GetRemainingTime());
+				UIManager::GetInstance().SetInteractionHint(buf);
+			}
+			else
+			{
+				UIManager::GetInstance().SetInteractionHint(L"[E] 나무를 넣어 불 붙이기");
+			}
+		}
+		else
+		{
+			UIManager::GetInstance().SetInteractionHint(L"[E] 상호작용");
+		}
+	}
+	else
+	{
+		UIManager::GetInstance().ClearInteractionHint();
+	}
 
 	if (InputManager::GetInstance().IsGetKeyDown('E'))
 	{
-		Interactable* nearby = FindNearByInteractable();
 		if (nearby != nullptr)
 		{
 			OnInteract(nearby);
@@ -181,7 +266,7 @@ void MainScene::Render(ID2D1DeviceContext* context)
 	Scene::Render(context);
 
 	m_collisionManager->RenderDebug(context);
-	RenderUI(context);
+	UIManager::GetInstance().Render(context);
 }
 
 void MainScene::PostRender(ID2D1DeviceContext* context)
@@ -215,6 +300,7 @@ void MainScene::SaveGame()
 
 	//data.currentWave = m_waveManager->GetCurrentWave();
 	data.inventory = m_player->GetInventory()->GetAllItems();
+	data.collectedItemsIds.assign(m_collectedItemsIds.begin(), m_collectedItemsIds.end());
 
 	SaveManager::Save(data);
 }
@@ -242,6 +328,8 @@ void MainScene::RegisterTileHandlers()
 	// 예시 (해당 클래스들 만드신 뒤 주석 해제):
 	// m_tileHandlers['M'] = [this](float x, float y) { CreateMonster(x, y); };
 	 m_tileHandlers['w'] = [this](float x, float y) { CreateItemPickUp(x, y, "Item_Wood", 1); };
+	 m_tileHandlers['r'] = [this](float x, float y) { CreateItemPickUp(x, y, "Item_Stone", 1); };
+	 m_tileHandlers['s'] = [this](float x, float y) { CreateItemPickUp(x, y, "Item_Sword", 1); };
 	 //m_tileHandlers['m'] = [this](float x, float y) { CreateItemPickUp(x, y, "Meat", 1); };
 }
 
@@ -274,17 +362,30 @@ void MainScene::CreateInteractable(float x, float y, InteractType type, const st
 	SpriteRenderer* sprite = new SpriteRenderer(imageKey);
 	//sprite->SetPivot(50, 90);
 	sprite->SetResourceManager(m_resourceManager);
-
+	sprite->SetScale(0.5f);
 	Interactable* interact = new Interactable(type);
 
 	obj->SetElement(tr, ElementType::Transform);
 	obj->SetElement(sprite, ElementType::SpriteRenderer);
 	obj->SetElement(interact, ElementType::Interactable);
+	if (type == InteractType::CampFire)
+	{
+		CampFire* campFire = new CampFire();
+		obj->SetElement(campFire, ElementType::CampFire);
+	}
+
 	obj->Init();
 }
 
 void MainScene::CreateItemPickUp(float x, float y, const string& itemId, int count)
 {
+	string posId = MakeItemPositionId(x, y);
+
+	if (m_collectedItemsIds.find(posId) != m_collectedItemsIds.end())
+	{
+		return; // 이미 주운 자리면 생성하지 않음
+	}
+
 	const ItemData* itemData = DataManager::GetInstance().FindItem(itemId);
 	if (itemData == nullptr) return;
 
@@ -295,10 +396,11 @@ void MainScene::CreateItemPickUp(float x, float y, const string& itemId, int cou
 
 	SpriteRenderer* sprite = new SpriteRenderer(itemData->image);
 	//sprite->SetPivot(20, 40);
-	sprite->SetScale(2.f);
+	//sprite->SetScale(0.5f);
 	sprite->SetResourceManager(m_resourceManager);
 
 	ItemPickUp* pickup = new ItemPickUp(itemId, count);
+	pickup->SetPositionId(posId);
 
 	obj->SetElement(tr, ElementType::Transform);
 	obj->SetElement(sprite, ElementType::SpriteRenderer);
@@ -326,6 +428,7 @@ void MainScene::CheckItemPickUps()
 			int added = m_player->GetInventory()->AddItem(pickup->GetItemId(), pickup->GetCount());
 			if (added > 0)
 			{
+				m_collectedItemsIds.insert(pickup->GetPositionId());
 				toRemove.push_back(obj);
 			}
 		}
@@ -334,6 +437,11 @@ void MainScene::CheckItemPickUps()
 	{
 		DeletePObject(obj);
 	}
+}
+
+string MainScene::MakeItemPositionId(float x, float y)
+{
+	return "item_" + to_string((int)x) + "_" + to_string((int)y);
 }
 
 Interactable* MainScene::FindNearByInteractable()
@@ -355,10 +463,33 @@ Interactable* MainScene::FindNearByInteractable()
 
 void MainScene::OnInteract(Interactable* target)
 {
-	m_currentCraftingType = target->GetInteractType();
-	m_isCraftingOpen = true;
-	m_selectedRecipeIndex = 0;
-	m_lastMessage.clear();
+	if (target->GetInteractType() == InteractType::CampFire)
+	{
+		GameObject* obj = target->GetGameObject();
+		CampFire* campFire = static_cast<CampFire*>(obj->GetElement(ElementType::CampFire));
+
+		if (!campFire->IsLit())
+		{
+			// 불이 꺼져 있으면 나무를 넣어서 불붙이기만 하고, 요리 UI는 안 염
+			int woodCount = m_player->GetInventory()->GetItemCount("Item_Wood");
+
+			if (woodCount <= 0)
+			{
+				UIManager::GetInstance().ShowMessage(L"나무가 없습니다");
+				return;
+			}
+
+			m_player->GetInventory()->RemoveItem("Item_Wood", 1);
+			campFire->AddFuel(1);
+			UIManager::GetInstance().ShowMessage(L"모닥불에 불을 붙였습니다");
+			return;
+		}
+
+		UIManager::GetInstance().OpenCrafting(InteractType::CampFire);
+		return;
+	}
+
+	UIManager::GetInstance().OpenCrafting(target->GetInteractType());
 }
 
 void MainScene::LoadMap(const vector<string>& mapData)
@@ -369,7 +500,7 @@ void MainScene::LoadMap(const vector<string>& mapData)
 		for (int x = 0; x < (int)row.size(); x++)
 		{
 			char tile = row[x];
-
+			 
 			// 벽은 방향 판별이 필요해서 예외로 별도 처리
 			if (tile == '#')
 			{
@@ -393,91 +524,13 @@ void MainScene::LoadMap(const vector<string>& mapData)
 	}
 }
 
-void MainScene::RenderUI(ID2D1DeviceContext* context)
+
+string MainScene::InteractTypeToStationString(InteractType type)
 {
-	int day =TimeManager::GetInstance().GetDay();
-	int hour =TimeManager::GetInstance().GetHour();
-	int minute =TimeManager::GetInstance().GetMinute();
-
-	wchar_t text[100];
-	swprintf_s(
-		text,
-		L"Day %d  %02d:%02d   [%s]",
-		day,
-		hour,
-		minute,
-		TimeManager::GetInstance().GetPhaseString()
-	);
-	GRAPHICS.DrawString(text, 20, 20);
-
-	// 인벤토리 표시
-	GRAPHICS.DrawString(L"[인벤토리]", 20, 70);
-
-	float invY = 100;
-	for (auto& pair : m_player->GetInventory()->GetAllItems())
+	switch (type)
 	{
-		const ItemData* item = DataManager::GetInstance().FindItem(pair.first);
-
-		wstring name;
-		if (item != nullptr)
-			name = UTF8ToWString(item->name);
-		else
-			name = UTF8ToWString(pair.first);
-
-		wchar_t line[100];
-		swprintf_s(line, L"%s x%d", name.c_str(), pair.second);
-
-		GRAPHICS.DrawString(line, 20, invY);
-		invY += 30;
+	case InteractType::CampFire:  return "CampFire";
+	case InteractType::WorkTable: return "WorkTable";
 	}
-
-	// 상호작용 안내
-	Interactable* nearby = FindNearByInteractable();
-	if (nearby != nullptr && !m_isCraftingOpen)
-	{
-		GRAPHICS.DrawString(L"[E] 상호작용", 850, 950);
-	}
-
-	// 크래프팅 UI
-	if (m_isCraftingOpen)
-	{
-		GRAPHICS.DrawString(L"=== 제작 ===", 700, 300);
-
-		const vector<RecipeData>& recipes = DataManager::GetInstance().GetRecipeList();
-
-		float y = 340;
-		for (int i = 0; i < (int)recipes.size(); i++)
-		{
-			const RecipeData& recipe = recipes[i];
-
-			const ItemData* resultItem = DataManager::GetInstance().FindItem(recipe.resultId);
-
-			wstring resultName;
-			if (resultItem != nullptr)
-				resultName = wstring(resultItem->name.begin(), resultItem->name.end());
-			else
-				resultName = wstring(recipe.resultId.begin(), recipe.resultId.end());
-
-			bool canCraft = CraftingManager::CanCraft(recipe.id, m_player->GetInventory());
-
-			wchar_t line[150];
-			swprintf_s(
-				line,
-				L"%s%s %s",
-				(i == m_selectedRecipeIndex) ? L"> " : L"   ",
-				resultName.c_str(),
-				canCraft ? L"(제작 가능)" : L"(재료 부족)"
-			);
-
-			GRAPHICS.DrawString(line, 700, y);
-			y += 30;
-		}
-
-		GRAPHICS.DrawString(L"W/S: 선택   Enter: 제작   ESC: 닫기", 700, y + 20);
-
-		if (!m_lastMessage.empty())
-		{
-			GRAPHICS.DrawString(m_lastMessage.c_str(), 700, y + 60);
-		}
-	}
+	return "";
 }

@@ -13,4 +13,6 @@ struct SaveData
 	int currentWave = 1;
 
 	unordered_map<string, int> inventory;
+
+	vector<string> collectedItemsIds;
 };

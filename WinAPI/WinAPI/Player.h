@@ -22,7 +22,7 @@ public:
 	virtual void FixedUpdate() override;
 	virtual void Update(float deltaTime) override;
 	virtual void LateUpdate() override;
-
+	 
 	virtual void PreRender() override;
 	virtual void Render(ID2D1DeviceContext* context) override;
 	virtual void PostRender(ID2D1DeviceContext* context) override;
@@ -42,9 +42,13 @@ public:
 
 	Inventory* GetInventory() { return &m_inventory; }
 
+	void SetEquipWeapon(const string& weaponId);
+	string GetEquippedWeapon() const { return m_equippedWeapon; }
+
 private:
 	bool m_isAutoMoving = false;
 
+	string m_equippedWeapon;
 private:
 	Transform* m_transform;
 	float m_moveSpeed;

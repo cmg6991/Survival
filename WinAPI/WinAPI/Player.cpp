@@ -274,3 +274,11 @@ void Player::SetGameObject(GameObject* gameObject)
 {
     m_gameObject = gameObject;
 }
+
+void Player::SetEquipWeapon(const string& weaponId)
+{
+    m_equippedWeapon = weaponId;
+
+
+    
+}

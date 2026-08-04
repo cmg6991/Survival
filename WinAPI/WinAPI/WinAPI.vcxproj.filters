@@ -156,6 +156,12 @@
     <ClInclude Include="InteractType.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="CampFire.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="UIManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="InputManager.cpp">
@@ -246,6 +252,12 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="CraftingManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CampFire.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="UIManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

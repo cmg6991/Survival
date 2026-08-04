@@ -25,14 +25,26 @@
 	},
 	{
 		"key": "WorkTable",
-		"path": "Resource/tableShort_W.png"
+		"path": "Resource/building_corner_S.png"
 	},
 	{
 		"key": "CampFire",
-		"path": "Resource/corn(1).png"
+		"path": "Resource/structure_low_N.png"
 	},
 	{
 		"key": "Item_Wood",
-		"path": "Resource/stone_ground (4).png"
+		"path": "Resource/tree_single_S.png"
+	},
+	{
+		"key": "Item_Stone",
+		"path": "Resource/stone(4).png"
+	},
+	{
+		"key": "Item_Sword",
+		"path": "Resource/9.png"
+	},
+	{
+		"key": "SideBarUI",
+		"path": "Resource/vertical_type_1.png"
 	}
 ]

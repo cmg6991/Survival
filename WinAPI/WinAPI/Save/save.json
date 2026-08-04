@@ -1,11 +1,16 @@
 {
+    "collectedItemsIds": [
+        "",
+        "item_13_9",
+        "item_16_15"
+    ],
     "currentWave": 1,
     "day": 1,
-    "hour": 6,
+    "hour": 8,
     "inventory": {
-        "Item_Wood": 3
+        "Item_Wood": 5
     },
-    "minute": 10,
-    "playerX": 15.606264114379883,
-    "playerY": 6.576547145843506
+    "minute": 0,
+    "playerX": 11.192936897277832,
+    "playerY": 11.974416732788086
 }

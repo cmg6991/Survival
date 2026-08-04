@@ -242,6 +242,69 @@ void Graphics::DrawString(const wchar_t* text, float x, float y)
 	);
 }
 
+void Graphics::DrawString(const wchar_t* text, float x, float y, float fontSize)
+{
+	IDWriteTextFormat* format = nullptr;
+
+	m_writeFactory->CreateTextFormat(
+		L"¸¼Àº °íµñ",
+		nullptr,
+		DWRITE_FONT_WEIGHT_NORMAL,
+		DWRITE_FONT_STYLE_NORMAL,
+		DWRITE_FONT_STRETCH_NORMAL,
+		fontSize,
+		L"ko-KR",
+		&format);
+
+	m_deviceContext->DrawTextW(
+		text,
+		(UINT32)wcslen(text),
+		format,
+		D2D1::RectF(x, y, x + 500, y + 100),
+		m_brush);
+}
+
+void Graphics::DrawRect(float x, float y, float width, float height, D2D1::ColorF color, float thickness)
+{
+	ID2D1SolidColorBrush* brush = nullptr;
+	m_deviceContext->CreateSolidColorBrush(color, &brush);
+	if (brush == nullptr) return;
+
+	D2D1_RECT_F rect = D2D1::RectF(x, y, x + width, y + height);
+	m_deviceContext->DrawRectangle(rect, brush, thickness);
+
+	//brush->Release();
+}
+
+void Graphics::FillRect(float x, float y, float width, float height, D2D1::ColorF color)
+{
+	ID2D1SolidColorBrush* brush = nullptr;
+	m_deviceContext->CreateSolidColorBrush(color, &brush);
+	if (brush == nullptr) return;
+
+	D2D1_RECT_F rect = D2D1::RectF(x, y, x + width, y + height);
+	m_deviceContext->FillRectangle(rect, brush);
+
+	//brush->Release();
+}
+
+void Graphics::DrawBitmapUI(ID2D1Bitmap* bitmap, float x, float y, float width, float height)
+{
+	if (bitmap == nullptr) return;
+
+	D2D1_SIZE_F size = bitmap->GetSize();
+	D2D1_RECT_F destRect = D2D1::RectF(x, y, x + width, y + height);
+	D2D1_RECT_F srcRect = D2D1::RectF(0, 0, size.width, size.height);
+
+	m_deviceContext->DrawBitmap(
+		bitmap,
+		destRect,
+		1.0f,
+		D2D1_BITMAP_INTERPOLATION_MODE_LINEAR,
+		srcRect
+	);
+}
+
 
 void Graphics::Release()
 {

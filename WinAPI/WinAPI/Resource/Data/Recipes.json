@@ -3,28 +3,26 @@
     "id": "Recipe_CookedMeat",
     "result": "CookedMeat",
     "resultCount": 1,
+    "station" : "CampFire",
     "ingredients": [
       {
         "id": "Meat",
-        "count": 1
-      },
-      {
-        "id": "Wood",
         "count": 1
       }
     ]
   },
   {
     "id": "Recipe_Sword",
-    "result": "Sword",
+    "result": "Item_Sword",
     "resultCount": 1,
+    "station" : "WorkTable",
     "ingredients": [
       {
-        "id": "Wood",
+        "id": "Item_Wood",
         "count": 2
       },
       {
-        "id": "Stone",
+        "id": "Item_Stone",
         "count": 3
       }
     ]

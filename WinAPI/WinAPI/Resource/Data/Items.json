@@ -3,5 +3,16 @@
     "id": "Item_Wood",
     "name": "나무",
     "image": "Item_Wood"
+  },
+  {
+    "id": "Item_Stone",
+    "name": "돌",
+    "image": "Item_Stone"
+  },
+  {
+    "id": "Item_Sword",
+    "name": "검",
+    "image": "Item_Sword"
   }
+
 ]

@@ -1,0 +1,514 @@
+#include "UIManager.h"
+#include "TimeManager.h"
+#include "Graphics.h"
+#include "DataManager.h"
+#include "Inventory.h"
+#include "CraftingManager.h"
+#include "ResourceManager.h"
+#include "Player.h"
+
+wstring UTF8ToWString(const string& str);
+
+void UIManager::Update(float deltaTime)
+{
+	if (m_messageTimer > 0.0f)
+	{
+		m_messageTimer -= deltaTime;
+		if (m_messageTimer <= 0.0f)
+		{
+			m_message.clear();
+		}
+	}
+}
+
+void UIManager::Render(ID2D1DeviceContext* context)
+{
+
+	context->SetTransform(D2D1::Matrix3x2F::Identity());
+	RenderTime(context);
+	RenderInventory(context);
+	RenderInteractionHint(context);
+	RenderMessage(context);
+
+	if (m_isCraftingOpen)
+	{
+		RenderCrafting(context);
+	}
+
+	if (m_isInventoryOpen)
+	{
+		RenderInventoryWindow(context);
+	}
+
+}
+
+void UIManager::ShowMessage(const wstring& message, float duration)
+{
+	m_message = message;
+	m_messageTimer = duration;
+}
+
+void UIManager::MoveSelection(int delta, int maxCount)
+{
+	if (maxCount <= 0) return;
+	m_selectedRecipeIndex += delta;
+	if (m_selectedRecipeIndex < 0) m_selectedRecipeIndex = 0;
+	if (m_selectedRecipeIndex >= maxCount) m_selectedRecipeIndex = maxCount - 1;
+}
+
+void UIManager::ToggleInventoryWindow()
+{
+	m_isInventoryOpen = !m_isInventoryOpen;
+}
+
+void UIManager::HandleCraftingInventoryClick(float mouseX, float mouseY)
+{
+	OutputDebugStringA(("클릭 좌표: " + std::to_string(mouseX) + ", " + std::to_string(mouseY) + "\n").c_str());
+	if (m_inventory == nullptr) return;
+
+	vector<pair<string, int>> itemList(m_inventory->GetAllItems().begin(), m_inventory->GetAllItems().end());
+
+	for (int i = 0; i < (int)itemList.size(); i++)
+	{
+		int row = i / m_slotsPerRow;
+		int col = i % m_slotsPerRow;
+
+		float slotX = m_craftInvStartX + col * (m_slotSize + m_slotPadding);
+		float slotY = m_craftInvStartY + row * (m_slotSize + m_slotPadding);
+
+		if (mouseX >= slotX && mouseX <= slotX + m_slotSize &&
+			mouseY >= slotY && mouseY <= slotY + m_slotSize)
+		{
+			OutputDebugStringA(("슬롯 " + std::to_string(i) + " 클릭 감지! 아이템: " + itemList[i].first + "\n").c_str());
+
+			// 클릭한 아이템이 재료로 쓰이는 첫 번째 레시피를 찾아서 자동 선택
+			string station;
+			switch (m_craftingStation)
+			{
+			case InteractType::CampFire:  station = "CampFire"; break;
+			case InteractType::WorkTable: station = "WorkTable"; break;
+			}
+
+			vector<RecipeData> recipes = DataManager::GetInstance().GetRecipesByStation(station);
+			for (int r = 0; r < (int)recipes.size(); r++)
+			{
+				for (const Ingredient& ing : recipes[r].ingredients)
+				{
+					if (ing.ingredientId == itemList[i].first)
+					{
+						m_selectedRecipeIndex = r;
+						return;
+					}
+				}
+			}
+			return;
+		}
+	}
+}
+
+void UIManager::HandleInventoryClick(float mouseX, float mouseY)
+{
+	if (m_inventory == nullptr)
+		return;
+
+	vector<pair<string, int>> itemList(
+		m_inventory->GetAllItems().begin(),
+		m_inventory->GetAllItems().end()
+	);
+
+	for (int i = 0; i < (int)itemList.size(); i++)
+	{
+		int row = i / m_slotsPerRow;
+		int col = i % m_slotsPerRow;
+
+		float slotX = m_slotStartX + col * (m_slotSize + m_slotPadding);
+		float slotY = m_slotStartY + row * (m_slotSize + m_slotPadding);
+
+
+		if (mouseX >= slotX && mouseX <= slotX + m_slotSize &&
+			mouseY >= slotY && mouseY <= slotY + m_slotSize)
+		{
+			string itemId = itemList[i].first;
+
+			// 검이면 장착
+			if (itemId == "Item_Sword")
+			{
+				EquipItem(itemId);
+			}
+
+			return;
+		}
+	}
+}
+
+void UIManager::EquipItem(const string& itemId)
+{
+	if (m_player == nullptr)
+		return;
+	Inventory* inventory = m_player->GetInventory();
+
+	if (inventory->HasEnough(itemId, 1))
+	{
+		// 인벤토리에서 제거
+		inventory->RemoveItem(itemId, 1);
+
+		// 플레이어 장착
+		m_player->SetEquipWeapon(itemId);
+
+		ShowMessage(L"장착했습니다");
+	}
+	else
+	{
+		ShowMessage(L"아이템이 없습니다");
+	}
+}
+
+void UIManager::RenderTime(ID2D1DeviceContext* context)
+{
+	int day = TimeManager::GetInstance().GetDay();
+	int hour = TimeManager::GetInstance().GetHour();
+	int minute = TimeManager::GetInstance().GetMinute();
+
+	wchar_t text[100];
+	swprintf_s(
+		text,
+		L"Day %d  %02d:%02d   [%s]",
+		day,
+		hour,
+		minute,
+		TimeManager::GetInstance().GetPhaseString()
+	);
+	GRAPHICS.DrawString(text, 20, 20);
+}
+
+void UIManager::RenderInventory(ID2D1DeviceContext* context)
+{
+	ID2D1Bitmap* invUI = m_resourceManager->GetImage("SideBarUI");
+	///*float invY = 100;
+	//for (auto& pair : m_inventory->GetAllItems())
+	//{
+	//	const ItemData* item = DataManager::GetInstance().FindItem(pair.first);
+
+	//	wstring name;
+	//	if (item != nullptr)
+	//		name = UTF8ToWString(item->name);
+	//	else
+	//		name = UTF8ToWString(pair.first);
+
+	//	wchar_t line[100];
+	//	swprintf_s(line, L"%s x%d", name.c_str(), pair.second);
+
+	//	GRAPHICS.DrawString(line, 20, invY);
+	//	invY += 30;
+	//}*/
+	if (invUI == nullptr)
+		return;
+
+	float startX = 20;
+	float startY = 70;
+
+	// 인벤토리 배경
+	GRAPHICS.DrawBitmapUI(invUI, startX, startY, 64, 192);
+
+	const float slotSize = 48.0f;
+	const float slotX = startX + 8;
+	const float slotY[3] =
+	{
+		startY + 8,
+		startY + 72,
+		startY + 136
+	};
+	vector<pair<string, int>> items(
+		m_inventory->GetAllItems().begin(),
+		m_inventory->GetAllItems().end());
+
+	for (int i = 0; i < min((int)items.size(), 3); i++)
+	{
+		const ItemData* item = DataManager::GetInstance().FindItem(items[i].first);
+		if (item == nullptr)
+			continue;
+
+		ID2D1Bitmap* icon = m_resourceManager->GetImage(item->image);
+		if (icon != nullptr)
+		{
+			GRAPHICS.DrawBitmapUI(
+				icon,
+				slotX,
+				slotY[i],
+				slotSize,
+				slotSize);
+		}
+
+		wchar_t count[10];
+		swprintf_s(count, L"%d", items[i].second);
+
+		GRAPHICS.DrawString(
+			count,
+			slotX + 35,
+			slotY[i] + 30,
+			15.f);
+	}
+}
+
+void UIManager::RenderInteractionHint(ID2D1DeviceContext* context)
+{
+	if (m_isCraftingOpen) return;
+	if (m_interactionHint.empty()) return;
+
+	GRAPHICS.DrawString(m_interactionHint.c_str(), 700, 450);
+}
+
+void UIManager::RenderCrafting(ID2D1DeviceContext* context)
+{
+	///*string station;
+	//switch (m_craftingStation)
+	//{
+	//case InteractType::CampFire:  station = "CampFire"; break;
+	//case InteractType::WorkTable: station = "WorkTable"; break;
+	//}
+	//vector<RecipeData> recipes = DataManager::GetInstance().GetRecipesByStation(station);
+
+	//wstring title = (m_craftingStation == InteractType::CampFire) ? L"=== 요리 ===" : L"=== 제작 ===";
+	//GRAPHICS.DrawString(title.c_str(), 700, 300);
+
+	//float y = 340;
+	//for (int i = 0; i < (int)recipes.size(); i++)
+	//{
+	//	const RecipeData& recipe = recipes[i];
+	//	const ItemData* resultItem = DataManager::GetInstance().FindItem(recipe.resultId);
+
+	//	wstring resultName = (resultItem != nullptr) ? UTF8ToWString(resultItem->name) : UTF8ToWString(recipe.resultId);
+	//	bool canCraft = CraftingManager::CanCraft(recipe.id, m_inventory);
+
+	//	wchar_t line[150];
+	//	swprintf_s(line, L"%s%s %s",
+	//		(i == m_selectedRecipeIndex) ? L"> " : L"   ",
+	//		resultName.c_str(),
+	//		canCraft ? L"(제작 가능)" : L"(재료 부족)");
+
+	//	GRAPHICS.DrawString(line, 700, y);
+	//	y += 30;
+	//}
+
+	//GRAPHICS.DrawString(L"W/S: 선택   Enter: 제작   ESC: 닫기", 700, y + 20);*/
+
+	if (m_inventory == nullptr || m_resourceManager == nullptr) return;
+
+	// 배경 패널 (전체 크래프팅 창)
+	GRAPHICS.FillRect(80, 50, 1100, 550, D2D1::ColorF(0.08f, 0.08f, 0.08f, 0.9f));
+
+	wstring title = (m_craftingStation == InteractType::CampFire) ? L"=== 요리 ===" : L"=== 제작 ===";
+	GRAPHICS.DrawString(title.c_str(), m_craftInvStartX, 200);
+
+	RenderCraftingInventorySlots(context);
+	RenderCraftingRecipeList(context);
+	RenderCraftingIngredients(context);
+
+	GRAPHICS.DrawString(L"W/S: 레시피 선택   Enter: 제작   ESC: 닫기", m_craftRecipeStartX, 550);
+}
+
+void UIManager::RenderMessage(ID2D1DeviceContext* context)
+{
+	if (m_message.empty()) return;
+	GRAPHICS.DrawString(m_message.c_str(), 700, 500);
+
+}
+
+void UIManager::RenderInventoryWindow(ID2D1DeviceContext* context)
+{
+	if (m_inventory == nullptr || m_resourceManager == nullptr) return;
+
+	// 배경 패널
+	float panelWidth = m_slotsPerRow * (m_slotSize + m_slotPadding) + m_slotPadding;
+	GRAPHICS.FillRect(m_slotStartX - 20, m_slotStartY - 60, panelWidth + 20, 400, D2D1::ColorF(0.1f, 0.1f, 0.1f, 0.85f));
+
+	GRAPHICS.DrawString(L"=== 인벤토리 ===", m_slotStartX, m_slotStartY - 50);
+
+	// unordered_map을 순서 고정된 리스트로 스냅샷
+	vector<pair<string, int>> itemList(m_inventory->GetAllItems().begin(), m_inventory->GetAllItems().end());
+
+	for (int i = 0; i < (int)itemList.size(); i++)
+	{
+		int row = i / m_slotsPerRow;
+		int col = i % m_slotsPerRow;
+
+		float slotX = m_slotStartX + col * (m_slotSize + m_slotPadding);
+		float slotY = m_slotStartY + row * (m_slotSize + m_slotPadding);
+
+		// 슬롯 배경 + 테두리
+		GRAPHICS.FillRect(slotX, slotY, m_slotSize, m_slotSize, D2D1::ColorF(0.2f, 0.2f, 0.2f, 1.0f));
+		GRAPHICS.DrawRect(slotX, slotY, m_slotSize, m_slotSize, D2D1::ColorF::White, 2.0f);
+
+		// 아이템 아이콘
+		const ItemData* itemData = DataManager::GetInstance().FindItem(itemList[i].first);
+		if (itemData != nullptr)
+		{
+			ID2D1Bitmap* bitmap = m_resourceManager->GetImage(itemData->image);
+			if (bitmap != nullptr)
+			{
+				float iconPadding = 8.0f;
+				GRAPHICS.DrawBitmapUI(
+					bitmap,
+					slotX + iconPadding,
+					slotY + iconPadding,
+					m_slotSize - iconPadding * 2,
+					m_slotSize - iconPadding * 2
+				);
+			}
+		}
+
+		// 개수 표시 (슬롯 우측하단)
+		wchar_t countText[10];
+		swprintf_s(countText, L"%d", itemList[i].second);
+		GRAPHICS.DrawString(countText, slotX + m_slotSize - 25, slotY + m_slotSize - 30);
+	}
+
+	// 빈 슬롯도 최소 개수만큼 테두리만 그려서 격자 느낌 유지 (선택 사항)
+	int totalSlotsToShow = max((int)itemList.size(), m_slotsPerRow * 2); // 최소 2줄 정도는 항상 보이게
+	for (int i = (int)itemList.size(); i < totalSlotsToShow; i++)
+	{
+		int row = i / m_slotsPerRow;
+		int col = i % m_slotsPerRow;
+
+		float slotX = m_slotStartX + col * (m_slotSize + m_slotPadding);
+		float slotY = m_slotStartY + row * (m_slotSize + m_slotPadding);
+
+		GRAPHICS.DrawRect(slotX, slotY, m_slotSize, m_slotSize, D2D1::ColorF(0.4f, 0.4f, 0.4f, 1.0f), 1.0f);
+	}
+
+	GRAPHICS.DrawString(L"I: 닫기", m_slotStartX, m_slotStartY + 300);
+}
+
+void UIManager::RenderCraftingInventorySlots(ID2D1DeviceContext* context)
+{
+	GRAPHICS.DrawString(L"[내 인벤토리]", m_craftInvStartX, m_craftInvStartY - 35);
+
+	vector<pair<string, int>> itemList(m_inventory->GetAllItems().begin(), m_inventory->GetAllItems().end());
+
+	for (int i = 0; i < (int)itemList.size(); i++)
+	{
+		int row = i / m_slotsPerRow;
+		int col = i % m_slotsPerRow;
+
+		float slotX = m_craftInvStartX + col * (m_slotSize + m_slotPadding);
+		float slotY = m_craftInvStartY + row * (m_slotSize + m_slotPadding);
+
+		GRAPHICS.FillRect(slotX, slotY, m_slotSize, m_slotSize, D2D1::ColorF(0.2f, 0.2f, 0.2f, 1.0f));
+		GRAPHICS.DrawRect(slotX, slotY, m_slotSize, m_slotSize, D2D1::ColorF::White, 2.0f);
+
+		const ItemData* itemData = DataManager::GetInstance().FindItem(itemList[i].first);
+		if (itemData != nullptr)
+		{
+			ID2D1Bitmap* bitmap = m_resourceManager->GetImage(itemData->image);
+			if (bitmap != nullptr)
+			{
+				float pad = 8.0f;
+				GRAPHICS.DrawBitmapUI(bitmap, slotX + pad, slotY + pad, m_slotSize - pad * 2, m_slotSize - pad * 2);
+			}
+		}
+
+		wchar_t countText[10];
+		swprintf_s(countText, L"%d", itemList[i].second);
+		GRAPHICS.DrawString(countText, slotX + m_slotSize - 25, slotY + m_slotSize - 22, 15.f);
+	}
+}
+
+void UIManager::RenderCraftingRecipeList(ID2D1DeviceContext* context)
+{
+	string station;
+	switch (m_craftingStation)
+	{
+	case InteractType::CampFire:  station = "CampFire"; break;
+	case InteractType::WorkTable: station = "WorkTable"; break;
+	}
+
+	vector<RecipeData> recipes = DataManager::GetInstance().GetRecipesByStation(station);
+
+	GRAPHICS.DrawString(L"[레시피]", m_craftRecipeStartX, m_craftRecipeStartY - 30);
+
+	float y = m_craftRecipeStartY;
+	for (int i = 0; i < (int)recipes.size(); i++)
+	{
+		const RecipeData& recipe = recipes[i];
+		const ItemData* resultItem = DataManager::GetInstance().FindItem(recipe.resultId);
+
+		wstring resultName = (resultItem != nullptr) ? UTF8ToWString(resultItem->name) : UTF8ToWString(recipe.resultId);
+		bool canCraft = CraftingManager::CanCraft(recipe.id, m_inventory);
+
+		// 필요한 재료 이름들을 "재료명xN, 재료명xN" 형태로 조합
+		wstring ingredientText;
+		for (int j = 0; j < (int)recipe.ingredients.size(); j++)
+		{
+			const Ingredient& ing = recipe.ingredients[j];
+			const ItemData* ingItem = DataManager::GetInstance().FindItem(ing.ingredientId);
+			wstring ingName = (ingItem != nullptr) ? UTF8ToWString(ingItem->name) : UTF8ToWString(ing.ingredientId);
+
+			wchar_t buf[50];
+			swprintf_s(buf, L"%s x%d", ingName.c_str(), ing.count);
+
+			if (j > 0) ingredientText += L", ";
+			ingredientText += buf;
+		}
+
+		wchar_t line[100];
+		swprintf_s(line, L"%s%s %s",
+			(i == m_selectedRecipeIndex) ? L"> " : L"   ",
+			resultName.c_str(),
+			canCraft ? L"(가능)" : L"(부족)");
+
+		GRAPHICS.DrawString(line, m_craftRecipeStartX, y);
+		y += 25;
+
+		// 재료 목록을 결과물 이름 바로 아래, 살짝 들여써서 표시
+		wstring ingredientLine = L"    필요: " + ingredientText;
+		GRAPHICS.DrawString(ingredientLine.c_str(), m_craftRecipeStartX, y);
+		y += 30; // 다음 레시피와 간격
+	}
+}
+
+void UIManager::RenderCraftingIngredients(ID2D1DeviceContext* context)
+{
+	string station;
+	switch (m_craftingStation)
+	{
+	case InteractType::CampFire:  station = "CampFire"; break;
+	case InteractType::WorkTable: station = "WorkTable"; break;
+	}
+
+	vector<RecipeData> recipes = DataManager::GetInstance().GetRecipesByStation(station);
+	if (recipes.empty() || m_selectedRecipeIndex >= (int)recipes.size()) return;
+
+	const RecipeData& recipe = recipes[m_selectedRecipeIndex];
+
+	GRAPHICS.DrawString(L"[필요 재료]", m_craftIngredientStartX, m_craftIngredientStartY - 30);
+
+	for (int i = 0; i < (int)recipe.ingredients.size(); i++)
+	{
+		const Ingredient& ing = recipe.ingredients[i];
+
+		float slotX = m_craftIngredientStartX + i * (m_slotSize + m_slotPadding);
+		float slotY = m_craftIngredientStartY;
+
+		int haveCount = m_inventory->GetItemCount(ing.ingredientId);
+		bool enough = haveCount >= ing.count;
+
+		GRAPHICS.FillRect(slotX, slotY, m_slotSize, m_slotSize, D2D1::ColorF(0.2f, 0.2f, 0.2f, 1.0f));
+		GRAPHICS.DrawRect(slotX, slotY, m_slotSize, m_slotSize,
+			enough ? D2D1::ColorF::LightGreen : D2D1::ColorF::Red, 2.0f);
+
+		const ItemData* itemData = DataManager::GetInstance().FindItem(ing.ingredientId);
+		if (itemData != nullptr)
+		{
+			ID2D1Bitmap* bitmap = m_resourceManager->GetImage(itemData->image);
+			if (bitmap != nullptr)
+			{
+				float pad = 8.0f;
+				GRAPHICS.DrawBitmapUI(bitmap, slotX + pad, slotY + pad, m_slotSize - pad * 2, m_slotSize - pad * 2);
+			}
+		}
+
+		wchar_t countText[20];
+		swprintf_s(countText, L"%d/%d", haveCount, ing.count);
+		GRAPHICS.DrawString(countText, slotX, slotY + m_slotSize + 5);
+	}
+}

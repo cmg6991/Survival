@@ -20,5 +20,6 @@ struct RecipeData
 	string id;
 	string resultId;
 	int resultCount = 1;
+	string station;
 	vector<Ingredient> ingredients;
 };
