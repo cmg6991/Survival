@@ -13,6 +13,7 @@ enum class ElementType
 	ItemPickUp,
 	Interactable,
 	CampFire,
+	Weapon,
 	End
 };
 
