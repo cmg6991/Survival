@@ -12,11 +12,12 @@
 #include "TileManager.h"
 #include "Animator.h"
 #include "SpriteRenderer.h"
+#include "Weapon.h"
 using namespace std;
 
 Player::Player() 
     : m_transform(nullptr), m_targetPos(0), 
-    m_moveSpeed(10.f), m_tileMap(nullptr), m_collisionManager(nullptr),m_animator(nullptr),m_sprite(nullptr)
+    m_moveSpeed(10.f), m_tileMap(nullptr), m_collisionManager(nullptr),m_animator(nullptr),m_sprite(nullptr),m_weapon(nullptr)
 {
 }
 
@@ -57,6 +58,11 @@ void Player::Update(float deltaTime)
         freeDir.y++;
 
     bool isKeyMoving = (freeDir.Magnitude() > 0.001f);
+
+    if (InputManager::GetInstance().IsGetKeyDown(VK_SPACE))
+    {
+        Attack();
+    }
 
     if (isKeyMoving)
     {
@@ -234,6 +240,15 @@ void Player::Update(float deltaTime)
             m_isAutoMoving = false;
         }
     }
+
+    if (m_weapon != nullptr)
+    {
+        m_weapon->GetTransform()->SetPosition(
+            {
+                m_transform->GetPostion().x + 0.2f,
+                m_transform->GetPostion().y
+            });
+    }
 }
 
 void Player::LateUpdate()
@@ -275,10 +290,25 @@ void Player::SetGameObject(GameObject* gameObject)
     m_gameObject = gameObject;
 }
 
-void Player::SetEquipWeapon(const string& weaponId)
+//void Player::SetEquipWeapon(const string& weaponId)
+//{
+//    m_equippedWeapon = weaponId;
+//}
+
+//void Player::EquipWeapon(string weaponID)
+//{
+//    if (m_weapon == nullptr)
+//        return;
+//
+//    m_equippedWeapon = weaponID;
+//
+//    m_weapon->SetEquipped(true);
+//
+//    OutputDebugStringA("무기 장착 완료\n");
+//}
+
+void Player::Attack()
 {
-    m_equippedWeapon = weaponId;
-
-
-    
+    if (m_weapon)
+        m_weapon->Attack();
 }

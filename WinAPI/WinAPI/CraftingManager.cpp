@@ -1,8 +1,10 @@
 #include "CraftingManager.h"
 #include "DataManager.h"
 #include "Inventory.h"
+#include "Weapon.h"
+#include <random>
 
-bool CraftingManager::CanCraft(const string& recipeId, Inventory* inventory)
+bool CraftingManager::CanCraft(const string& recipeId, Inventory* inventory, Weapon* weapon)
 {
 	for (const RecipeData& recipe : DataManager::GetInstance().GetRecipeList())
 	{
@@ -10,6 +12,8 @@ bool CraftingManager::CanCraft(const string& recipeId, Inventory* inventory)
 
 		for (const Ingredient& ing : recipe.ingredients)
 		{
+			if (weapon != nullptr && ing.ingredientId == weapon->GetWeaponId())
+				continue;
 			if (!inventory->HasEnough(ing.ingredientId, ing.count))
 				return false;
 		}
@@ -18,10 +22,10 @@ bool CraftingManager::CanCraft(const string& recipeId, Inventory* inventory)
 	return false;
 }
 
-bool CraftingManager::Craft(const string& recipeId, Inventory* inventory)
+CraftResult CraftingManager::Craft(const string& recipeId, Inventory* inventory, Weapon* weapon)
 {
-	if (!CanCraft(recipeId, inventory))
-		return false;
+	if (!CanCraft(recipeId, inventory,weapon))
+		return CraftResult::None;
 
 	for (const RecipeData& recipe : DataManager::GetInstance().GetRecipeList())
 	{
@@ -29,11 +33,20 @@ bool CraftingManager::Craft(const string& recipeId, Inventory* inventory)
 
 		for (const Ingredient& ing : recipe.ingredients)
 		{
+			if (weapon != nullptr && ing.ingredientId == weapon->GetWeaponId())
+				continue;
 			inventory->RemoveItem(ing.ingredientId, ing.count);
 		}
 
+		static std::mt19937 rng(std::random_device{}());
+		std::uniform_real_distribution<float> dist(0.0f, 1.0f);
+		bool success = dist(rng) <= recipe.successRate;
+
+		if (!success)
+			return CraftResult::Failed; // 재료는 이미 소모됐지만 결과물은 안 나옴
+
 		inventory->AddItem(recipe.resultId, recipe.resultCount);
-		return true;
+		return CraftResult::Success;
 	}
-	return false;
+	return CraftResult::None;
 }

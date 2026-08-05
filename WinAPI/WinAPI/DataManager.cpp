@@ -124,6 +124,7 @@ void DataManager::LoadItemData(const string& filePath)
 		data.id = item["id"].get<string>();
 		data.name = item["name"].get<string>();
 		data.image = item["image"].get<string>();
+		data.type = item["type"].get<string>();
 		m_items.push_back(data);
 	}
 }
@@ -143,6 +144,8 @@ void DataManager::LoadRecipeData(const string& filePath)
 		data.resultId = recipe["result"].get<string>();
 		data.resultCount = recipe.value("resultCount", 1);
 		data.station = recipe.value("station", "");
+		data.isWeaponUpgrade = recipe.value("isWeaponUpgrade", false);
+		data.successRate = recipe.value("successRate", 1.f);
 		for (auto& ing : recipe["ingredients"])
 		{
 			Ingredient ingredient;

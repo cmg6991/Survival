@@ -20,6 +20,7 @@
 #include "ItemPickUp.h"
 #include "Inventory.h"
 #include "CampFire.h"
+#include "Weapon.h"
 
 wstring UTF8ToWString(const string& str)
 {
@@ -112,6 +113,14 @@ void MainScene::Init()
 	UIManager::GetInstance().SetInventory(m_player->GetInventory());
 	UIManager::GetInstance().SetResourceManager(m_resourceManager);
 	UIManager::GetInstance().SetPlayer(m_player);
+	UIManager::GetInstance().SetOnWeaponEquip([this](const string& itemId)
+		{
+			EquipWeaponToPlayer(itemId);
+		});
+	UIManager::GetInstance().SetOnWeaponUnequip([this]()
+		{
+			UnequipWeaponFromPlayer();
+		});
 }
 
 void MainScene::FixedUpdate()
@@ -122,39 +131,6 @@ void MainScene::Update(float deltaTime)
 {
 	InputManager::GetInstance().Update();
 	UIManager::GetInstance().Update(deltaTime);
-	/*if (m_isCraftingOpen)
-	{
-		string station = InteractTypeToStationString(m_currentCraftingType);
-		vector<RecipeData> recipes = DataManager::GetInstance().GetRecipesByStation(station);
-
-		if (InputManager::GetInstance().IsGetKeyDown('W') && m_selectedRecipeIndex > 0)
-			m_selectedRecipeIndex--;
-
-		if (InputManager::GetInstance().IsGetKeyDown('S') && m_selectedRecipeIndex < (int)recipes.size() - 1)
-			m_selectedRecipeIndex++;
-
-		if (InputManager::GetInstance().IsGetKeyDown(VK_RETURN) && !recipes.empty())
-		{
-			const RecipeData& recipe = recipes[m_selectedRecipeIndex];
-
-			if (CraftingManager::Craft(recipe.id, m_player->GetInventory()))
-			{
-				wstring resultId(recipe.resultId.begin(), recipe.resultId.end());
-				m_lastMessage = L"제작 성공: " + resultId;
-			}
-			else
-			{
-				m_lastMessage = L"재료가 부족합니다";
-			}
-		}
-
-		if (InputManager::GetInstance().IsGetKeyDown(VK_ESCAPE))
-		{
-			m_isCraftingOpen = false;
-		}
-
-		return;
-	}*/
 
 	if (InputManager::GetInstance().IsGetKeyDown('I'))
 	{
@@ -176,8 +152,6 @@ void MainScene::Update(float deltaTime)
 
 		return;
 	}
-
-
 	if (UIManager::GetInstance().IsCraftingOpen())
 	{
 		string station = InteractTypeToStationString(UIManager::GetInstance().GetCraftingStation());
@@ -199,10 +173,47 @@ void MainScene::Update(float deltaTime)
 		{
 			const RecipeData& recipe = recipes[UIManager::GetInstance().GetSelectedRecipeIndex()];
 
-			if (CraftingManager::Craft(recipe.id, m_player->GetInventory()))
+			CraftResult result = CraftingManager::Craft(recipe.id, m_player->GetInventory(), m_player->GetWeapon());
+
+			switch (result)
+			{
+			case CraftResult::Success:
+			{
+				const ItemData* resultItem = DataManager::GetInstance().FindItem(recipe.resultId);
+				bool isWeaponResult = (resultItem != nullptr && resultItem->type == "Weapon");
+
+				if (recipe.isWeaponUpgrade)
+				{
+					EquipWeaponToPlayer(recipe.resultId, false); // 강화: 재료로 먹힌 자리에 그대로 장착
+				}
+				else if (isWeaponResult && m_player->GetWeapon() == nullptr)
+				{
+					EquipWeaponToPlayer(recipe.resultId, true); // 슬롯 비었을 때만 자동장착
+				}
 				UIManager::GetInstance().ShowMessage(L"제작 성공: " + UTF8ToWString(recipe.resultId));
-			else
+				break;
+			}
+			case CraftResult::Failed:
+			{
+				if (recipe.isWeaponUpgrade)
+				{
+					// 강화 실패 -> 재료로 쓰인 무기 자체도 파괴
+					Weapon* current = m_player->GetWeapon();
+					if (current != nullptr)
+					{
+						DeletePObject(current->GetGameObject());
+						m_player->SetWeapon(nullptr);
+					}
+				}
+				UIManager::GetInstance().ShowMessage(L"제작 실패... 재료를 잃었습니다");
+				break;
+			}
+			case CraftResult::None:
+			{
 				UIManager::GetInstance().ShowMessage(L"재료가 부족합니다");
+				break;
+			}
+			}
 		}
 
 		if (InputManager::GetInstance().IsGetKeyDown(VK_ESCAPE))
@@ -406,6 +417,51 @@ void MainScene::CreateItemPickUp(float x, float y, const string& itemId, int cou
 	obj->SetElement(sprite, ElementType::SpriteRenderer);
 	obj->SetElement(pickup, ElementType::ItemPickUp);
 	obj->Init();
+}
+
+void MainScene::EquipWeaponToPlayer(const string& weaponId,bool returnInven)
+{
+	Weapon* current = m_player->GetWeapon();
+	if (current != nullptr)
+	{
+		if (returnInven)
+		{
+			m_player->GetInventory()->AddItem(current->GetWeaponId(), 1);
+		}
+		DeletePObject(current->GetGameObject());
+		DeletePObject(current->GetGameObject());
+	}
+
+	if (m_player->GetInventory()->HasEnough(weaponId, 1))
+	{
+		m_player->GetInventory()->RemoveItem(weaponId, 1);
+	}
+
+	GameObject* weaponObj = CreateObject("Weapon");
+
+	Transform* weaponTr = new Transform();
+	SpriteRenderer* weaponSprite = new SpriteRenderer(weaponId);
+	weaponSprite->SetResourceManager(m_resourceManager);
+	Weapon* weapon = new Weapon(weaponId);
+
+	weaponObj->SetElement(weaponTr, ElementType::Transform);
+	weaponObj->SetElement(weaponSprite, ElementType::SpriteRenderer);
+	weaponObj->SetElement(weapon, ElementType::Weapon);
+	weaponObj->Init(); // 여기서 Weapon::Init()이 호출되면서 m_transform, m_sprite 자동 세팅됨
+
+	m_player->SetWeapon(weapon);
+	//m_player->EquipWeapon(weaponId);
+	//weapon->SetEquipped(true);
+}
+
+void MainScene::UnequipWeaponFromPlayer()
+{
+	Weapon* current = m_player->GetWeapon();
+	if (current == nullptr) return;
+
+	m_player->GetInventory()->AddItem(current->GetWeaponId(), 1);
+	DeletePObject(current->GetGameObject());
+	m_player->SetWeapon(nullptr);
 }
 
 void MainScene::CheckItemPickUps()

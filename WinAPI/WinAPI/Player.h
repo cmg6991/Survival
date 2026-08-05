@@ -10,6 +10,7 @@ class Transform;
 class CollisionManager;
 class Animator;
 class SpriteRenderer;
+class Weapon;
 
 class Player : public ElementBase
 {
@@ -42,18 +43,23 @@ public:
 
 	Inventory* GetInventory() { return &m_inventory; }
 
-	void SetEquipWeapon(const string& weaponId);
-	string GetEquippedWeapon() const { return m_equippedWeapon; }
+	//string GetEquippedWeapon() const { return m_equippedWeapon; }
+
+	//void EquipWeapon(string weaponID);
+	void Attack();
+
+	void SetWeapon(Weapon* weapon) { m_weapon = weapon; }
+	Weapon* GetWeapon() { return m_weapon; }
 
 private:
 	bool m_isAutoMoving = false;
 
-	string m_equippedWeapon;
+	//string m_equippedWeapon;
 private:
 	Transform* m_transform;
 	float m_moveSpeed;
 	MathEngine::Vector2 m_targetPos;
-	MathEngine::Vector2 m_debugTarget;
+	//MathEngine::Vector2 m_debugTarget;
 
 	TileMap* m_tileMap;
 	CollisionManager* m_collisionManager;
@@ -61,5 +67,6 @@ private:
 	SpriteRenderer* m_sprite;
 
 	Inventory m_inventory = Inventory(10, 50);
+	Weapon* m_weapon;
 };
 

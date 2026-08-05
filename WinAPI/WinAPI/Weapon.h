@@ -32,7 +32,7 @@ public:
 	void Attack();
 
 	string GetWeaponId() { return m_weaponId; }
-
+	Transform* GetTransform() { return m_transform; }
 private:
 	string m_weaponId;
 

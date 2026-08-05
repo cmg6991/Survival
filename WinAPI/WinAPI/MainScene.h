@@ -34,6 +34,9 @@ private:
 	void CreateInteractable(float x, float y, InteractType type, const string& imageKey);
 	void CreateItemPickUp(float x, float y, const string& itemId, int count);
 
+	void EquipWeaponToPlayer(const string& weaponId, bool returnInven = true);
+	void UnequipWeaponFromPlayer();
+
 	void CheckItemPickUps();
 	string MakeItemPositionId(float x, float y);
 	Interactable* FindNearByInteractable();
@@ -53,9 +56,9 @@ private:
 	unordered_map<char, function<void(float, float)>> m_tileHandlers;
 	unordered_set<string> m_collectedItemsIds;
 
-	bool m_isCraftingOpen = false;
+	/*bool m_isCraftingOpen = false;
 	InteractType m_currentCraftingType = InteractType::CampFire;
-	int m_selectedRecipeIndex = 0;
+	int m_selectedRecipeIndex = 0;*/
 
 	//wstring m_lastMessage;
 };

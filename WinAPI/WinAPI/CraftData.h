@@ -6,6 +6,7 @@ struct ItemData
 	string id;
 	string name;
 	string image;
+	string type;
 };
 
 struct Ingredient
@@ -21,5 +22,7 @@ struct RecipeData
 	string resultId;
 	int resultCount = 1;
 	string station;
+	bool isWeaponUpgrade = false;
+	float successRate = 1.f;
 	vector<Ingredient> ingredients;
 };

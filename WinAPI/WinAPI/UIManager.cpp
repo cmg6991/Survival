@@ -6,6 +6,7 @@
 #include "CraftingManager.h"
 #include "ResourceManager.h"
 #include "Player.h"
+#include "Weapon.h"
 
 wstring UTF8ToWString(const string& str);
 
@@ -139,6 +140,15 @@ void UIManager::HandleInventoryClick(float mouseX, float mouseY)
 			return;
 		}
 	}
+
+	// 2. 장비 슬롯(무기) 클릭 -> 해제
+	if (mouseX >= m_equipSlotX && mouseX <= m_equipSlotX + m_slotSize &&
+		mouseY >= m_equipWeaponSlotY && mouseY <= m_equipWeaponSlotY + m_slotSize)
+	{
+		if (m_onWeaponUnequip)
+			m_onWeaponUnequip();
+		return;
+	}
 }
 
 void UIManager::EquipItem(const string& itemId)
@@ -150,10 +160,10 @@ void UIManager::EquipItem(const string& itemId)
 	if (inventory->HasEnough(itemId, 1))
 	{
 		// 인벤토리에서 제거
-		inventory->RemoveItem(itemId, 1);
+		//inventory->RemoveItem(itemId, 1);
 
-		// 플레이어 장착
-		m_player->SetEquipWeapon(itemId);
+		if (m_onWeaponEquip)
+			m_onWeaponEquip(itemId); // 실제 GameObject 생성/장착은 MainScene에 위임
 
 		ShowMessage(L"장착했습니다");
 	}
@@ -320,7 +330,7 @@ void UIManager::RenderInventoryWindow(ID2D1DeviceContext* context)
 
 	// 배경 패널
 	float panelWidth = m_slotsPerRow * (m_slotSize + m_slotPadding) + m_slotPadding;
-	GRAPHICS.FillRect(m_slotStartX - 20, m_slotStartY - 60, panelWidth + 20, 400, D2D1::ColorF(0.1f, 0.1f, 0.1f, 0.85f));
+	GRAPHICS.FillRect(m_slotStartX - 20, m_slotStartY - 60, panelWidth + 400, 400, D2D1::ColorF(0.1f, 0.1f, 0.1f, 0.85f));
 
 	GRAPHICS.DrawString(L"=== 인벤토리 ===", m_slotStartX, m_slotStartY - 50);
 
@@ -377,6 +387,27 @@ void UIManager::RenderInventoryWindow(ID2D1DeviceContext* context)
 	}
 
 	GRAPHICS.DrawString(L"I: 닫기", m_slotStartX, m_slotStartY + 300);
+
+	GRAPHICS.DrawString(L"===장비===", m_equipSlotX, m_slotStartY - 50);
+
+	GRAPHICS.FillRect(m_equipSlotX, m_equipWeaponSlotY, m_slotSize, m_slotSize, D2D1::ColorF(0.25f, 0.2f, 0.1f, 1.0f));
+	GRAPHICS.DrawRect(m_equipSlotX, m_equipWeaponSlotY, m_slotSize, m_slotSize, D2D1::ColorF::Gold, 2.0f);
+	GRAPHICS.DrawString(L"무기", m_equipSlotX, m_equipWeaponSlotY - 20, 14.f);
+
+	Weapon* equippedWeapon = (m_player != nullptr) ? m_player->GetWeapon() : nullptr;
+	if (equippedWeapon != nullptr)
+	{
+		const ItemData* itemData = DataManager::GetInstance().FindItem(equippedWeapon->GetWeaponId());
+		if (itemData != nullptr)
+		{
+			ID2D1Bitmap* bitmap = m_resourceManager->GetImage(itemData->image);
+			if (bitmap != nullptr)
+			{
+				float pad = 8.0f;
+				GRAPHICS.DrawBitmapUI(bitmap, m_equipSlotX + pad, m_equipWeaponSlotY + pad, m_slotSize - pad * 2, m_slotSize - pad * 2);
+			}
+		}
+	}
 }
 
 void UIManager::RenderCraftingInventorySlots(ID2D1DeviceContext* context)
@@ -433,7 +464,7 @@ void UIManager::RenderCraftingRecipeList(ID2D1DeviceContext* context)
 		const ItemData* resultItem = DataManager::GetInstance().FindItem(recipe.resultId);
 
 		wstring resultName = (resultItem != nullptr) ? UTF8ToWString(resultItem->name) : UTF8ToWString(recipe.resultId);
-		bool canCraft = CraftingManager::CanCraft(recipe.id, m_inventory);
+		bool canCraft = CraftingManager::CanCraft(recipe.id, m_inventory,m_player->GetWeapon() );
 
 		// 필요한 재료 이름들을 "재료명xN, 재료명xN" 형태로 조합
 		wstring ingredientText;
@@ -479,6 +510,7 @@ void UIManager::RenderCraftingIngredients(ID2D1DeviceContext* context)
 	if (recipes.empty() || m_selectedRecipeIndex >= (int)recipes.size()) return;
 
 	const RecipeData& recipe = recipes[m_selectedRecipeIndex];
+	Weapon* equipped = (m_player != nullptr) ? m_player->GetWeapon() : nullptr;
 
 	GRAPHICS.DrawString(L"[필요 재료]", m_craftIngredientStartX, m_craftIngredientStartY - 30);
 
@@ -489,8 +521,10 @@ void UIManager::RenderCraftingIngredients(ID2D1DeviceContext* context)
 		float slotX = m_craftIngredientStartX + i * (m_slotSize + m_slotPadding);
 		float slotY = m_craftIngredientStartY;
 
-		int haveCount = m_inventory->GetItemCount(ing.ingredientId);
-		bool enough = haveCount >= ing.count;
+		bool isEquippedWeapon = (equipped != nullptr && ing.ingredientId == equipped->GetWeaponId());
+
+		int haveCount = isEquippedWeapon ? ing.count : m_inventory->GetItemCount(ing.ingredientId);
+		bool enough = isEquippedWeapon ? true : (haveCount >= ing.count);
 
 		GRAPHICS.FillRect(slotX, slotY, m_slotSize, m_slotSize, D2D1::ColorF(0.2f, 0.2f, 0.2f, 1.0f));
 		GRAPHICS.DrawRect(slotX, slotY, m_slotSize, m_slotSize,
@@ -507,8 +541,12 @@ void UIManager::RenderCraftingIngredients(ID2D1DeviceContext* context)
 			}
 		}
 
-		wchar_t countText[20];
-		swprintf_s(countText, L"%d/%d", haveCount, ing.count);
+		wchar_t countText[20]; 
+		if (isEquippedWeapon)
+			swprintf_s(countText, L"장착중");
+		else
+			swprintf_s(countText, L"%d/%d", haveCount, ing.count);
+
 		GRAPHICS.DrawString(countText, slotX, slotY + m_slotSize + 5);
 	}
 }

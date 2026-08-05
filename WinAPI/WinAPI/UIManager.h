@@ -38,6 +38,9 @@ public:
 	void HandleInventoryClick(float mouseX, float mouseY);
 	void EquipItem(const string& itemId);
 
+	void SetOnWeaponEquip(function<void(const string&)> callback) { m_onWeaponEquip = callback; }
+	void SetOnWeaponUnequip(function<void()> callback) { m_onWeaponUnequip = callback; }
+
 private:
 	void RenderTime(ID2D1DeviceContext* context);
 	void RenderInventory(ID2D1DeviceContext* context);
@@ -64,6 +67,9 @@ private:
 	wstring m_message;
 	float m_messageTimer = 0.0f;
 
+	function<void(const string&)> m_onWeaponEquip;
+	function<void()> m_onWeaponUnequip;
+
 	// 인벤토리 창 상태
 	bool m_isInventoryOpen = false;
 
@@ -83,6 +89,10 @@ private:
 
 	const float m_craftIngredientStartX = 700.0f;
 	const float m_craftIngredientStartY = 300.0f;
+
+	// 장비 슬롯 좌표 (인벤토리 옆)
+	float m_equipSlotX = 700.f;
+	float m_equipWeaponSlotY = 120.f;
 
 private:
 	UIManager() {}
