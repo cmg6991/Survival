@@ -390,9 +390,9 @@ void UIManager::RenderInventoryWindow(ID2D1DeviceContext* context)
 
 	GRAPHICS.DrawString(L"===장비===", m_equipSlotX, m_slotStartY - 50);
 
-	GRAPHICS.FillRect(m_equipSlotX, m_equipWeaponSlotY, m_slotSize, m_slotSize, D2D1::ColorF(0.25f, 0.2f, 0.1f, 1.0f));
-	GRAPHICS.DrawRect(m_equipSlotX, m_equipWeaponSlotY, m_slotSize, m_slotSize, D2D1::ColorF::Gold, 2.0f);
-	GRAPHICS.DrawString(L"무기", m_equipSlotX, m_equipWeaponSlotY - 20, 14.f);
+	GRAPHICS.FillRect(m_equipSlotX, m_equipWeaponSlotY+20, m_slotSize, m_slotSize, D2D1::ColorF(0.25f, 0.2f, 0.1f, 1.0f));
+	GRAPHICS.DrawRect(m_equipSlotX, m_equipWeaponSlotY+20, m_slotSize, m_slotSize, D2D1::ColorF::Gold, 2.0f);
+	GRAPHICS.DrawString(L"무기", m_equipSlotX, m_equipWeaponSlotY - 10, 14.f);
 
 	Weapon* equippedWeapon = (m_player != nullptr) ? m_player->GetWeapon() : nullptr;
 	if (equippedWeapon != nullptr)

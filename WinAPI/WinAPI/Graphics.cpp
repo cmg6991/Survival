@@ -188,7 +188,7 @@ if(FAILED(hr))\
 	if (FAILED(hr)) return false;
 
 	hr = m_writeFactory->CreateTextFormat(
-		L"¸¼Àº °íµñ",
+		L"¿Â±ÛÀÙ µµ¶÷Ã¼",
 		nullptr,
 		DWRITE_FONT_WEIGHT_NORMAL,
 		DWRITE_FONT_STYLE_NORMAL,
@@ -247,7 +247,7 @@ void Graphics::DrawString(const wchar_t* text, float x, float y, float fontSize)
 	IDWriteTextFormat* format = nullptr;
 
 	m_writeFactory->CreateTextFormat(
-		L"¸¼Àº °íµñ",
+		L"¿Â±ÛÀÙ µµ¶÷Ã¼",
 		nullptr,
 		DWRITE_FONT_WEIGHT_NORMAL,
 		DWRITE_FONT_STYLE_NORMAL,
