@@ -26,14 +26,10 @@ void GameProcess::Init(HINSTANCE hInstance)
 	m_hBitmap = CreateCompatibleBitmap(hdc, 1920, 1080);
 	SelectObject(m_hdc, m_hBitmap);
 	ReleaseDC(m_hWnd, hdc);*/
-	int result = AddFontResourceEx(
+	AddFontResourceEx(
 		L"Resource\\Font\\온글잎 도람체.ttf",
 		FR_PRIVATE,
 		nullptr);
-
-	wchar_t buf[100];
-	swprintf_s(buf, L"AddFontResourceEx 결과 = %d", result);
-	MessageBox(nullptr, buf, L"폰트", MB_OK);
 
 	if (!GRAPHICS.Init(m_hWnd))
 	{
