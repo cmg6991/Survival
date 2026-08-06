@@ -36,6 +36,7 @@ public:
 
 	void HandleCraftingInventoryClick(float mouseX, float mouseY);
 	void HandleInventoryClick(float mouseX, float mouseY);
+	bool HandleCraftingRecipeClick(float mouseX, float mouseY);
 	void EquipItem(const string& itemId);
 
 	void SetOnWeaponEquip(function<void(const string&)> callback) { m_onWeaponEquip = callback; }

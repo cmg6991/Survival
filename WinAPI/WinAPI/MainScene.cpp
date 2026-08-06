@@ -180,60 +180,150 @@ void MainScene::Update(float deltaTime)
 		{
 			MathEngine::Vector2 mousePos = InputManager::GetInstance().GetMousePosition();
 			UIManager::GetInstance().HandleCraftingInventoryClick(mousePos.x, mousePos.y);
-		}
 
-		if (InputManager::GetInstance().IsGetKeyDown('W'))
-			UIManager::GetInstance().MoveSelection(-1, (int)recipes.size());
-
-		if (InputManager::GetInstance().IsGetKeyDown('S'))
-			UIManager::GetInstance().MoveSelection(1, (int)recipes.size());
-
-		if (InputManager::GetInstance().IsGetKeyDown(VK_RETURN) && !recipes.empty())
-		{
-			const RecipeData& recipe = recipes[UIManager::GetInstance().GetSelectedRecipeIndex()];
-
-			CraftResult result = CraftingManager::Craft(recipe.id, m_player->GetInventory(), m_player->GetWeapon());
-
-			switch (result)
+			bool selected = UIManager::GetInstance().HandleCraftingRecipeClick(mousePos.x, mousePos.y);
+			if (selected)
 			{
-			case CraftResult::Success:
-			{
-				const ItemData* resultItem = DataManager::GetInstance().FindItem(recipe.resultId);
-				bool isWeaponResult = (resultItem != nullptr && resultItem->type == "Weapon");
+				const RecipeData& recipe =
+					recipes[
+						UIManager::GetInstance().GetSelectedRecipeIndex()
+					];
 
-				if (recipe.isWeaponUpgrade)
+
+				CraftResult result =
+					CraftingManager::Craft(
+						recipe.id,
+						m_player->GetInventory(),
+						m_player->GetWeapon()
+					);
+
+
+				switch (result)
 				{
-					EquipWeaponToPlayer(recipe.resultId, false); // 강화: 재료로 먹힌 자리에 그대로 장착
-				}
-				else if (isWeaponResult && m_player->GetWeapon() == nullptr)
+				case CraftResult::Success:
 				{
-					EquipWeaponToPlayer(recipe.resultId, true); // 슬롯 비었을 때만 자동장착
-				}
-				UIManager::GetInstance().ShowMessage(L"제작 성공: " + UTF8ToWString(recipe.resultId));
-				break;
-			}
-			case CraftResult::Failed:
-			{
-				if (recipe.isWeaponUpgrade)
-				{
-					// 강화 실패 -> 재료로 쓰인 무기 자체도 파괴
-					Weapon* current = m_player->GetWeapon();
-					if (current != nullptr)
+					const ItemData* resultItem =
+						DataManager::GetInstance().FindItem(recipe.resultId);
+
+
+					bool isWeaponResult =
+						resultItem != nullptr &&
+						resultItem->type == "Weapon";
+
+
+					if (recipe.isWeaponUpgrade)
 					{
-						DeletePObject(current->GetGameObject());
-						m_player->SetWeapon(nullptr);
+						EquipWeaponToPlayer(recipe.resultId, false);
 					}
+					else if (isWeaponResult &&
+						m_player->GetWeapon() == nullptr)
+					{
+						EquipWeaponToPlayer(recipe.resultId, true);
+					}
+
+
+					UIManager::GetInstance()
+						.ShowMessage(
+							L"제작 성공: "
+							+ UTF8ToWString(recipe.resultId)
+						);
+
+					break;
 				}
-				UIManager::GetInstance().ShowMessage(L"제작 실패... 재료를 잃었습니다");
-				break;
-			}
-			case CraftResult::None:
-			{
-				UIManager::GetInstance().ShowMessage(L"재료가 부족합니다");
-				break;
-			}
+
+
+				case CraftResult::Failed:
+				{
+					if (recipe.isWeaponUpgrade)
+					{
+						Weapon* current =
+							m_player->GetWeapon();
+
+						if (current)
+						{
+							DeletePObject(
+								current->GetGameObject()
+							);
+
+							m_player->SetWeapon(nullptr);
+						}
+					}
+
+					UIManager::GetInstance()
+						.ShowMessage(
+							L"제작 실패..."
+						);
+
+					break;
+				}
+
+
+				case CraftResult::None:
+				{
+					UIManager::GetInstance()
+						.ShowMessage(
+							L"재료 부족"
+						);
+
+					break;
+				}
+				}
 			}
 		}
+
+		//if (InputManager::GetInstance().IsGetKeyDown('W'))
+		//	UIManager::GetInstance().MoveSelection(-1, (int)recipes.size());
+
+		//if (InputManager::GetInstance().IsGetKeyDown('S'))
+		//	UIManager::GetInstance().MoveSelection(1, (int)recipes.size());
+
+		//if (InputManager::GetInstance().IsGetKeyDown(VK_RETURN) && !recipes.empty())
+		//{
+		//	const RecipeData& recipe = recipes[UIManager::GetInstance().GetSelectedRecipeIndex()];
+
+		//	CraftResult result = CraftingManager::Craft(recipe.id, m_player->GetInventory(), m_player->GetWeapon());
+
+		//	switch (result)
+		//	{
+		//	case CraftResult::Success:
+		//	{
+		//		const ItemData* resultItem = DataManager::GetInstance().FindItem(recipe.resultId);
+		//		bool isWeaponResult = (resultItem != nullptr && resultItem->type == "Weapon");
+
+		//		if (recipe.isWeaponUpgrade)
+		//		{
+		//			EquipWeaponToPlayer(recipe.resultId, false); // 강화: 재료로 먹힌 자리에 그대로 장착
+		//		}
+		//		else if (isWeaponResult && m_player->GetWeapon() == nullptr)
+		//		{
+		//			EquipWeaponToPlayer(recipe.resultId, true); // 슬롯 비었을 때만 자동장착
+		//		}
+		//		UIManager::GetInstance().ShowMessage(L"제작 성공: " + UTF8ToWString(recipe.resultId));
+		//		break;
+		//	}
+		//	case CraftResult::Failed:
+		//	{
+		//		if (recipe.isWeaponUpgrade)
+		//		{
+		//			// 강화 실패 -> 재료로 쓰인 무기 자체도 파괴
+		//			Weapon* current = m_player->GetWeapon();
+		//			if (current != nullptr)
+		//			{
+		//				DeletePObject(current->GetGameObject());
+		//				m_player->SetWeapon(nullptr);
+		//			}
+		//		}
+		//		UIManager::GetInstance().ShowMessage(L"제작 실패... 재료를 잃었습니다");
+		//		break;
+		//	}
+		//	case CraftResult::None:
+		//	{
+		//		UIManager::GetInstance().ShowMessage(L"재료가 부족합니다");
+		//		break;
+		//	}
+		//	}
+		//}
+		
 
 		if (InputManager::GetInstance().IsGetKeyDown(VK_ESCAPE))
 			UIManager::GetInstance().CloseCrafting();
@@ -280,14 +370,14 @@ void MainScene::Update(float deltaTime)
 		}
 	}
 
-	m_physicsWorld->Step(deltaTime);             // 추가
 	m_physicsWorld->DetectCollision(deltaTime);
+	m_physicsWorld->Step(deltaTime);             // 추가
 
 }
 
 void MainScene::LateUpdate()
 {
-	//Scene::LateUpdate();
+	Scene::LateUpdate();
 }
 
 void MainScene::PreRender()
@@ -412,7 +502,7 @@ void MainScene::CreateInteractable(float x, float y, InteractType type, const st
 
 	ColliderComponent* collider = new ColliderComponent();
 	collider->SetPhysicsWorld(m_physicsWorld);
-	collider->SetSyncMode(ColliderSyncMode::TransformDrivesPhysics);
+	collider->SetSyncMode(ColliderSyncMode::PhysicsDrivesTransform);
 
 	obj->SetElement(tr, ElementType::Transform);
 	obj->SetElement(sprite, ElementType::SpriteRenderer);

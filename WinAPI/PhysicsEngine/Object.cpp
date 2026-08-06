@@ -25,6 +25,7 @@ namespace PhysicsEngine
 		, force{ 0.f, }
 		, mass(m)
 		, collider(nullptr)
+		, isStatic(false)
 	{
 
 	}

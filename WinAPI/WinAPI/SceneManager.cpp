@@ -28,7 +28,7 @@ void SceneManager::Update(float deltaTime)
 
 void SceneManager::LateUpdate()
 {
-	//m_currentScene->LateUpdate();
+	m_currentScene->LateUpdate();
 	if (m_nextScene != nullptr)
 	{
 		LoadScene(m_nextScene->GetName());

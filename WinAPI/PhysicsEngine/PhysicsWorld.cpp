@@ -157,11 +157,26 @@ namespace PhysicsEngine
 	void PhysicsWorld::TestResolve(
 		Object& a, Object& b, const CollisionPoints& points)
 	{
-		float dis = a.position.Distance(b.position);
-		a.position +=
-			points.normal * points.depth / dis;
-		b.position -=
-			points.normal * points.depth / dis;
+		if (a.isStatic && b.isStatic) return;
+
+		if (a.isStatic)
+		{
+			b.position -= points.normal * points.depth;
+			b.collider->center = b.position;
+		}
+		else if (b.isStatic)
+		{
+			a.position += points.normal * points.depth;
+			a.collider->center = a.position;
+		}
+		else
+		{
+			a.position += points.normal * (points.depth * 0.5f);
+			b.position -= points.normal * (points.depth * 0.5f);
+
+			a.collider->center = a.position;
+			b.collider->center = b.position;
+		}
 	}
 
 }

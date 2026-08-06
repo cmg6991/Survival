@@ -40,11 +40,10 @@ void ColliderComponent::Update(float deltaTime)
 
 void ColliderComponent::LateUpdate()
 {
-	if (m_object && m_transform)
-	{
-		// Physics World가 밀어낸 최신 좌표를 Transform(화면 위치)에 반영
-		m_transform->SetPosition(m_object->position);
-	}
+	/*if (!m_object || !m_transform)
+		return;
+
+	m_transform->SetPosition(m_object->position);*/
 }
 
 void ColliderComponent::PreRender()

@@ -147,8 +147,10 @@ void UIManager::HandleInventoryClick(float mouseX, float mouseY)
 		{
 			string itemId = itemList[i].first;
 
-			// 검이면 장착
-			if (itemId == "Item_Sword")
+			const ItemData* item =
+				DataManager::GetInstance().FindItem(itemId);
+
+			if (item->type == "Weapon")
 			{
 				EquipItem(itemId);
 			}
@@ -165,6 +167,57 @@ void UIManager::HandleInventoryClick(float mouseX, float mouseY)
 			m_onWeaponUnequip();
 		return;
 	}
+}
+
+bool UIManager::HandleCraftingRecipeClick(float mouseX, float mouseY)
+{
+	string station;
+
+	switch (m_craftingStation)
+	{
+	case InteractType::CampFire:
+		station = "CampFire";
+		break;
+
+	case InteractType::WorkTable:
+		station = "WorkTable";
+		break;
+	}
+
+	vector<RecipeData> recipes =
+		DataManager::GetInstance().GetRecipesByStation(station);
+
+	if (recipes.empty())
+		return false;
+
+	float y = m_craftRecipeStartY;
+
+	int endIndex = min(
+		(int)recipes.size(),
+		m_craftRecipeScrollOffset + m_craftRecipeVisibleCount
+	);
+
+	for (int i = m_craftRecipeScrollOffset; i < endIndex; i++)
+	{
+		// 레시피 한 칸 영역
+		if (mouseX >= m_craftRecipeStartX &&
+			mouseX <= m_craftRecipeStartX + 400 &&
+			mouseY >= y &&
+			mouseY <= y + 70)
+		{
+			m_selectedRecipeIndex = i;
+
+			OutputDebugStringA(
+				("선택 레시피 : " + recipes[i].id + "\n").c_str()
+			);
+
+			return true;
+		}
+
+		y += 75;
+	}
+
+	return false;
 }
 
 void UIManager::EquipItem(const string& itemId)
@@ -293,38 +346,6 @@ void UIManager::RenderInteractionHint(ID2D1DeviceContext* context)
 
 void UIManager::RenderCrafting(ID2D1DeviceContext* context)
 {
-	///*string station;
-	//switch (m_craftingStation)
-	//{
-	//case InteractType::CampFire:  station = "CampFire"; break;
-	//case InteractType::WorkTable: station = "WorkTable"; break;
-	//}
-	//vector<RecipeData> recipes = DataManager::GetInstance().GetRecipesByStation(station);
-
-	//wstring title = (m_craftingStation == InteractType::CampFire) ? L"=== 요리 ===" : L"=== 제작 ===";
-	//GRAPHICS.DrawString(title.c_str(), 700, 300);
-
-	//float y = 340;
-	//for (int i = 0; i < (int)recipes.size(); i++)
-	//{
-	//	const RecipeData& recipe = recipes[i];
-	//	const ItemData* resultItem = DataManager::GetInstance().FindItem(recipe.resultId);
-
-	//	wstring resultName = (resultItem != nullptr) ? UTF8ToWString(resultItem->name) : UTF8ToWString(recipe.resultId);
-	//	bool canCraft = CraftingManager::CanCraft(recipe.id, m_inventory);
-
-	//	wchar_t line[150];
-	//	swprintf_s(line, L"%s%s %s",
-	//		(i == m_selectedRecipeIndex) ? L"> " : L"   ",
-	//		resultName.c_str(),
-	//		canCraft ? L"(제작 가능)" : L"(재료 부족)");
-
-	//	GRAPHICS.DrawString(line, 700, y);
-	//	y += 30;
-	//}
-
-	//GRAPHICS.DrawString(L"W/S: 선택   Enter: 제작   ESC: 닫기", 700, y + 20);*/
-
 	if (m_inventory == nullptr || m_resourceManager == nullptr) return;
 
 	// 배경 패널 (전체 크래프팅 창)
@@ -337,7 +358,7 @@ void UIManager::RenderCrafting(ID2D1DeviceContext* context)
 	RenderCraftingRecipeList(context);
 	RenderCraftingIngredients(context);
 
-	GRAPHICS.DrawString(L"W/S: 레시피 선택   Enter: 제작   ESC: 닫기", m_craftRecipeStartX, 550);
+	GRAPHICS.DrawString(L"만들고 싶은 레시피를 클릭하세요!", m_craftRecipeStartX, 550);
 }
 
 void UIManager::RenderMessage(ID2D1DeviceContext* context)
