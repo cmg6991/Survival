@@ -30,7 +30,7 @@ public:
 	void SetWheelPower(int power) { m_wheelPower = power; }
 	int GetWheelPower() { return m_wheelPower; }
 
-	
+	void ResetWheel() { m_wheelPower = 0; }
 
 private:
 	// 한 개의 클래스라는 것을 보장하려면 생성자를 숨겨야 한다.

@@ -1,5 +1,6 @@
 #include "WinInit.h"
 #include "GameProcess.h"
+#include "InputManager.h"
 
 WinInit::WinInit() :m_hInst(NULL), m_hWnd(NULL)
 {
@@ -52,7 +53,7 @@ LRESULT WinInit::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		//int x = LOWORD(lParam); // 마우스 X 좌표
 		//int y = HIWORD(lParam); // 마우스 Y 좌표
 
-		//InputManager::GetInstance().SetWheelPower(zDelta);
+		InputManager::GetInstance().SetWheelPower(zDelta);
 
 		return 0;
 	}

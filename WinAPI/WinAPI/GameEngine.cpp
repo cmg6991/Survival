@@ -169,21 +169,3 @@ void GameEngine::Release()
 	delete m_resourceManager;
 	m_resourceManager = nullptr;
 }
-
-//void GameEngine::CreateWall(float x, float y,const string& imageName)
-//{
-//	GameObject* wallObj =new GameObject("Wall");
-//	Transform* tr =new Transform();
-//	tr->SetPosition({ x, y });
-//	//Wall* wall =new Wall();
-//	SpriteRenderer* sprite =new SpriteRenderer(imageName);
-//	sprite->SetPivot(47, 112);
-//	sprite->SetResourceManager(m_resourceManager);
-//	wallObj->SetElement(tr,ElementType::Transform);
-//	wallObj->SetElement(sprite, ElementType::Wall);
-//	wallObj->SetElement(sprite,ElementType::SpriteRenderer);
-//	wallObj->Init();
-//
-//	m_objects.push_back(wallObj);
-//	m_collisionManager->SetBlocked(x, y,true);
-//}

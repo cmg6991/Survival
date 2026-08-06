@@ -5,6 +5,7 @@
 #include "Inventory.h"
 #include "CraftingManager.h"
 #include "ResourceManager.h"
+#include "InputManager.h"
 #include "Player.h"
 #include "Weapon.h"
 
@@ -20,11 +21,18 @@ void UIManager::Update(float deltaTime)
 			m_message.clear();
 		}
 	}
+	if (m_isCraftingOpen) // 실제 플래그 이름은 프로젝트에 맞게
+	{
+		int wheel = InputManager::GetInstance().GetWheelPower();
+		if (wheel != 0)
+		{
+			ScrollCraftingRecipe(wheel > 0 ? -1 : 1);
+		}
+	}
 }
 
 void UIManager::Render(ID2D1DeviceContext* context)
 {
-
 	context->SetTransform(D2D1::Matrix3x2F::Identity());
 	RenderTime(context);
 	RenderInventory(context);
@@ -55,6 +63,14 @@ void UIManager::MoveSelection(int delta, int maxCount)
 	m_selectedRecipeIndex += delta;
 	if (m_selectedRecipeIndex < 0) m_selectedRecipeIndex = 0;
 	if (m_selectedRecipeIndex >= maxCount) m_selectedRecipeIndex = maxCount - 1;
+	if (m_selectedRecipeIndex < m_craftRecipeScrollOffset)
+	{
+		m_craftRecipeScrollOffset = m_selectedRecipeIndex;
+	}
+	else if (m_selectedRecipeIndex >= m_craftRecipeScrollOffset + m_craftRecipeVisibleCount)
+	{
+		m_craftRecipeScrollOffset = m_selectedRecipeIndex - m_craftRecipeVisibleCount + 1;
+	}
 }
 
 void UIManager::ToggleInventoryWindow()
@@ -66,7 +82,7 @@ void UIManager::HandleCraftingInventoryClick(float mouseX, float mouseY)
 {
 	OutputDebugStringA(("클릭 좌표: " + std::to_string(mouseX) + ", " + std::to_string(mouseY) + "\n").c_str());
 	if (m_inventory == nullptr) return;
-
+	
 	vector<pair<string, int>> itemList(m_inventory->GetAllItems().begin(), m_inventory->GetAllItems().end());
 
 	for (int i = 0; i < (int)itemList.size(); i++)
@@ -171,6 +187,13 @@ void UIManager::EquipItem(const string& itemId)
 	{
 		ShowMessage(L"아이템이 없습니다");
 	}
+}
+
+void UIManager::ScrollCraftingRecipe(int direction)
+{
+	m_craftRecipeScrollOffset += direction;
+	if (m_craftRecipeScrollOffset < 0)
+		m_craftRecipeScrollOffset = 0;
 }
 
 void UIManager::RenderTime(ID2D1DeviceContext* context)
@@ -457,8 +480,24 @@ void UIManager::RenderCraftingRecipeList(ID2D1DeviceContext* context)
 
 	GRAPHICS.DrawString(L"[레시피]", m_craftRecipeStartX, m_craftRecipeStartY - 30);
 
+
+	// 스크롤 범위 보정 (레시피 개수가 바뀌었을 수도 있으니 매번 clamp)
+	int maxOffset = max(0, (int)recipes.size() - m_craftRecipeVisibleCount);
+	m_craftRecipeScrollOffset = clamp(m_craftRecipeScrollOffset, 0, maxOffset);
+
+	// 리스트 영역만큼 클리핑 -> 이 영역 밖으로는 절대 안 그려짐
+	D2D1_RECT_F clipRect = D2D1::RectF(
+		m_craftRecipeStartX,
+		m_craftRecipeStartY,
+		m_craftRecipeStartX + 400.f, // 리스트 폭에 맞게 조절
+		m_craftRecipeStartY + m_craftRecipeAreaHeight
+	);
+	context->PushAxisAlignedClip(clipRect, D2D1_ANTIALIAS_MODE_ALIASED);
+
 	float y = m_craftRecipeStartY;
-	for (int i = 0; i < (int)recipes.size(); i++)
+	int endIndex = min((int)recipes.size(), m_craftRecipeScrollOffset + m_craftRecipeVisibleCount);
+
+	for (int i = m_craftRecipeScrollOffset; i < endIndex; i++)
 	{
 		const RecipeData& recipe = recipes[i];
 		const ItemData* resultItem = DataManager::GetInstance().FindItem(recipe.resultId);
@@ -493,8 +532,10 @@ void UIManager::RenderCraftingRecipeList(ID2D1DeviceContext* context)
 		// 재료 목록을 결과물 이름 바로 아래, 살짝 들여써서 표시
 		wstring ingredientLine = L"    필요: " + ingredientText;
 		GRAPHICS.DrawString(ingredientLine.c_str(), m_craftRecipeStartX, y);
-		y += 30; // 다음 레시피와 간격
+		y += 50; // 다음 레시피와 간격
 	}
+	context->PopAxisAlignedClip();
+	RenderRecipeScrollbar(context, (int)recipes.size(), m_craftRecipeVisibleCount, m_craftRecipeScrollOffset);
 }
 
 void UIManager::RenderCraftingIngredients(ID2D1DeviceContext* context)
@@ -549,4 +590,29 @@ void UIManager::RenderCraftingIngredients(ID2D1DeviceContext* context)
 
 		GRAPHICS.DrawString(countText, slotX, slotY + m_slotSize + 5);
 	}
+}
+
+void UIManager::RenderRecipeScrollbar(ID2D1DeviceContext* context, int totalCount, int visibleCount, int scrollOffset)
+{
+	if (totalCount <= visibleCount) return; // 스크롤 필요 없으면 안 그림
+
+	float trackX = m_craftRecipeStartX + 410.f; // 리스트 폭(400) 오른쪽에 붙임
+	float trackY = m_craftRecipeStartY;
+	float trackWidth = 6.f;
+	float trackHeight = m_craftRecipeAreaHeight;
+
+	// 트랙(배경 막대)
+	GRAPHICS.FillRect(trackX, trackY, trackWidth, trackHeight, D2D1::ColorF(0.3f, 0.3f, 0.3f, 0.5f));
+
+	// 썸 크기 = 보이는 비율만큼
+	float visibleRatio = (float)visibleCount / (float)totalCount;
+	float thumbHeight = max(trackHeight * visibleRatio, 20.f); // 최소 높이 보장
+
+	// 썸 위치 = 스크롤 진행률에 비례
+	float maxOffset = (float)(totalCount - visibleCount);
+	float scrollRatio = (maxOffset > 0) ? (float)scrollOffset / maxOffset : 0.f;
+	float thumbY = trackY + scrollRatio * (trackHeight - thumbHeight);
+
+	// 썸(실제 스크롤 위치 표시)
+	GRAPHICS.FillRect(trackX, thumbY, trackWidth, thumbHeight, D2D1::ColorF(0.8f, 0.8f, 0.8f, 0.9f));
 }

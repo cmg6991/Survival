@@ -1,6 +1,7 @@
 #include "GameProcess.h"
 #include "WinInit.h"
 #include "CameraManager.h"
+#include "InputManager.h"
 #include "GameEngine.h"
 #include "Graphics.h"
 #include <chrono>
@@ -63,6 +64,7 @@ void GameProcess::Loop()
 		m_deltaTime = duration<float>(currentTime - prevTime).count();
 		prevTime = currentTime;
 		// Update
+		InputManager::GetInstance().ResetWheel();
 		windowsMessage = m_winInit->ProcessMessage();
 
 		if (windowsMessage.message == WM_QUIT)

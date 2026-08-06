@@ -41,6 +41,8 @@ public:
 	void SetOnWeaponEquip(function<void(const string&)> callback) { m_onWeaponEquip = callback; }
 	void SetOnWeaponUnequip(function<void()> callback) { m_onWeaponUnequip = callback; }
 
+	void ScrollCraftingRecipe(int direction);
+
 private:
 	void RenderTime(ID2D1DeviceContext* context);
 	void RenderInventory(ID2D1DeviceContext* context);
@@ -52,7 +54,7 @@ private:
 	void RenderCraftingInventorySlots(ID2D1DeviceContext* context); // 좌측 인벤토리 슬롯
 	void RenderCraftingRecipeList(ID2D1DeviceContext* context);     // 우측 레시피 목록
 	void RenderCraftingIngredients(ID2D1DeviceContext* context);
-
+	void RenderRecipeScrollbar(ID2D1DeviceContext* context, int totalCount, int visibleCount, int scrollOffset);
 private:
 	Inventory* m_inventory = nullptr;
 	ResourceManager* m_resourceManager = nullptr;
@@ -88,11 +90,15 @@ private:
 	const float m_craftRecipeStartY = 80.0f;
 
 	const float m_craftIngredientStartX = 700.0f;
-	const float m_craftIngredientStartY = 300.0f;
+	const float m_craftIngredientStartY = 420.0f;
 
 	// 장비 슬롯 좌표 (인벤토리 옆)
 	float m_equipSlotX = 700.f;
 	float m_equipWeaponSlotY = 120.f;
+
+	int m_craftRecipeScrollOffset = 0;   // 몇 번째 레시피부터 보여줄지
+	int m_craftRecipeVisibleCount = 4;   // 한 화면에 보여줄 레시피 개수 (아이템당 75px면 영역 높이/75로 계산해도 됨)
+	float m_craftRecipeAreaHeight = 330.f; // 재료 슬롯 침범하지 않는 리스트 영역 높이
 
 private:
 	UIManager() {}

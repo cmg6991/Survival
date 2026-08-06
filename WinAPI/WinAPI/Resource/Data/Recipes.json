@@ -43,5 +43,49 @@
       { "id": "Item_Stone", "count": 5 },
       { "id": "Item_Wood", "count": 5 }
     ]
+  },
+  {
+    "id": "Recipe_Defense",
+    "result": "Item_Defense",
+    "resultCount": 1,
+    "station": "WorkTable",
+    "isWeaponUpgrade": true,
+    "successRate" : 1,
+    "ingredients": [
+      { "id": "Item_Wood", "count": 10 }
+    ]
+  },
+  {
+    "id": "Recipe_Defense",
+    "result": "Item_Defense",
+    "resultCount": 1,
+    "station": "WorkTable",
+    "isWeaponUpgrade": true,
+    "successRate" : 1,
+    "ingredients": [
+      { "id": "Item_Wood", "count": 10 }
+    ]
+  },
+  {
+    "id": "Recipe_Defense",
+    "result": "Item_Defense",
+    "resultCount": 1,
+    "station": "WorkTable",
+    "isWeaponUpgrade": true,
+    "successRate" : 1,
+    "ingredients": [
+      { "id": "Item_Wood", "count": 10 }
+    ]
+  },
+  {
+    "id": "Recipe_Defense",
+    "result": "Item_Defense",
+    "resultCount": 1,
+    "station": "WorkTable",
+    "isWeaponUpgrade": true,
+    "successRate" : 1,
+    "ingredients": [
+      { "id": "Item_Wood", "count": 10 }
+    ]
   }
 ]
