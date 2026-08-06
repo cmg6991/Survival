@@ -377,7 +377,7 @@ void MainScene::Update(float deltaTime)
 
 void MainScene::LateUpdate()
 {
-	Scene::LateUpdate();
+	//Scene::LateUpdate();
 }
 
 void MainScene::PreRender()
