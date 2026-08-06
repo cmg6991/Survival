@@ -41,6 +41,7 @@ public:
 	void DrawRect(float x, float y, float width, float height, D2D1::ColorF color, float thickness = 2.0f);
 	void FillRect(float x, float y, float width, float height, D2D1::ColorF color);
 	void DrawBitmapUI(ID2D1Bitmap* bitmap, float x, float y, float width, float height);
+	void DrawCircle(float centerX, float centerY, float radius, D2D1::ColorF color, float thickness = 2.0f);
 
 private:
 	Graphics();

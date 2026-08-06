@@ -21,6 +21,12 @@
 #include "Inventory.h"
 #include "CampFire.h"
 #include "Weapon.h"
+#include "ColliderComponent.h"
+#include <utility>
+#include <memory>
+
+#include "../PhysicsEngine/CircleCollider.h"
+#include "../PhysicsEngine/Collider.h"
 
 wstring UTF8ToWString(const string& str)
 {
@@ -48,10 +54,11 @@ wstring UTF8ToWString(const string& str)
 MainScene::MainScene(ResourceManager* resourceManager) 
 	: Scene("MainScene"), m_tileMap(nullptr), 
 	m_resourceManager(resourceManager), m_collisionManager(nullptr),
-	m_player(nullptr)
+	m_player(nullptr), m_physicsWorld(nullptr)
 {
 	m_tileMap = new TileMap;
 	m_collisionManager = new CollisionManager;
+	m_physicsWorld = new PhysicsEngine::PhysicsWorld();
 }
 
 MainScene::~MainScene()
@@ -75,18 +82,29 @@ void MainScene::Init()
 	Player* player = new Player();
 	SpriteRenderer* sprite = new SpriteRenderer("Player");
 	Animator* animator = new Animator();
+	ColliderComponent* collider = new ColliderComponent();
 	sprite->SetPivot(230, 370);
 	sprite->SetScale(0.3f);
 	player->SetTileMap(m_tileMap);
 	player->SetCollisionManager(m_collisionManager);
+
+	collider->SetPhysicsWorld(m_physicsWorld);
+	collider->SetSyncMode(ColliderSyncMode::TransformDrivesPhysics);
+
 	playerObj->SetElement(tr, ElementType::Transform);
 	playerObj->SetElement(player, ElementType::Player);
 	playerObj->SetElement(sprite, ElementType::SpriteRenderer);
 	playerObj->SetElement(animator, ElementType::Animator);
+	playerObj->SetElement(collider, ElementType::Collider);
 	sprite->SetResourceManager(m_resourceManager);
 	playerObj->Init();
 	m_objects.push_back(playerObj);
 	m_player = player;
+
+	std::unique_ptr<PhysicsEngine::Collider> circleCollider =
+		std::make_unique<PhysicsEngine::CircleCollider>(0.f, 0.f, 0.35f);
+
+	collider->SetCollider(std::move(circleCollider), 1.0f, false);
 
 	SaveData data;
 	bool hasSave = SaveManager::HasSaveFile();
@@ -129,6 +147,9 @@ void MainScene::FixedUpdate()
 
 void MainScene::Update(float deltaTime)
 {
+	m_physicsWorld->Step(deltaTime);             // 추가
+	m_physicsWorld->DetectCollision(deltaTime);
+
 	InputManager::GetInstance().Update();
 	UIManager::GetInstance().Update(deltaTime);
 
@@ -293,6 +314,9 @@ void MainScene::Release()
 
 	delete m_collisionManager;
 	m_collisionManager = nullptr;
+
+	delete m_physicsWorld; // 추가
+	m_physicsWorld = nullptr;
 
 	Scene::Release();
 }

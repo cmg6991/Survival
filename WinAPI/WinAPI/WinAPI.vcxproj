@@ -127,8 +127,8 @@
     <ClInclude Include="Animator.h" />
     <ClInclude Include="CameraManager.h" />
     <ClInclude Include="CampFire.h" />
+    <ClInclude Include="ColliderComponent.h" />
     <ClInclude Include="CollisionManager.h" />
-    <ClInclude Include="Constants.h" />
     <ClInclude Include="CraftData.h" />
     <ClInclude Include="CraftingManager.h" />
     <ClInclude Include="DataManager.h" />
@@ -145,7 +145,6 @@
     <ClInclude Include="Inventory.h" />
     <ClInclude Include="ItemPickUp.h" />
     <ClInclude Include="MainScene.h" />
-    <ClInclude Include="MathUtils.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Resource.h" />
@@ -163,7 +162,6 @@
     <ClInclude Include="Transform.h" />
     <ClInclude Include="Tree.h" />
     <ClInclude Include="UIManager.h" />
-    <ClInclude Include="Vector2.h" />
     <ClInclude Include="Wall.h" />
     <ClInclude Include="Weapon.h" />
     <ClInclude Include="WinAPI.h" />
@@ -173,8 +171,8 @@
     <ClCompile Include="Animator.cpp" />
     <ClCompile Include="CameraManager.cpp" />
     <ClCompile Include="CampFire.cpp" />
+    <ClCompile Include="ColliderComponent.cpp" />
     <ClCompile Include="CollisionManager.cpp" />
-    <ClCompile Include="Constants.cpp" />
     <ClCompile Include="CraftingManager.cpp" />
     <ClCompile Include="DataManager.cpp" />
     <ClCompile Include="GameEngine.cpp" />
@@ -198,7 +196,6 @@
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="Tree.cpp" />
     <ClCompile Include="UIManager.cpp" />
-    <ClCompile Include="Vector2.cpp" />
     <ClCompile Include="Wall.cpp" />
     <ClCompile Include="Weapon.cpp" />
     <ClCompile Include="WinAPI.cpp" />
@@ -213,6 +210,14 @@
     <Image Include="Resource\Tile.bmp" />
     <Image Include="small.ico" />
     <Image Include="WinAPI.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MathEngine\MathEngine.vcxproj">
+      <Project>{3a90c25f-cd46-4b6b-9bb1-65ae9df46c50}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\PhysicsEngine\PhysicsEngine.vcxproj">
+      <Project>{ff4354e3-88c7-4306-8e33-6ff523468f97}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

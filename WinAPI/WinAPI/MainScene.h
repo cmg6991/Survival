@@ -2,12 +2,15 @@
 #include "Scene.h"
 #include "InteractType.h"
 #include <unordered_set>
+#include "../PhysicsEngine/PhysicsWorld.h"
+#include "../PhysicsEngine/Collider.h"
 
 class TileMap;
 class ResourceManager;
 class CollisionManager;
 class Player;
 class Interactable;
+class ColliderComponent;
 
 class MainScene : public Scene
 {
@@ -55,6 +58,8 @@ private:
 
 	unordered_map<char, function<void(float, float)>> m_tileHandlers;
 	unordered_set<string> m_collectedItemsIds;
+
+	PhysicsEngine::PhysicsWorld* m_physicsWorld;
 
 	/*bool m_isCraftingOpen = false;
 	InteractType m_currentCraftingType = InteractType::CampFire;

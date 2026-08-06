@@ -1,8 +1,8 @@
 D:\Project\Unity\Survival\WinAPI\WinAPI\Animator.cpp;D:\Project\Unity\Survival\WinAPI\WinAPI\x64\Debug\Animator.obj
 D:\Project\Unity\Survival\WinAPI\WinAPI\CameraManager.cpp;D:\Project\Unity\Survival\WinAPI\WinAPI\x64\Debug\CameraManager.obj
 D:\Project\Unity\Survival\WinAPI\WinAPI\CampFire.cpp;D:\Project\Unity\Survival\WinAPI\WinAPI\x64\Debug\CampFire.obj
+D:\Project\Unity\Survival\WinAPI\WinAPI\ColliderComponent.cpp;D:\Project\Unity\Survival\WinAPI\WinAPI\x64\Debug\ColliderComponent.obj
 D:\Project\Unity\Survival\WinAPI\WinAPI\CollisionManager.cpp;D:\Project\Unity\Survival\WinAPI\WinAPI\x64\Debug\CollisionManager.obj
-D:\Project\Unity\Survival\WinAPI\WinAPI\Constants.cpp;D:\Project\Unity\Survival\WinAPI\WinAPI\x64\Debug\Constants.obj
 D:\Project\Unity\Survival\WinAPI\WinAPI\CraftingManager.cpp;D:\Project\Unity\Survival\WinAPI\WinAPI\x64\Debug\CraftingManager.obj
 D:\Project\Unity\Survival\WinAPI\WinAPI\DataManager.cpp;D:\Project\Unity\Survival\WinAPI\WinAPI\x64\Debug\DataManager.obj
 D:\Project\Unity\Survival\WinAPI\WinAPI\GameEngine.cpp;D:\Project\Unity\Survival\WinAPI\WinAPI\x64\Debug\GameEngine.obj
@@ -26,7 +26,6 @@ D:\Project\Unity\Survival\WinAPI\WinAPI\TimeManager.cpp;D:\Project\Unity\Surviva
 D:\Project\Unity\Survival\WinAPI\WinAPI\Transform.cpp;D:\Project\Unity\Survival\WinAPI\WinAPI\x64\Debug\Transform.obj
 D:\Project\Unity\Survival\WinAPI\WinAPI\Tree.cpp;D:\Project\Unity\Survival\WinAPI\WinAPI\x64\Debug\Tree.obj
 D:\Project\Unity\Survival\WinAPI\WinAPI\UIManager.cpp;D:\Project\Unity\Survival\WinAPI\WinAPI\x64\Debug\UIManager.obj
-D:\Project\Unity\Survival\WinAPI\WinAPI\Vector2.cpp;D:\Project\Unity\Survival\WinAPI\WinAPI\x64\Debug\Vector2.obj
 D:\Project\Unity\Survival\WinAPI\WinAPI\Wall.cpp;D:\Project\Unity\Survival\WinAPI\WinAPI\x64\Debug\Wall.obj
 D:\Project\Unity\Survival\WinAPI\WinAPI\Weapon.cpp;D:\Project\Unity\Survival\WinAPI\WinAPI\x64\Debug\Weapon.obj
 D:\Project\Unity\Survival\WinAPI\WinAPI\WinAPI.cpp;D:\Project\Unity\Survival\WinAPI\WinAPI\x64\Debug\WinAPI.obj

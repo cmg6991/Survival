@@ -305,6 +305,18 @@ void Graphics::DrawBitmapUI(ID2D1Bitmap* bitmap, float x, float y, float width, 
 	);
 }
 
+void Graphics::DrawCircle(float centerX, float centerY, float radius, D2D1::ColorF color, float thickness)
+{
+	ID2D1SolidColorBrush* brush = nullptr;
+	m_deviceContext->CreateSolidColorBrush(color, &brush);
+	if (brush == nullptr) return;
+
+	D2D1_ELLIPSE ellipse = D2D1::Ellipse(D2D1::Point2F(centerX, centerY), radius, radius);
+	m_deviceContext->DrawEllipse(ellipse, brush, thickness);
+
+	//brush->Release();
+}
+
 
 void Graphics::Release()
 {

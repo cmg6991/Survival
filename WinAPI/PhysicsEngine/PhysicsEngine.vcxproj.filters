@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Collision Detction">
+      <UniqueIdentifier>{1df4fb96-a024-45e9-a5e3-df634d7ebb84}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Dynamics">
+      <UniqueIdentifier>{3447e19c-1aa0-4144-9986-466c22158a17}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Collision Detction\Collider">
+      <UniqueIdentifier>{a3d3dcb4-91b6-42be-8431-b7f74f9c65aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Collision Detction\Collider\Circle">
+      <UniqueIdentifier>{b67fe2c5-d258-41eb-a21e-6f4bfc4de4af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Collision Detction\Collider\Rect">
+      <UniqueIdentifier>{787d2ef4-b306-4d5a-b628-c720dfe0545e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Collition Response">
+      <UniqueIdentifier>{9054df1f-7dec-4509-a7cd-ebe54966acb8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Collision Detction\CollisionPoints">
+      <UniqueIdentifier>{bb48a4a5-8598-45ff-98d9-43d86e58221c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Collition Response\Collision">
+      <UniqueIdentifier>{29d7a504-91a5-41ef-976e-6e9997fd8b0b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Collition Response\Solver">
+      <UniqueIdentifier>{ccf93eb5-b357-43da-9fed-d3eb80ae250a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Dynamics\Object">
+      <UniqueIdentifier>{d9e78553-005a-4bec-9950-4143672bb9fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Dynamics\world">
+      <UniqueIdentifier>{b2c36c84-7793-445a-93b1-7d37767892d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Collision Detction\Collider\Isometric">
+      <UniqueIdentifier>{dbd16824-b496-4aef-99b4-b0498c00b840}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Collision Detction\Collider\Vehicle">
+      <UniqueIdentifier>{a53a06b6-805c-47b1-b1cc-44c179808ffb}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Collider.cpp">
+      <Filter>Collision Detction\Collider</Filter>
+    </ClCompile>
+    <ClCompile Include="CircleCollider.cpp">
+      <Filter>Collision Detction\Collider\Circle</Filter>
+    </ClCompile>
+    <ClCompile Include="RectangleCollider.cpp">
+      <Filter>Collision Detction\Collider\Rect</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionPoints.cpp">
+      <Filter>Collision Detction\CollisionPoints</Filter>
+    </ClCompile>
+    <ClCompile Include="Collision.cpp">
+      <Filter>Collition Response\Collision</Filter>
+    </ClCompile>
+    <ClCompile Include="PositionSolver.cpp">
+      <Filter>Collition Response\Solver</Filter>
+    </ClCompile>
+    <ClCompile Include="Solver.cpp">
+      <Filter>Collition Response\Solver</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>Dynamics\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsWorld.cpp">
+      <Filter>Dynamics\world</Filter>
+    </ClCompile>
+    <ClCompile Include="IsometricCollider.cpp">
+      <Filter>Collision Detction\Collider\Isometric</Filter>
+    </ClCompile>
+    <ClCompile Include="VehicleCollider.cpp">
+      <Filter>Collision Detction\Collider\Vehicle</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Collider.h">
+      <Filter>Collision Detction\Collider</Filter>
+    </ClInclude>
+    <ClInclude Include="CircleCollider.h">
+      <Filter>Collision Detction\Collider\Circle</Filter>
+    </ClInclude>
+    <ClInclude Include="RectangleCollider.h">
+      <Filter>Collision Detction\Collider\Rect</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionPoints.h">
+      <Filter>Collision Detction\CollisionPoints</Filter>
+    </ClInclude>
+    <ClInclude Include="Collision.h">
+      <Filter>Collition Response\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="PositionSolver.h">
+      <Filter>Collition Response\Solver</Filter>
+    </ClInclude>
+    <ClInclude Include="Solver.h">
+      <Filter>Collition Response\Solver</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>Dynamics\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsWorld.h">
+      <Filter>Dynamics\world</Filter>
+    </ClInclude>
+    <ClInclude Include="IsometricCollider.h">
+      <Filter>Collision Detction\Collider\Isometric</Filter>
+    </ClInclude>
+    <ClInclude Include="VehicleCollider.h">
+      <Filter>Collision Detction\Collider\Vehicle</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

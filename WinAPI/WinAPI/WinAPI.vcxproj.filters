@@ -19,9 +19,6 @@
     <Filter Include="소스 파일\Core">
       <UniqueIdentifier>{b36602b5-ccf6-4282-a34c-5bd42f90a456}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\MathEngine">
-      <UniqueIdentifier>{509dbc29-b137-4ebe-81cd-c7fa11184fdd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="소스 파일\Component">
       <UniqueIdentifier>{522d52f4-e557-4081-8def-f59c7b2c4668}</UniqueIdentifier>
     </Filter>
@@ -93,15 +90,6 @@
     <ClInclude Include="ResourceManager.h">
       <Filter>소스 파일\Manager</Filter>
     </ClInclude>
-    <ClInclude Include="Constants.h">
-      <Filter>소스 파일\MathEngine</Filter>
-    </ClInclude>
-    <ClInclude Include="MathUtils.h">
-      <Filter>소스 파일\MathEngine</Filter>
-    </ClInclude>
-    <ClInclude Include="Vector2.h">
-      <Filter>소스 파일\MathEngine</Filter>
-    </ClInclude>
     <ClInclude Include="Animator.h">
       <Filter>소스 파일\Component</Filter>
     </ClInclude>
@@ -165,6 +153,9 @@
     <ClInclude Include="Weapon.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="ColliderComponent.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="InputManager.cpp">
@@ -193,12 +184,6 @@
     </ClCompile>
     <ClCompile Include="Tree.cpp">
       <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Vector2.cpp">
-      <Filter>소스 파일\MathEngine</Filter>
-    </ClCompile>
-    <ClCompile Include="Constants.cpp">
-      <Filter>소스 파일\MathEngine</Filter>
     </ClCompile>
     <ClCompile Include="SpriteRenderer.cpp">
       <Filter>소스 파일\Component</Filter>
@@ -264,6 +249,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Weapon.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ColliderComponent.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

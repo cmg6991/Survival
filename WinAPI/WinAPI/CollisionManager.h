@@ -9,6 +9,9 @@ public:
 	~CollisionManager();
 
 	void Init();
+	void Update(float deltTime);
+	void Render(ID2D1DeviceContext* context);
+
 
 	bool IsBlocked(int x, int y);
 	void SetBlocked(int x, int y, bool blocked);
