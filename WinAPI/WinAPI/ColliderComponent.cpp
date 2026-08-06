@@ -28,23 +28,23 @@ void ColliderComponent::FixedUpdate()
 
 void ColliderComponent::Update(float deltaTime)
 {
-	if (m_object == nullptr) return;
+	if (m_object == nullptr || m_object->collider == nullptr) return;
 
 	if (m_syncMode == ColliderSyncMode::TransformDrivesPhysics)
 	{
-		// 플레이어처럼 게임 로직이 이미 옮긴 위치를 물리 오브젝트에 반영
+		// 1. 프레임 시작 시: Transform -> Physics 전달
 		m_object->position = m_transform->GetPostion();
 		m_object->collider->center = m_object->position;
-	}
-	else
-	{
-		// 물리가 계산한 위치를 Transform에 반영 (몬스터, 넉백 대상 등)
-		m_transform->SetPosition(m_object->position);
 	}
 }
 
 void ColliderComponent::LateUpdate()
 {
+	if (m_object && m_transform)
+	{
+		// Physics World가 밀어낸 최신 좌표를 Transform(화면 위치)에 반영
+		m_transform->SetPosition(m_object->position);
+	}
 }
 
 void ColliderComponent::PreRender()

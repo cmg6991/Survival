@@ -5,6 +5,7 @@
 #include "Collision.h"
 
 #include <windowsx.h>
+#include <windows.h>
 
 namespace PhysicsEngine
 {
@@ -70,25 +71,33 @@ namespace PhysicsEngine
 	{
 		std::vector<Collision> collisions;
 
-		for (Object* a : m_objects)
+		size_t count = m_objects.size();
+		for (size_t i = 0; i < count; ++i)
 		{
-			if (!a->collider) continue; // break -> continue로 (원래 break였는데 이러면 첫 오브젝트가 collider 없으면 전체가 멈춰버림, 버그성)
-			for (Object* b : m_objects)
+			Object* a = m_objects[i];
+			if (!a || !a->collider) continue;
+
+			for (size_t j = i + 1; j < count; ++j)
 			{
-				if (a == b) break;
-				if (!a->collider || !b->collider) continue;
+				Object* b = m_objects[j];
+				if (!b || !b->collider) continue;
+
+				if (a->isStatic && b->isStatic) continue;
 
 				CollisionPoints points = a->collider->TestCollision(*b->collider);
 
 				if (points.hasCollision)
 				{
+					// 충돌 감지 확인용 디버그 출력 (Visual Studio '출력' 창에 표시됨)
+					OutputDebugString(L"출력");
+
 					collisions.emplace_back(a, b, points);
 					TestResolve(*a, *b, points);
 				}
 			}
 		}
 
-		ResolveCollsion(collisions, dt); // 루프 안이 아니라 밖에서 한 번만 호출
+		ResolveCollsion(collisions, dt);
 	}
 
 	void PhysicsWorld::AddObject(Object* object)

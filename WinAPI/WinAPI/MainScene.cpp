@@ -51,8 +51,8 @@ wstring UTF8ToWString(const string& str)
 	return result;
 }
 
-MainScene::MainScene(ResourceManager* resourceManager) 
-	: Scene("MainScene"), m_tileMap(nullptr), 
+MainScene::MainScene(ResourceManager* resourceManager)
+	: Scene("MainScene"), m_tileMap(nullptr),
 	m_resourceManager(resourceManager), m_collisionManager(nullptr),
 	m_player(nullptr), m_physicsWorld(nullptr)
 {
@@ -101,11 +101,6 @@ void MainScene::Init()
 	m_objects.push_back(playerObj);
 	m_player = player;
 
-	std::unique_ptr<PhysicsEngine::Collider> circleCollider =
-		std::make_unique<PhysicsEngine::CircleCollider>(0.f, 0.f, 0.35f);
-
-	collider->SetCollider(std::move(circleCollider), 1.0f, false);
-
 	SaveData data;
 	bool hasSave = SaveManager::HasSaveFile();
 	if (hasSave)
@@ -128,6 +123,12 @@ void MainScene::Init()
 
 		m_player->GetInventory()->SetAllItems(data.inventory);
 	}
+
+	std::unique_ptr<PhysicsEngine::Collider> circleCollider =
+		std::make_unique<PhysicsEngine::CircleCollider>(0.f, 0.f, 0.35f);
+
+	collider->SetCollider(std::move(circleCollider), 1.0f, false);
+
 	UIManager::GetInstance().SetInventory(m_player->GetInventory());
 	UIManager::GetInstance().SetResourceManager(m_resourceManager);
 	UIManager::GetInstance().SetPlayer(m_player);
@@ -147,9 +148,6 @@ void MainScene::FixedUpdate()
 
 void MainScene::Update(float deltaTime)
 {
-	m_physicsWorld->Step(deltaTime);             // 추가
-	m_physicsWorld->DetectCollision(deltaTime);
-
 	InputManager::GetInstance().Update();
 	UIManager::GetInstance().Update(deltaTime);
 
@@ -281,10 +279,15 @@ void MainScene::Update(float deltaTime)
 			OnInteract(nearby);
 		}
 	}
+
+	m_physicsWorld->Step(deltaTime);             // 추가
+	m_physicsWorld->DetectCollision(deltaTime);
+
 }
 
 void MainScene::LateUpdate()
 {
+	//Scene::LateUpdate();
 }
 
 void MainScene::PreRender()
@@ -347,6 +350,13 @@ void MainScene::RegisterTileHandlers()
 			Transform* playerTr = static_cast<Transform*>(m_player->GetGameObject()->GetElement(ElementType::Transform));
 			playerTr->SetFloatX(x);
 			playerTr->SetFloatY(y);
+
+			// Collider가 이미 붙어있다면 물리 위치도 함께 동기화
+			ColliderComponent* col = static_cast<ColliderComponent*>(m_player->GetGameObject()->GetElement(ElementType::Collider));
+			if (col && col->GetCollider())
+			{
+				col->GetCollider()->center = { x, y };
+			}
 		};
 
 	m_tileHandlers['C'] = [this](float x, float y)
@@ -362,10 +372,10 @@ void MainScene::RegisterTileHandlers()
 	// 앞으로 몬스터/아이템/모닥불 등이 생기면 여기 계속 추가하면 됨
 	// 예시 (해당 클래스들 만드신 뒤 주석 해제):
 	// m_tileHandlers['M'] = [this](float x, float y) { CreateMonster(x, y); };
-	 m_tileHandlers['w'] = [this](float x, float y) { CreateItemPickUp(x, y, "Item_Wood", 1); };
-	 m_tileHandlers['r'] = [this](float x, float y) { CreateItemPickUp(x, y, "Item_Stone", 1); };
-	 m_tileHandlers['s'] = [this](float x, float y) { CreateItemPickUp(x, y, "Item_Sword", 1); };
-	 //m_tileHandlers['m'] = [this](float x, float y) { CreateItemPickUp(x, y, "Meat", 1); };
+	m_tileHandlers['w'] = [this](float x, float y) { CreateItemPickUp(x, y, "Item_Wood", 1); };
+	m_tileHandlers['r'] = [this](float x, float y) { CreateItemPickUp(x, y, "Item_Stone", 1); };
+	m_tileHandlers['s'] = [this](float x, float y) { CreateItemPickUp(x, y, "Item_Sword", 1); };
+	//m_tileHandlers['m'] = [this](float x, float y) { CreateItemPickUp(x, y, "Meat", 1); };
 }
 
 void MainScene::CreateWall(float x, float y, const string& imageName)
@@ -400,9 +410,14 @@ void MainScene::CreateInteractable(float x, float y, InteractType type, const st
 	sprite->SetScale(0.5f);
 	Interactable* interact = new Interactable(type);
 
+	ColliderComponent* collider = new ColliderComponent();
+	collider->SetPhysicsWorld(m_physicsWorld);
+	collider->SetSyncMode(ColliderSyncMode::TransformDrivesPhysics);
+
 	obj->SetElement(tr, ElementType::Transform);
 	obj->SetElement(sprite, ElementType::SpriteRenderer);
 	obj->SetElement(interact, ElementType::Interactable);
+	obj->SetElement(collider, ElementType::Collider);
 	if (type == InteractType::CampFire)
 	{
 		CampFire* campFire = new CampFire();
@@ -410,6 +425,9 @@ void MainScene::CreateInteractable(float x, float y, InteractType type, const st
 	}
 
 	obj->Init();
+
+	auto circleCollider = std::make_unique<PhysicsEngine::CircleCollider>(0.f, 0.f, 0.5f);
+	collider->SetCollider(std::move(circleCollider), 1.0f, true);
 }
 
 void MainScene::CreateItemPickUp(float x, float y, const string& itemId, int count)
@@ -443,7 +461,7 @@ void MainScene::CreateItemPickUp(float x, float y, const string& itemId, int cou
 	obj->Init();
 }
 
-void MainScene::EquipWeaponToPlayer(const string& weaponId,bool returnInven)
+void MainScene::EquipWeaponToPlayer(const string& weaponId, bool returnInven)
 {
 	Weapon* current = m_player->GetWeapon();
 	if (current != nullptr)
@@ -580,7 +598,7 @@ void MainScene::LoadMap(const vector<string>& mapData)
 		for (int x = 0; x < (int)row.size(); x++)
 		{
 			char tile = row[x];
-			 
+
 			// 벽은 방향 판별이 필요해서 예외로 별도 처리
 			if (tile == '#')
 			{
