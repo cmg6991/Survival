@@ -6,8 +6,8 @@ enum class ElementType
 {
 	Transform,
 	Animator,
-	Collider,
 	Player,
+	Collider,
 	SpriteRenderer,
 	Wall,
 	ItemPickUp,

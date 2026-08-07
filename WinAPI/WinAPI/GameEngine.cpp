@@ -116,6 +116,10 @@ void GameEngine::Update(float deltaTime)
 	CameraManager::GetInstance().Follow(m_player->GetTransform());*/
 	TimeManager::GetInstance().Update(deltaTime);
 	m_sceneManager->Update(deltaTime);
+}
+
+void GameEngine::LateUpdate()
+{
 	m_sceneManager->LateUpdate();
 }
 

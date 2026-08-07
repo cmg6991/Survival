@@ -26,7 +26,9 @@
 #include <memory>
 
 #include "../PhysicsEngine/CircleCollider.h"
+#include "../PhysicsEngine/RectangleCollider.h"
 #include "../PhysicsEngine/Collider.h"
+#include "../PhysicsEngine/Positionsolver.h"
 
 wstring UTF8ToWString(const string& str)
 {
@@ -59,6 +61,7 @@ MainScene::MainScene(ResourceManager* resourceManager)
 	m_tileMap = new TileMap;
 	m_collisionManager = new CollisionManager;
 	m_physicsWorld = new PhysicsEngine::PhysicsWorld();
+	m_physicsWorld->AddSolver(new PhysicsEngine::PositionSolver());
 }
 
 MainScene::~MainScene()
@@ -82,20 +85,20 @@ void MainScene::Init()
 	Player* player = new Player();
 	SpriteRenderer* sprite = new SpriteRenderer("Player");
 	Animator* animator = new Animator();
-	//ColliderComponent* collider = new ColliderComponent();
+	ColliderComponent* collider = new ColliderComponent();
 	sprite->SetPivot(230, 370);
 	sprite->SetScale(0.3f);
 	player->SetTileMap(m_tileMap);
 	player->SetCollisionManager(m_collisionManager);
 
-	/*collider->SetPhysicsWorld(m_physicsWorld);
-	collider->SetSyncMode(ColliderSyncMode::TransformDrivesPhysics);*/
+	collider->SetPhysicsWorld(m_physicsWorld);
+	collider->SetSyncMode(ColliderSyncMode::TransformDrivesPhysics);
 
 	playerObj->SetElement(tr, ElementType::Transform);
 	playerObj->SetElement(player, ElementType::Player);
 	playerObj->SetElement(sprite, ElementType::SpriteRenderer);
 	playerObj->SetElement(animator, ElementType::Animator);
-	//playerObj->SetElement(collider, ElementType::Collider);
+	playerObj->SetElement(collider, ElementType::Collider);
 	sprite->SetResourceManager(m_resourceManager);
 	playerObj->Init();
 	m_objects.push_back(playerObj);
@@ -124,10 +127,10 @@ void MainScene::Init()
 		m_player->GetInventory()->SetAllItems(data.inventory);
 	}
 
-	/*std::unique_ptr<PhysicsEngine::Collider> circleCollider =
-		std::make_unique<PhysicsEngine::CircleCollider>(0.f, 0.f, 0.35f);
+	std::unique_ptr<PhysicsEngine::Collider> circleCollider =
+		std::make_unique<PhysicsEngine::CircleCollider>(0.f, 0.f, 0.5f);
 
-	collider->SetCollider(std::move(circleCollider), 1.0f, false);*/
+	collider->SetCollider(std::move(circleCollider), 1.0f, false);
 
 	UIManager::GetInstance().SetInventory(m_player->GetInventory());
 	UIManager::GetInstance().SetResourceManager(m_resourceManager);
@@ -160,13 +163,9 @@ void MainScene::Update(float deltaTime)
 	{
 		if (InputManager::GetInstance().IsGetKeyDown(VK_LBUTTON))
 		{
-			MathEngine::Vector2 mousePos =
-				InputManager::GetInstance().GetMousePosition();
+			MathEngine::Vector2 mousePos =InputManager::GetInstance().GetMousePosition();
 
-			UIManager::GetInstance().HandleInventoryClick(
-				mousePos.x,
-				mousePos.y
-			);
+			UIManager::GetInstance().HandleInventoryClick(mousePos.x,mousePos.y);
 		}
 
 		return;
@@ -184,11 +183,7 @@ void MainScene::Update(float deltaTime)
 			bool selected = UIManager::GetInstance().HandleCraftingRecipeClick(mousePos.x, mousePos.y);
 			if (selected)
 			{
-				const RecipeData& recipe =
-					recipes[
-						UIManager::GetInstance().GetSelectedRecipeIndex()
-					];
-
+				const RecipeData& recipe =recipes[UIManager::GetInstance().GetSelectedRecipeIndex()];
 
 				CraftResult result =
 					CraftingManager::Craft(
@@ -201,15 +196,8 @@ void MainScene::Update(float deltaTime)
 				{
 				case CraftResult::Success:
 				{
-					const ItemData* resultItem =
-						DataManager::GetInstance().FindItem(recipe.resultId);
-
-
-					bool isWeaponResult =
-						resultItem != nullptr &&
-						resultItem->type == "Weapon";
-
-
+					const ItemData* resultItem =DataManager::GetInstance().FindItem(recipe.resultId);
+					bool isWeaponResult =resultItem != nullptr &&resultItem->type == "Weapon";
 					if (recipe.isWeaponUpgrade)
 					{
 						EquipWeaponToPlayer(recipe.resultId, false);
@@ -219,49 +207,30 @@ void MainScene::Update(float deltaTime)
 					{
 						EquipWeaponToPlayer(recipe.resultId, true);
 					}
-
-
-					UIManager::GetInstance()
-						.ShowMessage(
-							L"제작 성공: "
-							+ UTF8ToWString(recipe.resultId)
-						);
+					UIManager::GetInstance().ShowMessage(L"제작 성공: "+ UTF8ToWString(recipe.resultId));
 
 					break;
 				}
-
 				case CraftResult::Failed:
 				{
 					if (recipe.isWeaponUpgrade)
 					{
-						Weapon* current =
-							m_player->GetWeapon();
+						Weapon* current =m_player->GetWeapon();
 
 						if (current)
 						{
-							DeletePObject(
-								current->GetGameObject()
-							);
-
+							DeletePObject(current->GetGameObject());
 							m_player->SetWeapon(nullptr);
 						}
 					}
 
-					UIManager::GetInstance()
-						.ShowMessage(
-							L"제작 실패..."
-						);
-
+					UIManager::GetInstance().ShowMessage(L"제작 실패...");
 					break;
 				}
 
 				case CraftResult::None:
 				{
-					UIManager::GetInstance()
-						.ShowMessage(
-							L"재료 부족"
-						);
-
+					UIManager::GetInstance().ShowMessage(L"재료 부족");
 					break;
 				}
 				}
@@ -320,7 +289,6 @@ void MainScene::Update(float deltaTime)
 		//	}
 		//	}
 		//}
-		
 
 		if (InputManager::GetInstance().IsGetKeyDown(VK_ESCAPE))
 			UIManager::GetInstance().CloseCrafting();
@@ -367,14 +335,14 @@ void MainScene::Update(float deltaTime)
 		}
 	}
 
-/*	m_physicsWorld->DetectCollision(deltaTime);
-	m_physicsWorld->Step(deltaTime);    */         // 추가
+	m_physicsWorld->DetectCollision(deltaTime);
+	m_physicsWorld->Step(deltaTime);             // 추가
 
 }
 
 void MainScene::LateUpdate()
 {
-	//Scene::LateUpdate();
+	Scene::LateUpdate();
 }
 
 void MainScene::PreRender()
@@ -439,11 +407,11 @@ void MainScene::RegisterTileHandlers()
 			playerTr->SetFloatY(y);
 
 			// Collider가 이미 붙어있다면 물리 위치도 함께 동기화
-			/*ColliderComponent* col = static_cast<ColliderComponent*>(m_player->GetGameObject()->GetElement(ElementType::Collider));
+			ColliderComponent* col = static_cast<ColliderComponent*>(m_player->GetGameObject()->GetElement(ElementType::Collider));
 			if (col && col->GetCollider())
 			{
 				col->GetCollider()->center = { x, y };
-			}*/
+			}
 		};
 
 	m_tileHandlers['C'] = [this](float x, float y)
@@ -497,14 +465,14 @@ void MainScene::CreateInteractable(float x, float y, InteractType type, const st
 	sprite->SetScale(0.5f);
 	Interactable* interact = new Interactable(type);
 
-	//ColliderComponent* collider = new ColliderComponent();
-	//collider->SetPhysicsWorld(m_physicsWorld);
-	//collider->SetSyncMode(ColliderSyncMode::PhysicsDrivesTransform);
+	ColliderComponent* collider = new ColliderComponent();
+	collider->SetPhysicsWorld(m_physicsWorld);
+	collider->SetSyncMode(ColliderSyncMode::PhysicsDrivesTransform);
 
 	obj->SetElement(tr, ElementType::Transform);
 	obj->SetElement(sprite, ElementType::SpriteRenderer);
 	obj->SetElement(interact, ElementType::Interactable);
-	//obj->SetElement(collider, ElementType::Collider);
+	obj->SetElement(collider, ElementType::Collider);
 	if (type == InteractType::CampFire)
 	{
 		CampFire* campFire = new CampFire();
@@ -513,8 +481,8 @@ void MainScene::CreateInteractable(float x, float y, InteractType type, const st
 
 	obj->Init();
 
-	//auto circleCollider = std::make_unique<PhysicsEngine::CircleCollider>(0.f, 0.f, 0.5f);
-	//collider->SetCollider(std::move(circleCollider), 1.0f, true);
+	auto rectCollider = std::make_unique<PhysicsEngine::RectangleCollider>(0.5f, 0.5f, 1.f,1.f);
+	collider->SetCollider(std::move(rectCollider), 1.0f, false);
 }
 
 void MainScene::CreateItemPickUp(float x, float y, const string& itemId, int count)

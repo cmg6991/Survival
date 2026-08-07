@@ -143,6 +143,7 @@ void GameProcess::Update()
 
 void GameProcess::LateUpdate()
 {
+	m_gameEngine->LateUpdate();
 }
 
 void GameProcess::PreRender()

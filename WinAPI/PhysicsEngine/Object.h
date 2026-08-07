@@ -34,7 +34,7 @@ namespace PhysicsEngine
 
 		bool isStatic=false;
 
-		/// CollisionObject
+		bool isColliding = false;
 		
 		// �浹ü
 		Collider* collider;

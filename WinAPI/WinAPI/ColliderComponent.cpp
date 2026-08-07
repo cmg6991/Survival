@@ -3,6 +3,7 @@
 #include "Transform.h"
 #include "../PhysicsEngine/PhysicsWorld.h"
 #include "../PhysicsEngine/CircleCollider.h"
+#include "../PhysicsEngine/RectangleCollider.h"
 #include "Graphics.h"
 #include <memory>
 #include <utility>
@@ -40,10 +41,12 @@ void ColliderComponent::Update(float deltaTime)
 
 void ColliderComponent::LateUpdate()
 {
-	/*if (!m_object || !m_transform)
+	if (!m_object || !m_transform)
 		return;
 
-	m_transform->SetPosition(m_object->position);*/
+	m_transform->SetPosition(m_object->position);
+
+	m_isCollision = m_object->isColliding;
 }
 
 void ColliderComponent::PreRender()
@@ -53,28 +56,29 @@ void ColliderComponent::PreRender()
 void ColliderComponent::Render(ID2D1DeviceContext* context)
 {
 	if (m_object == nullptr || m_object->collider == nullptr) return;
-
 	PhysicsEngine::Collider* col = m_object->collider;
 	MathEngine::Vector2 center = col->center;
-
 	D2D1::ColorF debugColor = m_isCollision ? D2D1::ColorF::Red : D2D1::ColorF::Yellow;
+
+	MathEngine::Vector2 screen = TileManager::GetInstance().TileToScreen(center);
+	float screenX = screen.x - CameraManager::GetInstance().GetX();
+	float screenY = screen.y - CameraManager::GetInstance().GetY();
+	float tileSize = 64.0f; // 사용하시는 타일 픽셀 크기
 
 	if (PhysicsEngine::CircleCollider* circle = dynamic_cast<PhysicsEngine::CircleCollider*>(col))
 	{
-		// 1. Player와 동일하게 Tile -> Screen 좌표 변환
-		MathEngine::Vector2 screen = TileManager::GetInstance().TileToScreen(center);
-
-		// 2. 카메라 오프셋 적용
-		float screenX = screen.x - CameraManager::GetInstance().GetX();
-		float screenY = screen.y - CameraManager::GetInstance().GetY();
-
-		// 3. 반지름(radius)도 타일/스크린 단위에 맞게 변환
-		// (만약 TileManager에 타일 픽셀 크기를 가져오는 함수가 있다면 그것을 활용하고, 
-		//  일반적으로 64px 기준이라면 radius * 64.f 로 계산합니다)
-		float tileSize = 64.0f; // 사용하시는 타일 픽셀 크기
 		float drawRadius = circle->radius * tileSize;
-
 		GRAPHICS.DrawCircle(screenX, screenY, drawRadius, debugColor);
+	}
+	else if (PhysicsEngine::RectangleCollider* rect = dynamic_cast<PhysicsEngine::RectangleCollider*>(col))
+	{
+		float drawWidth = rect->size.x * tileSize;
+		float drawHeight = rect->size.y * tileSize;
+
+		// center 기준이므로 좌상단 좌표로 변환
+		float drawX = screenX - drawWidth * 0.5f;
+		float drawY = screenY - drawHeight * 0.5f;
+		GRAPHICS.DrawRect(drawX, drawY, drawWidth, drawHeight, debugColor);
 	}
 }
 

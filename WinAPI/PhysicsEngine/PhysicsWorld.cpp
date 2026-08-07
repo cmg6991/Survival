@@ -71,6 +71,11 @@ namespace PhysicsEngine
 	{
 		std::vector<Collision> collisions;
 
+		for (Object* obj : m_objects)
+		{
+			if (obj) obj->isColliding = false;
+		}
+
 		size_t count = m_objects.size();
 		for (size_t i = 0; i < count; ++i)
 		{
@@ -92,7 +97,10 @@ namespace PhysicsEngine
 					OutputDebugString(L"출력");
 
 					collisions.emplace_back(a, b, points);
-					TestResolve(*a, *b, points);
+					//TestResolve(*a, *b, points);
+
+					a->isColliding = true;   // 추가
+					b->isColliding = true;   // 추가
 				}
 			}
 		}
@@ -154,29 +162,34 @@ namespace PhysicsEngine
 		m_solvers.erase(itr);
 	}
 
-	void PhysicsWorld::TestResolve(
-		Object& a, Object& b, const CollisionPoints& points)
-	{
-		if (a.isStatic && b.isStatic) return;
+	//void PhysicsWorld::TestResolve(
+	//	Object& a, Object& b, const CollisionPoints& points)
+	//{
+	//	if (a.isStatic && b.isStatic) return;
 
-		if (a.isStatic)
-		{
-			b.position -= points.normal * points.depth;
-			b.collider->center = b.position;
-		}
-		else if (b.isStatic)
-		{
-			a.position += points.normal * points.depth;
-			a.collider->center = a.position;
-		}
-		else
-		{
-			a.position += points.normal * (points.depth * 0.5f);
-			b.position -= points.normal * (points.depth * 0.5f);
+	//	const float slop = 0.01f;      // 이 정도 겹침은 무시 (부동소수점 떨림 방지)
+	//	const float percent = 0.8f;    // 한 프레임에 겹침의 80%만 보정 (100%면 지금처럼 순간이동)
 
-			a.collider->center = a.position;
-			b.collider->center = b.position;
-		}
-	}
+	//	float correctionDepth = points.depth - slop;
+	//	if (correctionDepth <= 0.f) return; // 겹침이 미미하면 아예 보정 안 함
 
+	//	MathEngine::Vector2 correction = points.normal * (correctionDepth * percent);
+
+	//	if (a.isStatic)
+	//	{
+	//		b.position -= correction;
+	//	}
+	//	else if (b.isStatic)
+	//	{
+	//		a.position += correction;
+	//	}
+	//	else
+	//	{
+	//		a.position += correction * 0.5f;
+	//		b.position -= correction * 0.5f;
+	//	}
+
+	//	a.collider->center = a.position;
+	//	b.collider->center = b.position;
+	//}
 }

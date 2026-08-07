@@ -52,8 +52,8 @@ namespace PhysicsEngine
 		float m_ScreenWidth;
 		float m_ScreenHeight;
 
-		void TestResolve(
+		/*void TestResolve(
 			Object& a, Object& b,
-			const CollisionPoints& points);
+			const CollisionPoints& points);*/
 	};
 }
