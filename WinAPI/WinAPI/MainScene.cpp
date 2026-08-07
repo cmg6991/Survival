@@ -29,6 +29,7 @@
 #include "../PhysicsEngine/RectangleCollider.h"
 #include "../PhysicsEngine/Collider.h"
 #include "../PhysicsEngine/Positionsolver.h"
+#include "../PhysicsEngine/ImpulseSolver.h"
 
 wstring UTF8ToWString(const string& str)
 {
@@ -61,6 +62,7 @@ MainScene::MainScene(ResourceManager* resourceManager)
 	m_tileMap = new TileMap;
 	m_collisionManager = new CollisionManager;
 	m_physicsWorld = new PhysicsEngine::PhysicsWorld();
+	m_physicsWorld->AddSolver(new PhysicsEngine::ImpulseSolver());
 	m_physicsWorld->AddSolver(new PhysicsEngine::PositionSolver());
 }
 

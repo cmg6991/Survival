@@ -1,6 +1,7 @@
 D:\Project\Unity\Survival\WinAPI\PhysicsEngine\CircleCollider.cpp;D:\Project\Unity\Survival\WinAPI\PhysicsEngine\x64\Debug\CircleCollider.obj
 D:\Project\Unity\Survival\WinAPI\PhysicsEngine\Collider.cpp;D:\Project\Unity\Survival\WinAPI\PhysicsEngine\x64\Debug\Collider.obj
 D:\Project\Unity\Survival\WinAPI\PhysicsEngine\CollisionPoints.cpp;D:\Project\Unity\Survival\WinAPI\PhysicsEngine\x64\Debug\CollisionPoints.obj
+D:\Project\Unity\Survival\WinAPI\PhysicsEngine\ImpulseSolver.cpp;D:\Project\Unity\Survival\WinAPI\PhysicsEngine\x64\Debug\ImpulseSolver.obj
 D:\Project\Unity\Survival\WinAPI\PhysicsEngine\IsometricCollider.cpp;D:\Project\Unity\Survival\WinAPI\PhysicsEngine\x64\Debug\IsometricCollider.obj
 D:\Project\Unity\Survival\WinAPI\PhysicsEngine\Object.cpp;D:\Project\Unity\Survival\WinAPI\PhysicsEngine\x64\Debug\Object.obj
 D:\Project\Unity\Survival\WinAPI\PhysicsEngine\PhysicsWorld.cpp;D:\Project\Unity\Survival\WinAPI\PhysicsEngine\x64\Debug\PhysicsWorld.obj

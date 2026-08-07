@@ -44,8 +44,16 @@ namespace PhysicsEngine
 				continue;
 			}
 
+			if (obj->isKinematic)
+			{
+				// 위치는 이미 Pull에서 반영됐으니 Step에서는 이동시키지 않음
+				obj->collider->center = obj->position;
+				continue;
+			}
+
 			obj->velocity += obj->force / obj->mass * dt;
 			obj->position += obj->velocity * dt;
+			obj->velocity *= 0.8f;
 			obj->collider->center = obj->position;
 
 			if (obj->velocity.Magnitude() < 0.001f)

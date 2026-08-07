@@ -34,6 +34,8 @@ namespace PhysicsEngine
 
 		bool isStatic=false;
 
+		bool isKinematic = false;
+
 		bool isColliding = false;
 		
 		// �浹ü

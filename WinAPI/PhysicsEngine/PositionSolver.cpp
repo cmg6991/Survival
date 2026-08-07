@@ -28,7 +28,7 @@ namespace PhysicsEngine
 		*/
 
 		const float slop = 0.001f;
-		const float percent = 0.8f;
+		const float percent = 0.4f;
 
 		for (Collision& collision : collisions)
 		{

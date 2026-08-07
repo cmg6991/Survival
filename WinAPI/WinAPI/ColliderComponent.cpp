@@ -33,6 +33,14 @@ void ColliderComponent::Update(float deltaTime)
 
 	if (m_syncMode == ColliderSyncMode::TransformDrivesPhysics)
 	{
+		MathEngine::Vector2 newPos = m_transform->GetPostion();
+
+		//// 이번 프레임 실제 이동량으로 속도 추정
+		if (deltaTime > 0.f)
+		{
+			m_object->velocity = (newPos - m_object->position) / deltaTime;
+		}
+
 		// 1. 프레임 시작 시: Transform -> Physics 전달
 		m_object->position = m_transform->GetPostion();
 		m_object->collider->center = m_object->position;
@@ -129,6 +137,7 @@ void ColliderComponent::SetCollider(std::unique_ptr<PhysicsEngine::Collider> col
 
 	m_object->collider = collider.release();
 	m_object->collider->center = startPos; // 중심 위치 초기화
+	m_object->isKinematic = (m_syncMode == ColliderSyncMode::TransformDrivesPhysics);
 
 	if (m_world != nullptr)
 	{

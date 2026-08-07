@@ -153,6 +153,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="CollisionPoints.cpp" />
+    <ClCompile Include="ImpulseSolver.cpp" />
     <ClCompile Include="IsometricCollider.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="PhysicsWorld.cpp">
@@ -178,6 +179,7 @@
     </ClInclude>
     <ClInclude Include="Collision.h" />
     <ClInclude Include="CollisionPoints.h" />
+    <ClInclude Include="ImpulseSolver.h" />
     <ClInclude Include="IsometricCollider.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="PhysicsWorld.h" />

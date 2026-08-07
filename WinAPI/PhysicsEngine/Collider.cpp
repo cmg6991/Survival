@@ -84,101 +84,141 @@ namespace PhysicsEngine
 		CollisionPoints result;
 
 
-		// 두 OBB의 충돌 법선 계산
-		MathEngine::Vector2 axesA[2] =
+		//// 두 OBB의 충돌 법선 계산
+		//MathEngine::Vector2 axesA[2] =
+		//{
+		//	MathEngine::Vector2
+		//	{
+		//		cosf(MathEngine::DEGREE_TO_RADIAN(0.f)),
+		//		sinf(MathEngine::DEGREE_TO_RADIAN(0.f))
+		//	},
+		//	MathEngine::Vector2
+		//	{
+		//		cosf(MathEngine::DEGREE_TO_RADIAN(90.f)),
+		//		sinf(MathEngine::DEGREE_TO_RADIAN(90.f))
+		//	}
+		//};
+
+		//MathEngine::Vector2 axesB[2] =
+		//{
+		//	MathEngine::Vector2
+		//	{
+		//		cosf(MathEngine::DEGREE_TO_RADIAN(0.f)),
+		//		sinf(MathEngine::DEGREE_TO_RADIAN(0.f))
+		//	},
+		//	MathEngine::Vector2
+		//	{
+		//		cosf(MathEngine::DEGREE_TO_RADIAN(90.f)),
+		//		sinf(MathEngine::DEGREE_TO_RADIAN(90.f))
+		//	}
+		//};
+
+		//// 두 OBB의 충돌 법선 계산
+		//for (int i = 0; i < 2; i++)
+		//{
+		//	float projectionA[2] =
+		//	{ a.center * axesA[i], a.size * axesA[i] };
+		//	float projectionB[2] =
+		//	{ b.center * axesA[i], b.size * axesA[i] };
+
+		//	float sumA = projectionA[0] + 0.5f * projectionA[1];
+		//	float sumB = projectionB[0] + 0.5f * projectionB[1];
+		//	float diffA = projectionA[0] - 0.5f * projectionA[1];
+		//	float diffB = projectionB[0] - 0.5f * projectionB[1];
+
+		//	if (sumA < diffB || sumB < diffA)
+		//	{
+		//		result.Reset();
+		//		return result;
+		//	}
+		//}
+
+		//for (int i = 0; i < 2; i++)
+		//{
+		//	float projectionA[2] = 
+		//	{
+		//		a.center* axesB[i],
+		//		a.size* axesB[i]
+		//	};
+		//	float projectionB[2] =
+		//	{
+		//		b.center* axesB[i],
+		//		b.size * axesB[i]
+		//	};
+
+		//	float sumA = projectionA[0] + 0.5f * projectionA[1];
+		//	float sumB = projectionB[0] + 0.5f * projectionB[1];
+		//	float diffA = projectionA[0] - 0.5f * projectionA[1];
+		//	float diffB = projectionB[0] - 0.5f * projectionB[1];
+
+		//	if (sumA < diffB || sumB < diffA)
+		//	{
+		//		result.Reset();
+		//		return result;
+		//	}
+		//}
+
+		//// 충돌 지점 계산
+		//MathEngine::Vector2 direction = a.center - b.center;
+		//MathEngine::Vector2 normal = direction.Normalize();
+
+		//MathEngine::Vector2 halfSizeA = a.size / 2.f;
+		//MathEngine::Vector2 halfSizeB = b.size / 2.f;
+		//MathEngine::Vector2 collisionPointA = a.center + normal * halfSizeA;
+		//MathEngine::Vector2 collisionPointB = b.center - normal * halfSizeB;
+		//MathEngine::Vector2 collisionPoin = (collisionPointA + collisionPointB) / 2.f;
+
+		//float distance = direction.Magnitude();
+		//float depth = distance - (a.size.Magnitude() + b.size.Magnitude()) / 2.f ;
+
+		//// 결과 설정
+		//result.a = collisionPoin;
+		//result.b = collisionPoin; 
+		//result.normal = normal;
+		//result.depth = depth;
+		//result.hasCollision = true;
+
+		//return result;
+
+		MathEngine::Vector2 halfA = a.size / 2.f;
+		MathEngine::Vector2 halfB = b.size / 2.f;
+
+		float minAx = a.center.x - halfA.x, maxAx = a.center.x + halfA.x;
+		float minAy = a.center.y - halfA.y, maxAy = a.center.y + halfA.y;
+		float minBx = b.center.x - halfB.x, maxBx = b.center.x + halfB.x;
+		float minBy = b.center.y - halfB.y, maxBy = b.center.y + halfB.y;
+
+		float overlapX = std::min(maxAx, maxBx) - std::max(minAx, minBx);
+		float overlapY = std::min(maxAy, maxBy) - std::max(minAy, minBy);
+
+		if (overlapX <= 0.f || overlapY <= 0.f)
 		{
-			MathEngine::Vector2
-			{
-				cosf(MathEngine::DEGREE_TO_RADIAN(0.f)),
-				sinf(MathEngine::DEGREE_TO_RADIAN(0.f))
-			},
-			MathEngine::Vector2
-			{
-				cosf(MathEngine::DEGREE_TO_RADIAN(90.f)),
-				sinf(MathEngine::DEGREE_TO_RADIAN(90.f))
-			}
-		};
-
-		MathEngine::Vector2 axesB[2] =
-		{
-			MathEngine::Vector2
-			{
-				cosf(MathEngine::DEGREE_TO_RADIAN(0.f)),
-				sinf(MathEngine::DEGREE_TO_RADIAN(0.f))
-			},
-			MathEngine::Vector2
-			{
-				cosf(MathEngine::DEGREE_TO_RADIAN(90.f)),
-				sinf(MathEngine::DEGREE_TO_RADIAN(90.f))
-			}
-		};
-
-		// 두 OBB의 충돌 법선 계산
-		for (int i = 0; i < 2; i++)
-		{
-			float projectionA[2] =
-			{ a.center * axesA[i], a.size * axesA[i] };
-			float projectionB[2] =
-			{ b.center * axesA[i], b.size * axesA[i] };
-
-			float sumA = projectionA[0] + 0.5f * projectionA[1];
-			float sumB = projectionB[0] + 0.5f * projectionB[1];
-			float diffA = projectionA[0] - 0.5f * projectionA[1];
-			float diffB = projectionB[0] - 0.5f * projectionB[1];
-
-			if (sumA < diffB || sumB < diffA)
-			{
-				result.Reset();
-				return result;
-			}
+			result.Reset();
+			return result;
 		}
 
-		for (int i = 0; i < 2; i++)
+		// 뒤바뀐 인자를 보정: b - a로 계산해야 최종적으로 objA를 objB로부터 밀어내는 방향이 됨
+		MathEngine::Vector2 direction = b.center - a.center;
+
+		if (overlapX < overlapY)
 		{
-			float projectionA[2] = 
-			{
-				a.center* axesB[i],
-				a.size* axesB[i]
-			};
-			float projectionB[2] =
-			{
-				b.center* axesB[i],
-				b.size * axesB[i]
-			};
-
-			float sumA = projectionA[0] + 0.5f * projectionA[1];
-			float sumB = projectionB[0] + 0.5f * projectionB[1];
-			float diffA = projectionA[0] - 0.5f * projectionA[1];
-			float diffB = projectionB[0] - 0.5f * projectionB[1];
-
-			if (sumA < diffB || sumB < diffA)
-			{
-				result.Reset();
-				return result;
-			}
+			float sign = (direction.x < 0.f) ? -1.f : 1.f;
+			result.normal = MathEngine::Vector2(sign, 0.f);
+			result.depth = overlapX;
+		}
+		else
+		{
+			float sign = (direction.y < 0.f) ? -1.f : 1.f;
+			result.normal = MathEngine::Vector2(0.f, sign);
+			result.depth = overlapY;
 		}
 
-		// 충돌 지점 계산
-		MathEngine::Vector2 direction = a.center - b.center;
-		MathEngine::Vector2 normal = direction.Normalize();
-
-		MathEngine::Vector2 halfSizeA = a.size / 2.f;
-		MathEngine::Vector2 halfSizeB = b.size / 2.f;
-		MathEngine::Vector2 collisionPointA = a.center + normal * halfSizeA;
-		MathEngine::Vector2 collisionPointB = b.center - normal * halfSizeB;
-		MathEngine::Vector2 collisionPoin = (collisionPointA + collisionPointB) / 2.f;
-
-		float distance = direction.Magnitude();
-		float depth = distance - (a.size.Magnitude() + b.size.Magnitude()) / 2.f ;
-
-		// 결과 설정
-		result.a = collisionPoin;
-		result.b = collisionPoin;
-		result.normal = normal;
-		result.depth = depth;
+		result.a = a.center;
+		result.b = b.center;
 		result.hasCollision = true;
 
 		return result;
+
 	}
 
 	CollisionPoints Collider::DiamondVsDiamond

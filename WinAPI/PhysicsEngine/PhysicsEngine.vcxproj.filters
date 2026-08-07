@@ -75,6 +75,7 @@
     <ClCompile Include="VehicleCollider.cpp">
       <Filter>Collision Detction\Collider\Vehicle</Filter>
     </ClCompile>
+    <ClCompile Include="ImpulseSolver.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Collider.h">
@@ -110,5 +111,6 @@
     <ClInclude Include="VehicleCollider.h">
       <Filter>Collision Detction\Collider\Vehicle</Filter>
     </ClInclude>
+    <ClInclude Include="ImpulseSolver.h" />
   </ItemGroup>
 </Project>
