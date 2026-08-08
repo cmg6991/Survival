@@ -33,7 +33,7 @@ bool CollisionManager::IsBlocked(int x, int y)
 {
     if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT)
     {
-        return true;
+        return false;
     }
 
     return m_blockMap[y][x];

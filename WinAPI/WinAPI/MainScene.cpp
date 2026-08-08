@@ -10,6 +10,7 @@
 #include "SaveManager.h"
 #include "CraftingManager.h"
 #include "UIManager.h"
+#include "EnvironmentManager.h"
 
 #include "Player.h"
 #include "GameObject.h"
@@ -74,7 +75,7 @@ void MainScene::Init()
 {
 	m_tileMap->Init();
 	m_resourceManager->Init();
-
+	EnvironmentManager::GetInstance().Init();
 	for (const ImageData& img : DataManager::GetInstance().GetImageList())
 	{
 		m_resourceManager->AddImage(img.keyString, img.path);
@@ -145,6 +146,7 @@ void MainScene::Init()
 		{
 			UnequipWeaponFromPlayer();
 		});
+
 }
 
 void MainScene::FixedUpdate()
@@ -340,6 +342,7 @@ void MainScene::Update(float deltaTime)
 	m_physicsWorld->DetectCollision(deltaTime);
 	m_physicsWorld->Step(deltaTime);             // Ãß°¡
 
+	EnvironmentManager::GetInstance().Update(deltaTime);
 }
 
 void MainScene::LateUpdate()
@@ -359,6 +362,7 @@ void MainScene::Render(ID2D1DeviceContext* context)
 
 	m_collisionManager->RenderDebug(context);
 	UIManager::GetInstance().Render(context);
+	EnvironmentManager::GetInstance().Render(context);
 }
 
 void MainScene::PostRender(ID2D1DeviceContext* context)

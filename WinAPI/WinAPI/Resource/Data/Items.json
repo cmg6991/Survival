@@ -21,6 +21,6 @@
     "id": "Item_Sword_Refined",
     "name": "정련된 검",
     "image": "Item_Sword_Refined",
-    "type" : "Material"
+    "type" : "Weapon"
   }
 ]

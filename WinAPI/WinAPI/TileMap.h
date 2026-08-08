@@ -11,8 +11,8 @@ public:
 
     void Render(ID2D1DeviceContext* context ,ResourceManager* resourceManager);
 
-private:
-    static const int WIDTH = 100;
-    static const int HEIGHT = 100;
+//private:
+//    static const int WIDTH = 20;
+//    static const int HEIGHT = 20;
 };
 

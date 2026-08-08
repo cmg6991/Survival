@@ -24,11 +24,9 @@ void TimeManager::Update(float deltaTime)
 {
     m_gameMinuteTimer += deltaTime;
 
-    // 현실 60초 = 게임 10분
-
-    if (m_gameMinuteTimer >=10.0f)
+    if (m_gameMinuteTimer >=1.0f)
     {
-        m_gameMinuteTimer -= 10.0f;
+        m_gameMinuteTimer -= 1.0f;
         // 게임 시간 10분 증가
         m_minute += 10;
     }

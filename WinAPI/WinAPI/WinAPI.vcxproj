@@ -134,6 +134,7 @@
     <ClInclude Include="DataManager.h" />
     <ClInclude Include="DrawUtil.h" />
     <ClInclude Include="ElementBase.h" />
+    <ClInclude Include="EnvironmentManager.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameEngine.h" />
     <ClInclude Include="GameObject.h" />
@@ -175,6 +176,7 @@
     <ClCompile Include="CollisionManager.cpp" />
     <ClCompile Include="CraftingManager.cpp" />
     <ClCompile Include="DataManager.cpp" />
+    <ClCompile Include="EnvironmentManager.cpp" />
     <ClCompile Include="GameEngine.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameProcess.cpp" />

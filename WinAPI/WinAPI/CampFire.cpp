@@ -1,8 +1,10 @@
 #include "CampFire.h"
 #include "GameObject.h"
+#include "EnvironmentManager.h"
 
 void CampFire::Init()
 {
+	EnvironmentManager::GetInstance().RegisterCampFire(this);
 }
 
 void CampFire::FixedUpdate()
@@ -44,6 +46,7 @@ void CampFire::PostRender(ID2D1DeviceContext* context)
 
 void CampFire::Release()
 {
+	EnvironmentManager::GetInstance().UnregisterCampFire(this);
 }
 
 ElementType CampFire::GetElementType() const
