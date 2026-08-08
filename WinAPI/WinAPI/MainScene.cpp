@@ -22,6 +22,7 @@
 #include "Inventory.h"
 #include "CampFire.h"
 #include "Weapon.h"
+#include "Bullet.h"
 #include "ColliderComponent.h"
 #include <utility>
 #include <memory>
@@ -519,6 +520,26 @@ void MainScene::CreateItemPickUp(float x, float y, const string& itemId, int cou
 	obj->SetElement(tr, ElementType::Transform);
 	obj->SetElement(sprite, ElementType::SpriteRenderer);
 	obj->SetElement(pickup, ElementType::ItemPickUp);
+	obj->Init();
+}
+
+void MainScene::CreateBullet(const MathEngine::Vector2& startPos, const MathEngine::Vector2& dir, int damage, float speed, float range)
+{
+	GameObject* obj = CreateObject("Bullet");
+
+	Transform* tr = new Transform();
+	tr->SetPosition(startPos);
+
+	SpriteRenderer* sprite = new SpriteRenderer("Bullet"); // ResourceManager에 이미지 등록 필요
+	sprite->SetResourceManager(m_resourceManager);
+	sprite->SetScale(0.2f);
+
+	Bullet* bullet = new Bullet(dir, speed, range, damage);
+	bullet->SetCollisionManager(m_collisionManager);
+
+	obj->SetElement(tr, ElementType::Transform);
+	obj->SetElement(sprite, ElementType::SpriteRenderer);
+	obj->SetElement(bullet, ElementType::Bullet);
 	obj->Init();
 }
 

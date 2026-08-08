@@ -3,24 +3,28 @@
     "id": "Item_Wood",
     "name": "나무",
     "image": "Item_Wood",
-    "type" : "Material"
+    "type": "Material",
+    "weaponType": ""
   },
   {
     "id": "Item_Stone",
     "name": "돌",
     "image": "Item_Stone",
-    "type" : "Material"
+    "type": "Material",
+    "weaponType": ""
   },
   {
     "id": "Item_Sword",
     "name": "검",
     "image": "Item_Sword",
-    "type" : "Weapon"
+    "type": "Weapon",
+    "weaponType": "Sword"
   },
   {
     "id": "Item_Sword_Refined",
     "name": "정련된 검",
     "image": "Item_Sword_Refined",
-    "type" : "Weapon"
+    "type": "Weapon",
+    "weaponType": "Sword"
   }
 ]

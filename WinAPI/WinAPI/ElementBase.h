@@ -14,6 +14,7 @@ enum class ElementType
 	Interactable,
 	CampFire,
 	Weapon,
+	Bullet,
 	End
 };
 

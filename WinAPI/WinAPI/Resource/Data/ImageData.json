@@ -21,7 +21,7 @@
 	},
 	{
 		"key": "Tile_W",
-		"path": "Resource/tile.png"
+		"path": "Resource/grass02.png"
 	},
 	{
 		"key": "WorkTable",
@@ -33,7 +33,7 @@
 	},
 	{
 		"key": "Item_Wood",
-		"path": "Resource/tree_single_S.png"
+		"path": "Resource/logHollow.png"
 	},
 	{
 		"key": "Item_Stone",

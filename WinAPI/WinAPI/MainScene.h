@@ -36,6 +36,8 @@ private:
 	void CreateWall(float x, float y, const string& imageName);
 	void CreateInteractable(float x, float y, InteractType type, const string& imageKey);
 	void CreateItemPickUp(float x, float y, const string& itemId, int count);
+	void CreateBullet(const MathEngine::Vector2& startPos, const MathEngine::Vector2& dir,
+		int damage, float speed, float range);
 
 	void EquipWeaponToPlayer(const string& weaponId, bool returnInven = true);
 	void UnequipWeaponFromPlayer();

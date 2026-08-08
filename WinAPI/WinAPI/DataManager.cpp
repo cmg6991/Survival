@@ -125,6 +125,7 @@ void DataManager::LoadItemData(const string& filePath)
 		data.name = item["name"].get<string>();
 		data.image = item["image"].get<string>();
 		data.type = item["type"].get<string>();
+		data.type = item["weaponType"].get<string>();
 		m_items.push_back(data);
 	}
 }

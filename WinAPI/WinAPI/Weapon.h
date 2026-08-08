@@ -2,6 +2,13 @@
 
 #include "ElementBase.h"
 #include "pch.h"
+#include "../MathEngine/Vector2.h"
+
+enum class WeaponType
+{
+	Melee,		//근거리
+	Ranged		//원거리
+};
 
 class Transform;
 class SpriteRenderer;
@@ -33,6 +40,22 @@ public:
 
 	string GetWeaponId() { return m_weaponId; }
 	Transform* GetTransform() { return m_transform; }
+
+	void SetWeaponType(WeaponType type) { m_weaponType = type; }
+	WeaponType GetWeaponType() const { return m_weaponType; }
+
+	void SetBulletStat(float speed, float range, int damage)
+	{
+		m_bulletSpeed = speed;
+		m_bulletRange = range;
+		m_damage = damage;
+	}
+
+	// MainScene이 여기에 "총알 생성 함수"를 꽂아준다 (기존 SetOnWeaponEquip 패턴과 동일)
+	void SetOnFire(function<void(const MathEngine::Vector2&, const MathEngine::Vector2&, int, float, float)> callback)
+	{
+		m_onFire = callback;
+	}
 private:
 	string m_weaponId;
 
@@ -41,5 +64,13 @@ private:
 
 	int m_damage;
 	float m_attackRange;
+
+	WeaponType m_weaponType = WeaponType::Melee;
+	float m_bulletSpeed = 12.0f;
+	float m_bulletRange = 8.0f;
+
+	function<void(const MathEngine::Vector2& startPos,
+		const MathEngine::Vector2& dir,
+		int damage, float speed, float range)> m_onFire;
 };
 
