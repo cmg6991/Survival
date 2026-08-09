@@ -4,6 +4,7 @@
 
 class Transform;
 class CollisionManager;
+class SpriteRenderer;
 
 class Bullet : public ElementBase
 {
@@ -34,6 +35,7 @@ public:
 private:
 	Transform* m_transform = nullptr;
 	CollisionManager* m_collisionManager = nullptr;
+	SpriteRenderer* m_sprite = nullptr;
 
 	MathEngine::Vector2 m_dir;
 	float m_speed;

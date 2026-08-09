@@ -40,6 +40,8 @@ public:
 		m_frameHeight = frameHeight;
 	}
 
+	void SetRotation(float degrees) { m_rotDeg = degrees; }
+
 	//void SetFrame(int row, int frame) { m_row = row; m_frame = frame; }
 	bool GetFlip() const { return m_flip; }
 	void SetFlip(bool flip) { m_flip = flip; }
@@ -63,4 +65,5 @@ private:
 	int m_frameHeight = 0;
 	bool m_flip = false;
 	float m_scale = 1.0f;
+	float m_rotDeg = 0.0f;
 };

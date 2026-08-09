@@ -84,70 +84,6 @@ void SpriteRenderer::PreRender()
 
 void SpriteRenderer::Render(ID2D1DeviceContext* context)
 {
-    /*int TILE_W = TileManager::GetInstance().GetTileWidth();
-    int TILE_H = TileManager::GetInstance().GetTileHeight();
-
-    MathEngine::Vector2 screen = TileManager::GetInstance().TileToScreen(m_transform->GetPostion());
-
-    int screenX = (int)(screen.x - CameraManager::GetInstance().GetX());
-    int screenY = (int)(screen.y - CameraManager::GetInstance().GetY());
-
-    screenY += TILE_H / 2;
-
-    ID2D1Bitmap* bitmap = m_resourceManager->GetImage(m_imageName);
-
-    D2D1_RECT_F destRect = D2D1::RectF(
-        screenX - (int)m_pivot.x, screenY - (int)m_pivot.y,
-        m_frameWidth,
-        m_frameHeight
-    );
-
-    context->DrawBitmap(bitmap, destRect);*/
-
-    ////DrawBitmap(graphics,bitmap,screenX - (int)m_pivot.x, screenY - (int)m_pivot.y);
-    //DrawBitmap(hdc, bitmap,screenX - (int)m_pivot.x,screenY - (int)m_pivot.y);
-    //Ellipse(hdc, screenX-10, screenY-10, screenX + 10, screenY + 10);
-
-    //Rect src( m_srcX,m_srcY, m_frameWidth, m_frameHeight);
-
-    ////Rect dst(screenX - (int)m_pivot.x, screenY - (int)m_pivot.y,m_frameWidth,m_frameHeight);
-    ////graphics.DrawImage( bitmap, dst, src.X, src.Y,src.Width, src.Height,UnitPixel);
-
-    //if (!m_flip)
-    //{
-    //    Rect dst(
-    //        screenX - (int)m_pivot.x,
-    //        screenY - (int)m_pivot.y,
-    //        m_frameWidth,
-    //        m_frameHeight);
-
-    //    graphics.DrawImage(
-    //        bitmap,
-    //        dst,
-    //        src.X,
-    //        src.Y,
-    //        src.Width,
-    //        src.Height,
-    //        UnitPixel);
-    //}
-    //else
-    //{
-    //    Rect dst(
-    //        screenX + (int)m_pivot.x,
-    //        screenY - (int)m_pivot.y,
-    //        -m_frameWidth,      // À½¼ö!
-    //        m_frameHeight);
-
-    //    graphics.DrawImage(
-    //        bitmap,
-    //        dst,
-    //        src.X,
-    //        src.Y,
-    //        src.Width,
-    //        src.Height,
-    //        UnitPixel);
-    //}
-
     int TILE_W = TileManager::GetInstance().GetTileWidth();
     int TILE_H = TileManager::GetInstance().GetTileHeight();
 
@@ -183,7 +119,7 @@ void SpriteRenderer::Render(ID2D1DeviceContext* context)
         (float)(m_srcY + m_frameHeight)
     );
 
-    if (!m_flip)
+    /*if (!m_flip)
     {
         context->DrawBitmap(
             bitmap,
@@ -215,7 +151,36 @@ void SpriteRenderer::Render(ID2D1DeviceContext* context)
         );
 
         context->SetTransform(oldTransform);
+    }*/
+    D2D1_MATRIX_3X2_F oldTransform;
+    context->GetTransform(&oldTransform);
+
+    float centerX = (destRect.left + destRect.right) * 0.5f;
+    float centerY = (destRect.top + destRect.bottom) * 0.5f;
+
+    D2D1_MATRIX_3X2_F finalTransform = oldTransform;
+
+    if (m_flip)
+    {
+        finalTransform = D2D1::Matrix3x2F::Scale(-1.0f, 1.0f, D2D1::Point2F(centerX, centerY)) * finalTransform;
     }
+
+    if (m_rotDeg != 0.0f)
+    {
+        finalTransform = D2D1::Matrix3x2F::Rotation(m_rotDeg, D2D1::Point2F(centerX, centerY)) * finalTransform;
+    }
+
+    context->SetTransform(finalTransform);
+
+    context->DrawBitmap(
+        bitmap,
+        destRect,
+        1.0f,
+        D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR,
+        srcRect
+    );
+
+    context->SetTransform(oldTransform);
 }
 
 void SpriteRenderer::PostRender(ID2D1DeviceContext* context)
