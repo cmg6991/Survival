@@ -49,6 +49,8 @@ private:
 
 	void LoadMap(const vector<string>& mapData);
 	//void RenderUI(ID2D1DeviceContext* context);
+	void CheckBullets();
+	void RenderAimLine(ID2D1DeviceContext* context);
 
 private:
 	string InteractTypeToStationString(InteractType type);

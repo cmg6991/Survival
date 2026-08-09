@@ -33,7 +33,7 @@ void Player::Init()
 
     m_animator = static_cast<Animator*>(m_gameObject->GetElement(ElementType::Animator));
     m_sprite = static_cast<SpriteRenderer*>(m_gameObject->GetElement(ElementType::SpriteRenderer));
-
+    UpdateSpriteState();
 }
 
 void Player::FixedUpdate()
@@ -42,6 +42,16 @@ void Player::FixedUpdate()
 
 void Player::Update(float deltaTime)
 {
+    if (m_isAttacking)
+    {
+        m_attackTimer -= deltaTime;
+        if (m_attackTimer <= 0.0f)
+        {
+            m_isAttacking = false;
+            UpdateSpriteState(); // 공격 끝 -> Walk/Idle로 복귀
+        }
+    }
+
     MathEngine::Vector2 current = m_transform->GetPostion();
 
     MathEngine::Vector2 freeDir = { 0,0 };
@@ -60,7 +70,7 @@ void Player::Update(float deltaTime)
 
     bool isKeyMoving = (freeDir.Magnitude() > 0.001f);
 
-    if (InputManager::GetInstance().IsGetKeyDown(VK_SPACE))
+    if (InputManager::GetInstance().IsGetKeyDown(VK_RBUTTON))
     {
         Attack();
     }
@@ -188,43 +198,14 @@ void Player::Update(float deltaTime)
         m_animator->SetAnimation(6, 1, 0.1f);
         m_sprite->SetFlip(true);
     }
+    bool isMoving = (dx != 0 || dy != 0);
 
-    //float dist = dir.Magnitude();
+    if (isMoving != m_isMoving)
+    {
+        m_isMoving = isMoving;
+        UpdateSpriteState();
+    }
 
-    //if (dist > 0.001f)
-    //{
-    //    dir = dir.Normalize();
-
-    //    float moveAmount = m_moveSpeed * deltaTime;
-
-    //    MathEngine::Vector2 nextPos;
-
-    //    if (moveAmount >= dist)
-    //    {
-    //        nextPos = m_targetPos;
-    //    }
-    //    else
-    //    {
-    //        nextPos = current + dir * moveAmount;
-    //    }
-
-    //    // 이동하려는 위치의 타일 계산
-    //    int tileX = (int)round(nextPos.x);
-    //    int tileY = (int)round(nextPos.y);
-
-    //    // 벽이 아니면 이동
-    //    if (!m_collisionManager->IsBlocked(tileX, tileY))
-    //    {
-    //        current = nextPos;
-    //        m_transform->SetPosition(current);
-    //    }
-    //    else
-    //    {
-    //        // 벽에 닿았으면 이동 중지
-    //        m_targetPos = current;
-    //    }
-    //}
-        // 실제 이동 (충돌 체크 후 적용)
     if (isKeyMoving || m_isAutoMoving)
     {
         int tileX = (int)round(nextPos.x);
@@ -312,4 +293,40 @@ void Player::Attack()
 {
     if (m_weapon)
         m_weapon->Attack();
+    m_isAttacking = true;
+    m_attackTimer = m_attackDuration;
+    UpdateSpriteState();
+}
+
+void Player::SetArmedVisaul(const string& spriteKey)
+{
+    m_currentArmedSprite = spriteKey;
+    UpdateSpriteState();
+
+}
+
+void Player::ClearArmedVisual()
+{
+    m_currentArmedSprite = "";
+    UpdateSpriteState();
+}
+
+void Player::UpdateSpriteState()
+{
+    if (m_sprite == nullptr) return;
+
+    string baseKey = m_currentArmedSprite.empty() ? "Player" : m_currentArmedSprite;
+
+    string suffix;
+    if (m_isAttacking)
+        suffix = "_Attack";
+    else
+        suffix = m_isMoving ? "_Walk" : "_Idle";
+
+    string finalKey = baseKey + suffix;
+
+    if (finalKey == m_lastAppliedSprite) return;
+    m_lastAppliedSprite = finalKey;
+
+    m_sprite->ChangeImage(finalKey);
 }

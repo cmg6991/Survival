@@ -1,7 +1,47 @@
 [
 	{
-		"key": "Player",
-		"path": "Resource/Character0_Walk.png"
+		"key": "Player_Idle",
+		"path": "Resource/Animation/Character0_Idle.png"
+	},
+	{
+		"key": "Player_Walk",
+		"path": "Resource/Animation/Character0_Walk.png"
+	},
+	{
+		"key": "Player_Attack",
+		"path": "Resource/Animation/Character0_Swing.png"
+	},
+	{
+		"key": "Player_Gun_Idle",
+		"path": "Resource/Animation/Character0_IdleHoldingTool.png"
+	},
+	{
+		"key": "Player_Gun_Walk",
+		"path": "Resource/Animation/Character0_WalkHoldingTool.png"
+	},
+	{
+		"key": "Player_Gun_Attack",
+		"path": "Resource/Animation/Character0_WalkHoldingTool.png"
+	},
+	{
+		"key": "Player_Sword_Idle",
+		"path": "Resource/Animation/Character0_IdleHoldingTool_Sword.png"
+	},
+	{
+		"key": "Player_Sword_Walk",
+		"path": "Resource/Animation/Character0_WalkHoldingTool_Sword.png"
+	},
+	{
+		"key": "Player_Sword_Attack",
+		"path": "Resource/Animation/Character0_SwordAttack_Sword.png"
+	},
+	{
+		"key": "Player_Shield_Idle",
+		"path": "Resource/Animation/Character0_IdleHoldingTool_Shield.png"
+	},
+	{
+		"key": "Player_Shield_Walk",
+		"path": "Resource/Animation/Character0_WalkHoldingTool_Silver.png"
 	},
 	{
 		"key": "Wall_E",
@@ -42,6 +82,10 @@
 	{
 		"key": "Item_Sword",
 		"path": "Resource/9.png"
+	},
+	{
+		"key": "Item_Gun",
+		"path": "Resource/2Revolver02.png"
 	},
 	{
 		"key": "SideBarUI",

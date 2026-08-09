@@ -8,6 +8,7 @@ struct ItemData
 	string image;
 	string type;
 	string weaponType;
+	string weaponSpriteKey;
 };
 
 struct Ingredient

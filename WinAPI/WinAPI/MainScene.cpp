@@ -11,6 +11,7 @@
 #include "CraftingManager.h"
 #include "UIManager.h"
 #include "EnvironmentManager.h"
+#include "TileManager.h"
 
 #include "Player.h"
 #include "GameObject.h"
@@ -87,7 +88,7 @@ void MainScene::Init()
 	Transform* tr = new Transform();
 
 	Player* player = new Player();
-	SpriteRenderer* sprite = new SpriteRenderer("Player");
+	SpriteRenderer* sprite = new SpriteRenderer("Player_Idle");
 	Animator* animator = new Animator();
 	ColliderComponent* collider = new ColliderComponent();
 	sprite->SetPivot(230, 370);
@@ -304,6 +305,7 @@ void MainScene::Update(float deltaTime)
 	Scene::Update(deltaTime);
 	CameraManager::GetInstance().Follow(m_player->GetTransform());
 	CheckItemPickUps();
+	CheckBullets();
 
 	Interactable* nearby = FindNearByInteractable();
 	if (nearby != nullptr)
@@ -360,8 +362,14 @@ void MainScene::Render(ID2D1DeviceContext* context)
 	m_tileMap->Render(context, m_resourceManager);
 
 	Scene::Render(context);
-
 	m_collisionManager->RenderDebug(context);
+
+	Weapon* weapon = m_player->GetWeapon();
+	if (weapon != nullptr && weapon->GetWeaponType() == WeaponType::Ranged)
+	{
+		RenderAimLine(context);
+	}
+
 	UIManager::GetInstance().Render(context);
 	EnvironmentManager::GetInstance().Render(context);
 }
@@ -530,15 +538,10 @@ void MainScene::CreateBullet(const MathEngine::Vector2& startPos, const MathEngi
 	Transform* tr = new Transform();
 	tr->SetPosition(startPos);
 
-	SpriteRenderer* sprite = new SpriteRenderer("Bullet"); // ResourceManager에 이미지 등록 필요
-	sprite->SetResourceManager(m_resourceManager);
-	sprite->SetScale(0.2f);
-
 	Bullet* bullet = new Bullet(dir, speed, range, damage);
 	bullet->SetCollisionManager(m_collisionManager);
 
 	obj->SetElement(tr, ElementType::Transform);
-	obj->SetElement(sprite, ElementType::SpriteRenderer);
 	obj->SetElement(bullet, ElementType::Bullet);
 	obj->Init();
 }
@@ -552,7 +555,6 @@ void MainScene::EquipWeaponToPlayer(const string& weaponId, bool returnInven)
 		{
 			m_player->GetInventory()->AddItem(current->GetWeaponId(), 1);
 		}
-		DeletePObject(current->GetGameObject());
 		DeletePObject(current->GetGameObject());
 	}
 
@@ -568,16 +570,47 @@ void MainScene::EquipWeaponToPlayer(const string& weaponId, bool returnInven)
 	weaponSprite->SetResourceManager(m_resourceManager);
 	Weapon* weapon = new Weapon(weaponId);
 
+	// ★ 아이템 데이터 기반으로 원거리/근접 자동 판별
+	const ItemData* itemData = DataManager::GetInstance().FindItem(weaponId);
+
+	weaponSprite = nullptr;
+	if (itemData != nullptr && itemData->weaponType == "Gun")
+	{
+		weapon->SetWeaponType(WeaponType::Ranged);
+		weapon->SetBulletStat(15.0f, 10.0f, 15); // 속도, 사거리, 데미지 (추후 itemData에서 읽어도 됨)
+		weapon->SetOnFire([this](const MathEngine::Vector2& startPos, const MathEngine::Vector2& dir,
+			int damage, float speed, float range)
+			{
+				CreateBullet(startPos, dir, damage, speed, range);
+			});
+		weaponSprite = new SpriteRenderer(weaponId);
+		weaponSprite->SetResourceManager(m_resourceManager);
+	}
+	else
+	{
+		weapon->SetWeaponType(WeaponType::Melee);
+		//weapon->SetMeleeStat(1.5f, 10);
+		weapon->SetOnMeleeAttack([this](const MathEngine::Vector2& startPos, const MathEngine::Vector2& dir,
+			int damage, float range)
+			{
+				// TODO: 몬스터 생기면 여기서 근접 판정
+			});
+	}
+
+	if (weaponSprite != nullptr)
+	{
+		weaponObj->SetElement(weaponSprite, ElementType::SpriteRenderer);
+	}
 	weaponObj->SetElement(weaponTr, ElementType::Transform);
-	weaponObj->SetElement(weaponSprite, ElementType::SpriteRenderer);
 	weaponObj->SetElement(weapon, ElementType::Weapon);
 	weaponObj->Init(); // 여기서 Weapon::Init()이 호출되면서 m_transform, m_sprite 자동 세팅됨
 
 	m_player->SetWeapon(weapon);
-	//m_player->EquipWeapon(weaponId);
-	//weapon->SetEquipped(true);
+	if (itemData != nullptr && !itemData->weaponSpriteKey.empty())
+	{
+		m_player->SetArmedVisaul(itemData->weaponSpriteKey);
+	}
 }
-
 void MainScene::UnequipWeaponFromPlayer()
 {
 	Weapon* current = m_player->GetWeapon();
@@ -586,6 +619,7 @@ void MainScene::UnequipWeaponFromPlayer()
 	m_player->GetInventory()->AddItem(current->GetWeaponId(), 1);
 	DeletePObject(current->GetGameObject());
 	m_player->SetWeapon(nullptr);
+	m_player->ClearArmedVisual();
 }
 
 void MainScene::CheckItemPickUps()
@@ -702,6 +736,55 @@ void MainScene::LoadMap(const vector<string>& mapData)
 			}
 		}
 	}
+}
+
+void MainScene::CheckBullets()
+{
+	vector<GameObject*> toRemove;
+
+	for (GameObject* obj : m_objects)
+	{
+		Bullet* bullet = static_cast<Bullet*>(obj->GetElement(ElementType::Bullet));
+		if (bullet == nullptr) continue;
+
+		if (bullet->IsDead())
+		{
+			toRemove.push_back(obj);
+		}
+	}
+
+	for (GameObject* obj : toRemove)
+	{
+		DeletePObject(obj);
+	}
+}
+
+void MainScene::RenderAimLine(ID2D1DeviceContext* context)
+{
+	Transform* playerTr = m_player->GetTransform();
+	MathEngine::Vector2 playerWorld = playerTr->GetPostion();
+	MathEngine::Vector2 playerScreen = TileManager::GetInstance().TileToScreen(playerWorld);
+
+	float startX = playerScreen.x - CameraManager::GetInstance().GetX();
+	float startY = playerScreen.y - CameraManager::GetInstance().GetY();
+
+	MathEngine::Vector2 mouseScreen = InputManager::GetInstance().GetMousePosition();
+
+	ID2D1SolidColorBrush* aimBrush = nullptr;
+	context->CreateSolidColorBrush(D2D1::ColorF(1.0f, 0.15f, 0.1f, 0.8f), &aimBrush);
+	if (aimBrush == nullptr) return;
+
+	// 조준선 (플레이어 -> 마우스)
+	context->DrawLine(
+		D2D1::Point2F(startX, startY),
+		D2D1::Point2F(mouseScreen.x, mouseScreen.y),
+		aimBrush,
+		2.0f
+	);
+	aimBrush->Release();
+
+	// 크로스헤어 (마우스 위치)
+	GRAPHICS.DrawCircle(mouseScreen.x, mouseScreen.y, 15.0f, D2D1::ColorF::White);
 }
 
 

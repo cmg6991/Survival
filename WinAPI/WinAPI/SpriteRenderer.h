@@ -43,7 +43,7 @@ public:
 	//void SetFrame(int row, int frame) { m_row = row; m_frame = frame; }
 
 	void SetFlip(bool flip) { m_flip = flip; }
-
+	void ChangeImage(const string& imageName) { m_imageName = imageName; }
 	//Bitmap* CreateFlip(Bitmap* src);
 
 private:

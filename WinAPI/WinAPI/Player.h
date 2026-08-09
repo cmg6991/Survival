@@ -51,15 +51,19 @@ public:
 	void SetWeapon(Weapon* weapon) { m_weapon = weapon; }
 	Weapon* GetWeapon() { return m_weapon; }
 
+	void SetArmedVisaul(const string& spriteKey);
+	void ClearArmedVisual();
+
 private:
 	bool m_isAutoMoving = false;
 
-	//string m_equippedWeapon;
+	void UpdateSpriteState();
+	bool m_isMoving = false;
+
 private:
 	Transform* m_transform;
 	float m_moveSpeed;
 	MathEngine::Vector2 m_targetPos;
-	//MathEngine::Vector2 m_debugTarget;
 
 	TileMap* m_tileMap;
 	CollisionManager* m_collisionManager;
@@ -68,5 +72,13 @@ private:
 
 	Inventory m_inventory = Inventory(10, 50);
 	Weapon* m_weapon;
+
+	string m_currentArmedSprite = "";
+	string m_lastAppliedSprite = "";
+
+private:
+	bool m_isAttacking = false;
+	float m_attackTimer = 0.0f;
+	float m_attackDuration = 0.3f;
 };
 

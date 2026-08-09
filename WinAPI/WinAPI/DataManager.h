@@ -5,7 +5,17 @@
 
 enum class ImageKey
 {
-	Player,
+	Player_Idle,
+	Player_Walk,
+	Player_Attack,
+	Player_Gun_Idle,
+	Player_Gun_Walk,
+	Player_Gun_Attack,
+	Player_Sword_Idle,
+	Player_Sword_Walk,
+	Player_Sword_Attack,
+	Player_Shield_Idle,
+	Player_Shield_Walk,
 	Wall_N,
 	Wall_S,
 	Wall_E,
@@ -16,6 +26,7 @@ enum class ImageKey
 	Item_Wood,
 	Item_Stone,
 	Item_Sword,
+	Item_Gun,
 	SideBarUI,
 	Count
 };

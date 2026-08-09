@@ -3,9 +3,9 @@
     "id": "Recipe_CookedMeat",
     "result": "CookedMeat",
     "resultCount": 1,
-    "station" : "CampFire",
+    "station": "CampFire",
     "isWeaponUpgrade": false,
-    "successRate" : 1,
+    "successRate": 1,
     "ingredients": [
       {
         "id": "Meat",
@@ -17,9 +17,9 @@
     "id": "Recipe_Sword",
     "result": "Item_Sword",
     "resultCount": 1,
-    "station" : "WorkTable",
+    "station": "WorkTable",
     "isWeaponUpgrade": true,
-    "successRate" : 1,
+    "successRate": 1,
     "ingredients": [
       {
         "id": "Item_Wood",
@@ -37,11 +37,20 @@
     "resultCount": 1,
     "station": "WorkTable",
     "isWeaponUpgrade": true,
-    "successRate" : 0.7,
+    "successRate": 0.7,
     "ingredients": [
-      { "id": "Item_Sword", "count": 1 },
-      { "id": "Item_Stone", "count": 5 },
-      { "id": "Item_Wood", "count": 5 }
+      {
+        "id": "Item_Sword",
+        "count": 1
+      },
+      {
+        "id": "Item_Stone",
+        "count": 5
+      },
+      {
+        "id": "Item_Wood",
+        "count": 5
+      }
     ]
   },
   {
@@ -49,43 +58,27 @@
     "result": "Item_Defense",
     "resultCount": 1,
     "station": "WorkTable",
-    "isWeaponUpgrade": true,
-    "successRate" : 1,
+    "isWeaponUpgrade": false,
+    "successRate": 1,
     "ingredients": [
-      { "id": "Item_Wood", "count": 10 }
+      {
+        "id": "Item_Wood",
+        "count": 10
+      }
     ]
   },
   {
-    "id": "Recipe_Defense",
-    "result": "Item_Defense",
+    "id": "Recipe_Gun",
+    "result": "Item_Gun",
     "resultCount": 1,
     "station": "WorkTable",
-    "isWeaponUpgrade": true,
-    "successRate" : 1,
+    "isWeaponUpgrade": false,
+    "successRate": 1,
     "ingredients": [
-      { "id": "Item_Wood", "count": 10 }
-    ]
-  },
-  {
-    "id": "Recipe_Defense",
-    "result": "Item_Defense",
-    "resultCount": 1,
-    "station": "WorkTable",
-    "isWeaponUpgrade": true,
-    "successRate" : 1,
-    "ingredients": [
-      { "id": "Item_Wood", "count": 10 }
-    ]
-  },
-  {
-    "id": "Recipe_Defense",
-    "result": "Item_Defense",
-    "resultCount": 1,
-    "station": "WorkTable",
-    "isWeaponUpgrade": true,
-    "successRate" : 1,
-    "ingredients": [
-      { "id": "Item_Wood", "count": 10 }
+      {
+        "id": "Item_Stone",
+        "count": 1
+      }
     ]
   }
 ]

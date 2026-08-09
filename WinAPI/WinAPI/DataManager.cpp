@@ -94,7 +94,17 @@ void DataManager::LoadMapData(const string& filePath)
 
 ImageKey DataManager::StringToImageKey(const string& str) const
 {
-	if (str == "Player")  return ImageKey::Player;
+	if (str == "Player_Idle")  return ImageKey::Player_Idle;
+	if (str == "Player_Walk")  return ImageKey::Player_Walk;
+	if (str == "Player_Attack")  return ImageKey::Player_Attack;
+	if (str == "Player_Gun_Idle")  return ImageKey::Player_Gun_Idle;
+	if (str == "Player_Gun_Walk") return ImageKey::Player_Gun_Walk;
+	if (str == "Player_Gun_Attack") return ImageKey::Player_Gun_Attack;
+	if (str == "Player_Sword_Idle")  return ImageKey::Player_Sword_Idle;
+	if (str == "Player_Sword_Walk") return ImageKey::Player_Sword_Walk;
+	if (str == "Player_Sword_Attack") return ImageKey::Player_Sword_Attack;
+	if (str == "Player_Shield_Idle") return ImageKey::Player_Shield_Idle;
+	if (str == "Player_Shield_Walk") return ImageKey::Player_Shield_Walk;
 	if (str == "Wall_N")  return ImageKey::Wall_N;
 	if (str == "Wall_S")  return ImageKey::Wall_S;
 	if (str == "Wall_E")  return ImageKey::Wall_E;
@@ -105,6 +115,7 @@ ImageKey DataManager::StringToImageKey(const string& str) const
 	if (str == "Item_Wood")  return ImageKey::Item_Wood;
 	if (str == "Item_Stone")  return ImageKey::Item_Stone;
 	if (str == "Item_Sword")  return ImageKey::Item_Sword;
+	if (str == "Item_Gun")  return ImageKey::Item_Gun;
 	if (str == "SideBarUI")  return ImageKey::SideBarUI;
 
 	return ImageKey::Count;
@@ -125,7 +136,8 @@ void DataManager::LoadItemData(const string& filePath)
 		data.name = item["name"].get<string>();
 		data.image = item["image"].get<string>();
 		data.type = item["type"].get<string>();
-		data.type = item["weaponType"].get<string>();
+		data.weaponType = item.value("weaponType", "");
+		data.weaponSpriteKey = item.value("weaponSpriteKey", "");
 		m_items.push_back(data);
 	}
 }

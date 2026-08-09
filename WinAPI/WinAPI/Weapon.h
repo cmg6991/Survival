@@ -56,6 +56,10 @@ public:
 	{
 		m_onFire = callback;
 	}
+	void SetOnMeleeAttack(function<void(const MathEngine::Vector2&, const MathEngine::Vector2&, int, float)> callback)
+	{
+		m_onMeleeAttack = callback;
+	}
 private:
 	string m_weaponId;
 
@@ -72,5 +76,7 @@ private:
 	function<void(const MathEngine::Vector2& startPos,
 		const MathEngine::Vector2& dir,
 		int damage, float speed, float range)> m_onFire;
+	function<void(const MathEngine::Vector2& startPos, const MathEngine::Vector2& dir,
+		int damage, float range)> m_onMeleeAttack;
 };
 
