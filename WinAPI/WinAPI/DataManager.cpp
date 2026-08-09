@@ -116,6 +116,7 @@ ImageKey DataManager::StringToImageKey(const string& str) const
 	if (str == "Item_Stone")  return ImageKey::Item_Stone;
 	if (str == "Item_Sword")  return ImageKey::Item_Sword;
 	if (str == "Item_Gun")  return ImageKey::Item_Gun;
+	if (str == "Bullet")  return ImageKey::Bullet;
 	if (str == "SideBarUI")  return ImageKey::SideBarUI;
 
 	return ImageKey::Count;

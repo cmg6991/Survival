@@ -28,6 +28,7 @@ void Weapon::FixedUpdate()
 
 void Weapon::Update(float deltaTime)
 {
+    m_timeSinceFire += deltaTime;
 }
 
 void Weapon::LateUpdate()
@@ -85,7 +86,10 @@ void Weapon::Attack()
     if (m_weaponType == WeaponType::Ranged)
     {
         if (m_onFire)
+        {
             m_onFire(startPos, dir, m_damage, m_bulletSpeed, m_bulletRange);
+            m_timeSinceFire = 0.0f;
+        }
     }
     else // Melee
     {

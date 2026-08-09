@@ -58,6 +58,7 @@ private:
 	bool m_isAutoMoving = false;
 
 	void UpdateSpriteState();
+	void ApplyFacing(const MathEngine::Vector2& faceDir);
 	bool m_isMoving = false;
 
 private:

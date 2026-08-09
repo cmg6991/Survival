@@ -541,8 +541,13 @@ void MainScene::CreateBullet(const MathEngine::Vector2& startPos, const MathEngi
 	Bullet* bullet = new Bullet(dir, speed, range, damage);
 	bullet->SetCollisionManager(m_collisionManager);
 
+	SpriteRenderer* sprite = new SpriteRenderer("Bullet");
+	sprite->SetResourceManager(m_resourceManager);
+	sprite->SetScale(5.f);
+
 	obj->SetElement(tr, ElementType::Transform);
 	obj->SetElement(bullet, ElementType::Bullet);
+	obj->SetElement(sprite, ElementType::SpriteRenderer);
 	obj->Init();
 }
 
@@ -585,6 +590,8 @@ void MainScene::EquipWeaponToPlayer(const string& weaponId, bool returnInven)
 			});
 		weaponSprite = new SpriteRenderer(weaponId);
 		weaponSprite->SetResourceManager(m_resourceManager);
+		weaponSprite->SetScale(3.0f);
+		weaponSprite->SetPivot(10.0f, 5.5f);
 	}
 	else
 	{
@@ -770,6 +777,16 @@ void MainScene::RenderAimLine(ID2D1DeviceContext* context)
 
 	MathEngine::Vector2 mouseScreen = InputManager::GetInstance().GetMousePosition();
 
+	Weapon* weapon = m_player->GetWeapon();
+	bool isFlashing = (weapon != nullptr && weapon->IsMuzzleFlashActive());
+
+	// ★ 발사 순간엔 굵고 밝게, 평소엔 얇고 은은하게
+	float lineWidth = isFlashing ? 4.0f : 2.0f;
+	D2D1_COLOR_F lineColor = isFlashing
+		? D2D1::ColorF(1.0f, 0.9f, 0.4f, 1.0f)   // 밝은 노란빛
+		: D2D1::ColorF(1.0f, 0.15f, 0.1f, 0.8f); // 평소 빨간 조준선
+
+
 	ID2D1SolidColorBrush* aimBrush = nullptr;
 	context->CreateSolidColorBrush(D2D1::ColorF(1.0f, 0.15f, 0.1f, 0.8f), &aimBrush);
 	if (aimBrush == nullptr) return;
@@ -782,6 +799,11 @@ void MainScene::RenderAimLine(ID2D1DeviceContext* context)
 		2.0f
 	);
 	aimBrush->Release();
+
+	if (isFlashing)
+	{
+		GRAPHICS.DrawCircle(startX, startY, 12.0f, D2D1::ColorF(1.0f, 0.9f, 0.3f, 1.0f));
+	}
 
 	// 크로스헤어 (마우스 위치)
 	GRAPHICS.DrawCircle(mouseScreen.x, mouseScreen.y, 15.0f, D2D1::ColorF::White);

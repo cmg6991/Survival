@@ -447,8 +447,8 @@ void UIManager::RenderInventoryWindow(ID2D1DeviceContext* context)
 			ID2D1Bitmap* bitmap = m_resourceManager->GetImage(itemData->image);
 			if (bitmap != nullptr)
 			{
-				float pad = 8.0f;
-				GRAPHICS.DrawBitmapUI(bitmap, m_equipSlotX + pad, m_equipWeaponSlotY + pad, m_slotSize - pad * 2, m_slotSize - pad * 2);
+				float pad = 20.0f;
+				GRAPHICS.DrawBitmapUI(bitmap, m_equipSlotX + pad, m_equipWeaponSlotY + pad+20, m_slotSize - pad * 2, m_slotSize - pad * 2);
 			}
 		}
 	}

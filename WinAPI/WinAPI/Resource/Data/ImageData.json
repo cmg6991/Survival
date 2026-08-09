@@ -85,10 +85,14 @@
 	},
 	{
 		"key": "Item_Gun",
-		"path": "Resource/2Revolver02.png"
+		"path": "Resource/7Pistol07.png"
 	},
 	{
 		"key": "SideBarUI",
 		"path": "Resource/vertical_type_1.png"
+	},
+	{
+		"key": "Bullet",
+		"path": "Resource/1.png"
 	}
 ]

@@ -151,59 +151,32 @@ void Player::Update(float deltaTime)
     else if (dir.y < -0.1f)
         dy = -1;
 
-    if (dx == 0 && dy == 1)
-    {
-        m_animator->SetAnimation(6, 0, 0.1f);
-        m_sprite->SetFlip(false);
-    }
-
-    else if (dx == -1 && dy == 1)
-    {
-        m_animator->SetAnimation(6, 1, 0.1f);
-        m_sprite->SetFlip(false);
-    }
-
-    else if (dx == -1 && dy == 0)
-    {
-        m_animator->SetAnimation(6, 2, 0.1f);
-        m_sprite->SetFlip(false);
-    }
-
-    else if (dx == -1 && dy == -1)
-    {
-        m_animator->SetAnimation(6, 3, 0.1f);
-        m_sprite->SetFlip(false);
-    }
-
-    else if (dx == 0 && dy == -1)
-    {
-        m_animator->SetAnimation(6, 4, 0.1f);
-        m_sprite->SetFlip(false);
-    }
-
-    else if (dx == 1 && dy == -1)
-    {
-        m_animator->SetAnimation(6, 3, 0.1f);
-        m_sprite->SetFlip(true);
-    }
-
-    else if (dx == 1 && dy == 0)
-    {
-        m_animator->SetAnimation(6, 2, 0.1f);
-        m_sprite->SetFlip(true);
-    }
-
-    else if (dx == 1 && dy == 1)
-    {
-        m_animator->SetAnimation(6, 1, 0.1f);
-        m_sprite->SetFlip(true);
-    }
     bool isMoving = (dx != 0 || dy != 0);
 
     if (isMoving != m_isMoving)
     {
         m_isMoving = isMoving;
         UpdateSpriteState();
+    }
+
+    bool isRangedEquipped = (m_weapon != nullptr && m_weapon->GetWeaponType() == WeaponType::Ranged);
+
+    if (isMoving)
+    {
+        // 움직이는 동안은 항상 이동 방향을 바라봄 (총이든 검이든 동일)
+        ApplyFacing(dir);
+    }
+    else if (isRangedEquipped)
+    {
+        // 멈춰있을 때만 총이면 마우스를 조준
+        MathEngine::Vector2 mouseScreen = InputManager::GetInstance().GetMousePosition();
+        MathEngine::Vector2 mouseWorld =
+        {
+            mouseScreen.x + CameraManager::GetInstance().GetX(),
+            mouseScreen.y + CameraManager::GetInstance().GetY()
+        };
+        MathEngine::Vector2 mouseTile = TileManager::GetInstance().ScreenToTile(mouseWorld);
+        ApplyFacing(mouseTile - current);
     }
 
     if (isKeyMoving || m_isAutoMoving)
@@ -225,9 +198,10 @@ void Player::Update(float deltaTime)
 
     if (m_weapon != nullptr)
     {
+        float offsetX = m_sprite->GetFlip() ? 0.2f : -0.2f;
         m_weapon->GetTransform()->SetPosition(
             {
-                m_transform->GetPostion().x + 0.2f,
+                m_transform->GetPostion().x + offsetX,
                 m_transform->GetPostion().y
             });
     }
@@ -329,4 +303,34 @@ void Player::UpdateSpriteState()
     m_lastAppliedSprite = finalKey;
 
     m_sprite->ChangeImage(finalKey);
+}
+
+void Player::ApplyFacing(const MathEngine::Vector2& faceDir)
+{
+    if (faceDir.Magnitude() < 0.001f)
+        return;
+
+    const float PI = 3.14159265f;
+    float angle = atan2(faceDir.y, faceDir.x); // -PI ~ PI
+
+    int octant = (int)std::round(angle / (PI / 4.0f));
+    octant = ((octant % 8) + 8) % 8; // 0~7로 정규화
+
+    int row = -1;
+    bool flip = false;
+
+    switch (octant)
+    {
+    case 0: row = 2; flip = true;  break; // 오른쪽
+    case 1: row = 1; flip = true;  break; // 오른쪽-아래
+    case 2: row = 0; flip = false; break; // 아래
+    case 3: row = 1; flip = false; break; // 왼쪽-아래
+    case 4: row = 2; flip = false; break; // 왼쪽
+    case 5: row = 3; flip = false; break; // 왼쪽-위
+    case 6: row = 4; flip = false; break; // 위
+    case 7: row = 3; flip = true;  break; // 오른쪽-위
+    }
+
+    m_animator->SetAnimation(6, row, 0.1f);
+    m_sprite->SetFlip(flip);
 }

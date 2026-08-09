@@ -38,6 +38,9 @@ public:
 
 	void Attack();
 
+	bool IsMuzzleFlashActive() const {return m_timeSinceFire < m_muzzleFlashDuration;
+	}
+
 	string GetWeaponId() { return m_weaponId; }
 	Transform* GetTransform() { return m_transform; }
 
@@ -78,5 +81,8 @@ private:
 		int damage, float speed, float range)> m_onFire;
 	function<void(const MathEngine::Vector2& startPos, const MathEngine::Vector2& dir,
 		int damage, float range)> m_onMeleeAttack;
+
+	float m_timeSinceFire = 999.0f;
+	const float m_muzzleFlashDuration = 0.08f;
 };
 
