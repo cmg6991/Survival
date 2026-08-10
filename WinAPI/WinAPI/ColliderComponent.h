@@ -1,5 +1,6 @@
 #pragma once
 
+#include "pch.h"
 #include <memory>
 #include "ElementBase.h"
 #include "../PhysicsEngine/Collider.h"
@@ -52,6 +53,11 @@ public:
 
 	bool GetIsCollision() const { return m_isCollision; }
 	void SetIsCollision(bool isCollision) { m_isCollision = isCollision; }
+
+public:
+	void SetOnCollisionEnter(std::function<void(GameObject* other)> callback);
+	void SetOnCollisionStay(std::function<void(GameObject* other)> callback);
+	void SetOnCollisionExit(std::function<void(GameObject* other)> callback);
 private:
 	// 충돌 여부
 	bool m_isCollision = false;

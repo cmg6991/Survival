@@ -77,11 +77,52 @@ namespace PhysicsEngine
 
 	void PhysicsWorld::DetectCollision(float dt)
 	{
+		//std::vector<Collision> collisions;
+
+		//for (Object* obj : m_objects)
+		//{
+		//	if (obj) obj->isColliding = false;
+		//}
+
+		//size_t count = m_objects.size();
+		//for (size_t i = 0; i < count; ++i)
+		//{
+		//	Object* a = m_objects[i];
+		//	if (!a || !a->collider) continue;
+
+		//	for (size_t j = i + 1; j < count; ++j)
+		//	{
+		//		Object* b = m_objects[j];
+		//		if (!b || !b->collider) continue;
+
+		//		if (a->isStatic && b->isStatic) continue;
+
+		//		CollisionPoints points = a->collider->TestCollision(*b->collider);
+
+		//		if (points.hasCollision)
+		//		{
+		//			// 충돌 감지 확인용 디버그 출력 (Visual Studio '출력' 창에 표시됨)
+		//			OutputDebugString(L"출력");
+
+		//			collisions.emplace_back(a, b, points);
+		//			//TestResolve(*a, *b, points);
+
+		//			a->isColliding = true;   // 추가
+		//			b->isColliding = true;   // 추가
+		//		}
+		//	}
+		//}
+
+		//ResolveCollsion(collisions, dt);
+
 		std::vector<Collision> collisions;
 
 		for (Object* obj : m_objects)
 		{
-			if (obj) obj->isColliding = false;
+			if (!obj) continue;
+			obj->isColliding = false;
+			obj->previousCollisions = obj->currentCollisions;
+			obj->currentCollisions.clear();
 		}
 
 		size_t count = m_objects.size();
@@ -94,21 +135,42 @@ namespace PhysicsEngine
 			{
 				Object* b = m_objects[j];
 				if (!b || !b->collider) continue;
-
 				if (a->isStatic && b->isStatic) continue;
 
 				CollisionPoints points = a->collider->TestCollision(*b->collider);
-
 				if (points.hasCollision)
 				{
-					// 충돌 감지 확인용 디버그 출력 (Visual Studio '출력' 창에 표시됨)
-					OutputDebugString(L"출력");
-
 					collisions.emplace_back(a, b, points);
-					//TestResolve(*a, *b, points);
+					a->isColliding = true;
+					b->isColliding = true;
 
-					a->isColliding = true;   // 추가
-					b->isColliding = true;   // 추가
+					a->currentCollisions.insert(b);
+					b->currentCollisions.insert(a);
+
+					bool wasCollidingBefore = (a->previousCollisions.find(b) != a->previousCollisions.end());
+
+					if (wasCollidingBefore)
+					{
+						if (a->onCollisionStay) a->onCollisionStay(b);
+						if (b->onCollisionStay) b->onCollisionStay(a);
+					}
+					else
+					{
+						if (a->onCollisionEnter) a->onCollisionEnter(b);
+						if (b->onCollisionEnter) b->onCollisionEnter(a);
+					}
+				}
+			}
+		}
+
+		for (Object* obj : m_objects)
+		{
+			if (!obj) continue;
+			for (Object* prevOther : obj->previousCollisions)
+			{
+				if (obj->currentCollisions.find(prevOther) == obj->currentCollisions.end())
+				{
+					if (obj->onCollisionExit) obj->onCollisionExit(prevOther);
 				}
 			}
 		}
@@ -138,8 +200,14 @@ namespace PhysicsEngine
 			return;
 		}
 
-		delete* itr;
+		for (Object* other : m_objects)
+		{
+			if (other == object) continue;
+			other->currentCollisions.erase(object);
+			other->previousCollisions.erase(object);
+		}
 
+		delete* itr;
 		m_objects.erase(itr);
 	}
 

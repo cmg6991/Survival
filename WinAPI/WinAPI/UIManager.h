@@ -81,7 +81,8 @@ private:
 	function<void(const string&)> m_onShieldEquip;
 	function<void()> m_onShieldUnequip;
 
-	float m_equipShieldSlotY;
+	float m_equipShieldSlotX = 750.0f;
+	float m_equipShieldSlotY=120.f;
 
 
 	// 인벤토리 창 상태
@@ -105,7 +106,7 @@ private:
 	const float m_craftIngredientStartY = 420.0f;
 
 	// 장비 슬롯 좌표 (인벤토리 옆)
-	float m_equipSlotX = 700.f;
+	float m_equipSlotX = 600.f;
 	float m_equipWeaponSlotY = 120.f;
 
 	int m_craftRecipeScrollOffset = 0;   // 몇 번째 레시피부터 보여줄지

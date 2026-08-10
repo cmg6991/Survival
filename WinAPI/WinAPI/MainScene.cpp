@@ -25,6 +25,8 @@
 #include "Weapon.h"
 #include "Bullet.h"
 #include "ColliderComponent.h"
+#include "Monster.h"
+#include "AttackHitBox.h"
 #include <utility>
 #include <memory>
 
@@ -316,7 +318,6 @@ void MainScene::Update(float deltaTime)
 	Scene::Update(deltaTime);
 	CameraManager::GetInstance().Follow(m_player->GetTransform());
 	CheckItemPickUps();
-	CheckBullets();
 
 	Interactable* nearby = FindNearByInteractable();
 	if (nearby != nullptr)
@@ -355,6 +356,10 @@ void MainScene::Update(float deltaTime)
 
 	m_physicsWorld->DetectCollision(deltaTime);
 	m_physicsWorld->Step(deltaTime);             // 추가
+
+	CheckBullets();
+	CheckMonsters();
+	CheckAttackHitBoxes();
 
 	EnvironmentManager::GetInstance().Update(deltaTime);
 }
@@ -452,7 +457,7 @@ void MainScene::RegisterTileHandlers()
 		};
 	// 앞으로 몬스터/아이템/모닥불 등이 생기면 여기 계속 추가하면 됨
 	// 예시 (해당 클래스들 만드신 뒤 주석 해제):
-	// m_tileHandlers['M'] = [this](float x, float y) { CreateMonster(x, y); };
+	m_tileHandlers['M'] = [this](float x, float y) { CreateMonster(x, y, 30); };
 	m_tileHandlers['w'] = [this](float x, float y) { CreateItemPickUp(x, y, "Item_Wood", 1); };
 	m_tileHandlers['r'] = [this](float x, float y) { CreateItemPickUp(x, y, "Item_Stone", 1); };
 	m_tileHandlers['s'] = [this](float x, float y) { CreateItemPickUp(x, y, "Item_Sword", 1); };
@@ -545,7 +550,6 @@ void MainScene::CreateItemPickUp(float x, float y, const string& itemId, int cou
 void MainScene::CreateBullet(const MathEngine::Vector2& startPos, const MathEngine::Vector2& dir, int damage, float speed, float range)
 {
 	GameObject* obj = CreateObject("Bullet");
-
 	Transform* tr = new Transform();
 	tr->SetPosition(startPos);
 
@@ -556,10 +560,58 @@ void MainScene::CreateBullet(const MathEngine::Vector2& startPos, const MathEngi
 	sprite->SetResourceManager(m_resourceManager);
 	sprite->SetScale(5.f);
 
+	ColliderComponent* collider = new ColliderComponent();           
+	collider->SetPhysicsWorld(m_physicsWorld);                       
+	collider->SetSyncMode(ColliderSyncMode::TransformDrivesPhysics); 
+
 	obj->SetElement(tr, ElementType::Transform);
 	obj->SetElement(bullet, ElementType::Bullet);
 	obj->SetElement(sprite, ElementType::SpriteRenderer);
+	obj->SetElement(collider, ElementType::Collider);             
 	obj->Init();
+
+	auto circleCollider = std::make_unique<PhysicsEngine::CircleCollider>(0.f, 0.f, 0.15f);  // ★ 추가
+	collider->SetCollider(std::move(circleCollider), 0.1f, false);                            // ★ 추가
+
+	collider->SetOnCollisionEnter([this, bullet](GameObject* other)  
+		{
+			Monster* monster = static_cast<Monster*>(other->GetElement(ElementType::Monster));
+			if (monster != nullptr && !monster->IsDead())
+			{
+				monster->TakeDamage(bullet->GetDamage());
+				bullet->Kill();
+			}
+		});
+}
+
+void MainScene::CreateMonster(float x, float y, int health)
+{
+	GameObject* obj = CreateObject("Monster");
+
+	Transform* tr = new Transform();
+	tr->SetPosition({ x, y });
+
+	SpriteRenderer* sprite = new SpriteRenderer("Monster"); // 이미지 키 등록 필요
+	sprite->SetResourceManager(m_resourceManager);
+
+	sprite->SetPivot(23, 30);
+
+	Animator* animator = new Animator();
+	Monster* monster = new Monster(health);
+
+	ColliderComponent* collider = new ColliderComponent();
+	collider->SetPhysicsWorld(m_physicsWorld);
+	collider->SetSyncMode(ColliderSyncMode::TransformDrivesPhysics);
+
+	obj->SetElement(tr, ElementType::Transform);
+	obj->SetElement(sprite, ElementType::SpriteRenderer);
+	obj->SetElement(animator, ElementType::Animator);
+	obj->SetElement(monster, ElementType::Monster);
+	obj->SetElement(collider, ElementType::Collider);
+	obj->Init();
+
+	auto circleCollider = std::make_unique<PhysicsEngine::CircleCollider>(0.f, 0.f, 0.4f);
+	collider->SetCollider(std::move(circleCollider), 1.0f, false);
 }
 
 void MainScene::EquipWeaponToPlayer(const string& weaponId, bool returnInven)
@@ -607,11 +659,11 @@ void MainScene::EquipWeaponToPlayer(const string& weaponId, bool returnInven)
 	else
 	{
 		weapon->SetWeaponType(WeaponType::Melee);
-		//weapon->SetMeleeStat(1.5f, 10);
+		weapon->SetMeleeStat(1.5f, 10);
 		weapon->SetOnMeleeAttack([this](const MathEngine::Vector2& startPos, const MathEngine::Vector2& dir,
 			int damage, float range)
 			{
-				// TODO: 몬스터 생기면 여기서 근접 판정
+				ApplyMeleeDamage(startPos, dir, damage, range);
 			});
 	}
 
@@ -784,6 +836,37 @@ void MainScene::LoadMap(const vector<string>& mapData)
 	}
 }
 
+void MainScene::ApplyMeleeDamage(const MathEngine::Vector2& startPos, const MathEngine::Vector2& dir, int damage, float range)
+{
+	GameObject* obj = CreateObject("AttackHitbox");
+
+	Transform* tr = new Transform();
+	tr->SetPosition(startPos + dir * (range * 0.5f));
+
+	AttackHitBox* hitbox = new AttackHitBox(damage, 0.1f);
+
+	ColliderComponent* collider = new ColliderComponent();
+	collider->SetPhysicsWorld(m_physicsWorld);
+	collider->SetSyncMode(ColliderSyncMode::TransformDrivesPhysics);
+
+	obj->SetElement(tr, ElementType::Transform);
+	obj->SetElement(hitbox, ElementType::AttackHitBox);
+	obj->SetElement(collider, ElementType::Collider);
+	obj->Init();
+
+	auto rectCollider = std::make_unique<PhysicsEngine::RectangleCollider>(0.5f, 0.5f, range, range);
+	collider->SetCollider(std::move(rectCollider), 0.1f, false);
+
+	collider->SetOnCollisionEnter([this, hitbox](GameObject* other)
+		{
+			Monster* monster = static_cast<Monster*>(other->GetElement(ElementType::Monster));
+			if (monster != nullptr && !monster->IsDead())
+			{
+				monster->TakeDamage(hitbox->GetDamage());
+			}
+		});
+}
+
 void MainScene::CheckBullets()
 {
 	vector<GameObject*> toRemove;
@@ -803,6 +886,34 @@ void MainScene::CheckBullets()
 	{
 		DeletePObject(obj);
 	}
+}
+
+void MainScene::CheckMonsters()
+{
+	vector<GameObject*> toRemove;
+	for (GameObject* obj : m_objects)
+	{
+		Monster* monster = static_cast<Monster*>(obj->GetElement(ElementType::Monster));
+		if (monster != nullptr && monster->IsDead())
+		{
+			toRemove.push_back(obj);
+		}
+	}
+	for (GameObject* obj : toRemove) DeletePObject(obj);
+}
+
+void MainScene::CheckAttackHitBoxes()
+{
+	vector<GameObject*> toRemove;
+	for (GameObject* obj : m_objects)
+	{
+		AttackHitBox* hitbox = static_cast<AttackHitBox*>(obj->GetElement(ElementType::AttackHitBox));
+		if (hitbox != nullptr && hitbox->IsExpired())
+		{
+			toRemove.push_back(obj);
+		}
+	}
+	for (GameObject* obj : toRemove) DeletePObject(obj);
 }
 
 void MainScene::RenderAimLine(ID2D1DeviceContext* context)

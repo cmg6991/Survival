@@ -36,10 +36,10 @@ void Animator::Update(float deltaTime)
             m_frame = 0;
     }
     m_sprite->SetFrameRect(
-        m_frame * 460,
-        m_row * 460,
-        460,
-        460);
+        m_frame * m_cellWidth,
+        m_row * m_cellHeight,
+        m_cellWidth,
+        m_cellHeight);
 
 }
 

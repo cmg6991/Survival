@@ -29,6 +29,7 @@ enum class ImageKey
 	Item_Gun,
 	Item_Shield,
 	Bullet,
+	Monster,
 	SideBarUI,
 	Count
 };

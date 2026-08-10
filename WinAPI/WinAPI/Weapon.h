@@ -54,6 +54,8 @@ public:
 		m_damage = damage;
 	}
 
+	void SetMeleeStat(float range, int damage) { m_attackRange = range; m_damage = damage; }
+
 	// MainScene이 여기에 "총알 생성 함수"를 꽂아준다 (기존 SetOnWeaponEquip 패턴과 동일)
 	void SetOnFire(function<void(const MathEngine::Vector2&, const MathEngine::Vector2&, int, float, float)> callback)
 	{

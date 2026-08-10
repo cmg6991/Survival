@@ -16,6 +16,7 @@ ColliderComponent::ColliderComponent()
 
 ColliderComponent::~ColliderComponent()
 {
+
 }
 
 void ColliderComponent::Init()
@@ -136,11 +137,42 @@ void ColliderComponent::SetCollider(std::unique_ptr<PhysicsEngine::Collider> col
 	);
 
 	m_object->collider = collider.release();
-	m_object->collider->center = startPos; // 중심 위치 초기화
+	m_object->collider->center = startPos;
+	m_object->owner = m_gameObject;
 	m_object->isKinematic = (m_syncMode == ColliderSyncMode::TransformDrivesPhysics);
 
 	if (m_world != nullptr)
 	{
 		m_world->AddObject(m_object);
 	}
+}
+
+void ColliderComponent::SetOnCollisionEnter(std::function<void(GameObject* other)> callback)
+{
+	if (m_object == nullptr) return;
+	m_object->onCollisionEnter = [callback](PhysicsEngine::Object* other)
+		{
+			if (other != nullptr && other->owner != nullptr)
+				callback(static_cast<GameObject*>(other->owner));
+		};
+}
+
+void ColliderComponent::SetOnCollisionStay(std::function<void(GameObject* other)> callback)
+{
+	if (m_object == nullptr) return;
+	m_object->onCollisionStay = [callback](PhysicsEngine::Object* other)
+		{
+			if (other != nullptr && other->owner != nullptr)
+				callback(static_cast<GameObject*>(other->owner));
+		};
+}
+
+void ColliderComponent::SetOnCollisionExit(std::function<void(GameObject* other)> callback)
+{
+	if (m_object == nullptr) return;
+	m_object->onCollisionExit = [callback](PhysicsEngine::Object* other)
+		{
+			if (other != nullptr && other->owner != nullptr)
+				callback(static_cast<GameObject*>(other->owner));
+		};
 }

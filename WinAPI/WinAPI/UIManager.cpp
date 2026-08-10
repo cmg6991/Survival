@@ -478,17 +478,17 @@ void UIManager::RenderInventoryWindow(ID2D1DeviceContext* context)
 			ID2D1Bitmap* bitmap = m_resourceManager->GetImage(itemData->image);
 			if (bitmap != nullptr)
 			{
-				float pad = 20.0f;
+				float pad = 5.0f;
 				GRAPHICS.DrawBitmapUI(bitmap, m_equipSlotX + pad, m_equipWeaponSlotY + pad+20, m_slotSize - pad * 2, m_slotSize - pad * 2);
 			}
 		}
 	}
 
-	GRAPHICS.DrawString(L"===规绢备===", m_equipSlotX, m_equipShieldSlotY - 30);
+	GRAPHICS.DrawString(L"===规绢备===", m_equipShieldSlotX, m_equipShieldSlotY - 50);
 
-	GRAPHICS.FillRect(m_equipSlotX, m_equipShieldSlotY + 20, m_slotSize, m_slotSize, D2D1::ColorF(0.1f, 0.15f, 0.25f, 1.0f));
-	GRAPHICS.DrawRect(m_equipSlotX, m_equipShieldSlotY + 20, m_slotSize, m_slotSize, D2D1::ColorF::SteelBlue, 2.0f);
-	GRAPHICS.DrawString(L"规菩", m_equipSlotX, m_equipShieldSlotY - 10, 14.f);
+	GRAPHICS.FillRect(m_equipShieldSlotX, m_equipShieldSlotY + 20, m_slotSize, m_slotSize, D2D1::ColorF(0.1f, 0.15f, 0.25f, 1.0f));
+	GRAPHICS.DrawRect(m_equipShieldSlotX, m_equipShieldSlotY + 20, m_slotSize, m_slotSize, D2D1::ColorF::SteelBlue, 2.0f);
+	GRAPHICS.DrawString(L"规菩", m_equipShieldSlotX, m_equipShieldSlotY - 10, 14.f);
 
 	string equippedShieldId = (m_player != nullptr) ? m_player->GetEquippedShieldId() : "";
 	if (!equippedShieldId.empty())
@@ -499,8 +499,8 @@ void UIManager::RenderInventoryWindow(ID2D1DeviceContext* context)
 			ID2D1Bitmap* bitmap = m_resourceManager->GetImage(itemData->image);
 			if (bitmap != nullptr)
 			{
-				float pad = 20.0f;
-				GRAPHICS.DrawBitmapUI(bitmap, m_equipSlotX + pad, m_equipShieldSlotY + pad + 20, m_slotSize - pad * 2, m_slotSize - pad * 2);
+				float pad = 5.0f;
+				GRAPHICS.DrawBitmapUI(bitmap, m_equipShieldSlotX + pad, m_equipShieldSlotY + pad+20 , m_slotSize - pad * 2, m_slotSize - pad * 2);
 			}
 		}
 	}

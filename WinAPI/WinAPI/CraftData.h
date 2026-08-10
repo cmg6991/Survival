@@ -9,7 +9,11 @@ struct ItemData
 	string type;
 	string weaponType;
 	string weaponSpriteKey;
-	int defenseValue = 0;
+	int defenseValue;
+
+	int damage;
+	float range;
+	float speed;
 };
 
 struct Ingredient

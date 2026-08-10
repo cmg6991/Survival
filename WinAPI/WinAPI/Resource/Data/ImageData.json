@@ -73,7 +73,7 @@
 	},
 	{
 		"key": "Item_Wood",
-		"path": "Resource/logHollow.png"
+		"path": "Resource/tree_single_S.png"
 	},
 	{
 		"key": "Item_Stone",
@@ -81,7 +81,7 @@
 	},
 	{
 		"key": "Item_Sword",
-		"path": "Resource/9.png"
+		"path": "Resource/Sword.png"
 	},
 	{
 		"key": "Item_Gun",
@@ -98,5 +98,9 @@
 	{
 		"key": "Bullet",
 		"path": "Resource/1.png"
+	},
+	{
+		"key": "Monster",
+		"path": "Resource/Animation/slimes_pink.png"
 	}
 ]

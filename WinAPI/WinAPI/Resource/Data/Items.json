@@ -3,17 +3,13 @@
     "id": "Item_Wood",
     "name": "나무",
     "image": "Item_Wood",
-    "type": "Material",
-    "weaponType": "",
-    "weaponSpriteKey": ""
+    "type": "Material"
   },
   {
     "id": "Item_Stone",
     "name": "돌",
     "image": "Item_Stone",
-    "type": "Material",
-    "weaponType": "",
-    "weaponSpriteKey": ""
+    "type": "Material"
   },
   {
     "id": "Item_Sword",
@@ -21,7 +17,9 @@
     "image": "Item_Sword",
     "type": "Weapon",
     "weaponType": "Sword",
-    "weaponSpriteKey": "Player_Sword"
+    "weaponSpriteKey": "Player_Sword",
+    "damage": 5,
+    "range" :  1.5
   },
   {
     "id": "Item_Gun",
@@ -29,7 +27,9 @@
     "image": "Item_Gun",
     "type": "Weapon",
     "weaponType": "Gun",
-    "weaponSpriteKey": "Player_Gun"
+    "weaponSpriteKey": "Player_Gun",
+    "damage": 10,
+    "range" : 10
   },
   {
     "id": "Item_Sword_Refined",
@@ -37,14 +37,15 @@
     "image": "Item_Sword_Refined",
     "type": "Weapon",
     "weaponType": "Sword",
-    "weaponSpriteKey": "Player_Sword"
+    "weaponSpriteKey": "Player_Sword",
+    "damage": 10,
+    "range" :  1.5
   },
   {
     "id": "Item_Shield",
     "name": "방패",
     "image": "Item_Shield",
     "type": "Shield",
-    "weaponType": "",
     "weaponSpriteKey": "Player_Shield",
     "defenseValue" :  2
   }

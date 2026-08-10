@@ -1,4 +1,5 @@
 C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\Animator.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\Animator.obj
+C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\AttackHitBox.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\AttackHitBox.obj
 C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\Bullet.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\Bullet.obj
 C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\CameraManager.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\CameraManager.obj
 C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\CampFire.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\CampFire.obj
@@ -16,6 +17,7 @@ C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\Interactable.cpp;C:\Users
 C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\Inventory.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\Inventory.obj
 C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\ItemPickUp.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\ItemPickUp.obj
 C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\MainScene.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\MainScene.obj
+C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\Monster.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\Monster.obj
 C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\Player.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\Player.obj
 C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\ResourceManager.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\ResourceManager.obj
 C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\SaveManager.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\SaveManager.obj

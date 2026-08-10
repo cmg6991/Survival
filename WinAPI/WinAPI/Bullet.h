@@ -31,6 +31,7 @@ public:
 	void SetCollisionManager(CollisionManager* cm) { m_collisionManager = cm; }
 	bool IsDead() const { return m_isDead; }
 	int GetDamage() const { return m_damage; }
+	void Kill() { m_isDead = true; }
 
 private:
 	Transform* m_transform = nullptr;

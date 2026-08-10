@@ -7,7 +7,6 @@ enum class ElementType
 	Transform,
 	Animator,
 	Player,
-	Collider,
 	SpriteRenderer,
 	Wall,
 	ItemPickUp,
@@ -15,6 +14,9 @@ enum class ElementType
 	CampFire,
 	Weapon,
 	Bullet,
+	Monster,
+	AttackHitBox,
+	Collider,
 	End
 };
 

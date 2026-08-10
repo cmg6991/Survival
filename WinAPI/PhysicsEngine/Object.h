@@ -6,6 +6,8 @@
 
 #include "Vector2.h"
 #include "Collider.h"
+#include <functional>
+#include <unordered_set>
 
 namespace PhysicsEngine
 {
@@ -40,5 +42,14 @@ namespace PhysicsEngine
 		
 		// �浹ü
 		Collider* collider;
+
+		void* owner = nullptr;
+
+		std::function<void(Object* other)> onCollisionEnter;
+		std::function<void(Object* other)> onCollisionStay;
+		std::function<void(Object* other)> onCollisionExit;
+
+		std::unordered_set<Object*> currentCollisions;
+		std::unordered_set<Object*> previousCollisions;
 	};
 }

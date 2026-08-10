@@ -22,7 +22,17 @@ public:
     void Release();
 
     void SetElement(ElementBase* element, ElementType type);
-    ElementBase* GetElement(ElementType type) const { return m_elements[(int)type]; }
+    //ElementBase* GetElement(ElementType type) const { return m_elements[(int)type]; }
+    ElementBase* GetElement(ElementType type) const
+    {
+        int index = static_cast<int>(type);
+
+        if (index < 0 || index >= static_cast<int>(m_elements.size()))
+            return nullptr;
+
+        return m_elements[index];
+    }
+
 
     std::string GetName() const { return m_name; }
     void SetName(std::string name) { m_name = name; }

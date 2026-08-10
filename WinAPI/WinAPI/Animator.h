@@ -25,6 +25,7 @@ public:
 	virtual GameObject* GetGameObject() const override;
 	virtual void SetGameObject(GameObject* gameObject) override;
 
+	void SetCellSize(int width, int height) { m_cellWidth = width; m_cellHeight = height; }
 	void SetAnimation(int column, int row,float frameTime);
 
 	void Play(int row, int frameCount, float frameTime);
@@ -38,5 +39,8 @@ private:
 	float m_timer;
 	float m_frameTime;
 	int m_frameCount = 1;
+
+	int m_cellWidth = 460;
+	int m_cellHeight = 460;
 };
 

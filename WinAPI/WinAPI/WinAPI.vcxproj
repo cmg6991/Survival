@@ -125,6 +125,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Animator.h" />
+    <ClInclude Include="AttackHitBox.h" />
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="CameraManager.h" />
     <ClInclude Include="CampFire.h" />
@@ -147,6 +148,7 @@
     <ClInclude Include="Inventory.h" />
     <ClInclude Include="ItemPickUp.h" />
     <ClInclude Include="MainScene.h" />
+    <ClInclude Include="Monster.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Resource.h" />
@@ -171,6 +173,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Animator.cpp" />
+    <ClCompile Include="AttackHitBox.cpp" />
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="CameraManager.cpp" />
     <ClCompile Include="CampFire.cpp" />
@@ -188,6 +191,7 @@
     <ClCompile Include="Inventory.cpp" />
     <ClCompile Include="ItemPickUp.cpp" />
     <ClCompile Include="MainScene.cpp" />
+    <ClCompile Include="Monster.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="SaveManager.cpp" />

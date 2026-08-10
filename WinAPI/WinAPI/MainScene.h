@@ -33,11 +33,13 @@ public:
 
 private:
 	void RegisterTileHandlers();
+
 	void CreateWall(float x, float y, const string& imageName);
 	void CreateInteractable(float x, float y, InteractType type, const string& imageKey);
 	void CreateItemPickUp(float x, float y, const string& itemId, int count);
 	void CreateBullet(const MathEngine::Vector2& startPos, const MathEngine::Vector2& dir,
 		int damage, float speed, float range);
+	void CreateMonster(float x, float y, int health);
 
 	void EquipWeaponToPlayer(const string& weaponId, bool returnInven = true);
 	void UnequipWeaponFromPlayer();
@@ -51,8 +53,12 @@ private:
 	void OnInteract(Interactable* target);
 
 	void LoadMap(const vector<string>& mapData);
-	//void RenderUI(ID2D1DeviceContext* context);
+
+	void ApplyMeleeDamage(const MathEngine::Vector2& startPos, const MathEngine::Vector2& dir, int damage, float range);
+
 	void CheckBullets();
+	void CheckMonsters();
+	void CheckAttackHitBoxes();
 	void RenderAimLine(ID2D1DeviceContext* context);
 
 private:
@@ -67,11 +73,5 @@ private:
 	unordered_set<string> m_collectedItemsIds;
 
 	PhysicsEngine::PhysicsWorld* m_physicsWorld;
-
-	/*bool m_isCraftingOpen = false;
-	InteractType m_currentCraftingType = InteractType::CampFire;
-	int m_selectedRecipeIndex = 0;*/
-
-	//wstring m_lastMessage;
 };
 
