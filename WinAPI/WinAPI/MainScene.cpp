@@ -148,7 +148,14 @@ void MainScene::Init()
 		{
 			UnequipWeaponFromPlayer();
 		});
-
+	UIManager::GetInstance().SetOnShieldEquip([this](const string& itemId)
+		{
+			EquipShieldToPlayer(itemId);
+		});
+	UIManager::GetInstance().SetOnShieldUnequip([this]()
+		{
+			UnequipShieldFromPlayer();
+		});
 }
 
 void MainScene::FixedUpdate()
@@ -204,17 +211,21 @@ void MainScene::Update(float deltaTime)
 				{
 					const ItemData* resultItem =DataManager::GetInstance().FindItem(recipe.resultId);
 					bool isWeaponResult =resultItem != nullptr &&resultItem->type == "Weapon";
-					if (recipe.isWeaponUpgrade)
+					bool isShieldResult = resultItem != nullptr && resultItem->type == "Shield";
+					if (isShieldResult)
+					{
+						EquipShieldToPlayer(recipe.resultId);
+					}
+					else if (recipe.isWeaponUpgrade)
 					{
 						EquipWeaponToPlayer(recipe.resultId, false);
 					}
-					else if (isWeaponResult &&
-						m_player->GetWeapon() == nullptr)
+					else if (isWeaponResult && m_player->GetWeapon() == nullptr)
 					{
 						EquipWeaponToPlayer(recipe.resultId, true);
 					}
-					UIManager::GetInstance().ShowMessage(L"力累 己傍: "+ UTF8ToWString(recipe.resultId));
 
+					UIManager::GetInstance().ShowMessage(L"力累 己傍: " + UTF8ToWString(recipe.resultId));
 					break;
 				}
 				case CraftResult::Failed:
@@ -627,6 +638,34 @@ void MainScene::UnequipWeaponFromPlayer()
 	DeletePObject(current->GetGameObject());
 	m_player->SetWeapon(nullptr);
 	m_player->ClearArmedVisual();
+}
+
+void MainScene::EquipShieldToPlayer(const string& shieldId)
+{
+	string currentShieldId = m_player->GetEquippedShieldId();
+	if (!currentShieldId.empty())
+	{
+		m_player->GetInventory()->AddItem(currentShieldId, 1);
+	}
+
+	if (!m_player->GetInventory()->HasEnough(shieldId, 1)) return;
+
+	const ItemData* itemData = DataManager::GetInstance().FindItem(shieldId);
+	if (itemData == nullptr) return;
+
+	m_player->GetInventory()->RemoveItem(shieldId, 1);
+	m_player->SetShield(itemData->weaponSpriteKey, itemData->defenseValue);
+	m_player->SetEquippedShieldId(shieldId);
+}
+
+void MainScene::UnequipShieldFromPlayer()
+{
+	string shieldId = m_player->GetEquippedShieldId();
+	if (shieldId.empty()) return;
+
+	m_player->GetInventory()->AddItem(shieldId, 1);
+	m_player->ClearShield();
+	m_player->SetEquippedShieldId("");
 }
 
 void MainScene::CheckItemPickUps()

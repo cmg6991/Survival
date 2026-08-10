@@ -27,6 +27,7 @@ enum class ImageKey
 	Item_Stone,
 	Item_Sword,
 	Item_Gun,
+	Item_Shield,
 	Bullet,
 	SideBarUI,
 	Count

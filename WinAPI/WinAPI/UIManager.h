@@ -38,9 +38,13 @@ public:
 	void HandleInventoryClick(float mouseX, float mouseY);
 	bool HandleCraftingRecipeClick(float mouseX, float mouseY);
 	void EquipItem(const string& itemId);
+	void EquipShield(const string& itemId);
 
 	void SetOnWeaponEquip(function<void(const string&)> callback) { m_onWeaponEquip = callback; }
 	void SetOnWeaponUnequip(function<void()> callback) { m_onWeaponUnequip = callback; }
+
+	void SetOnShieldEquip(function<void(const string&)> callback) { m_onShieldEquip = callback; }
+	void SetOnShieldUnequip(function<void()> callback) { m_onShieldUnequip = callback; }
 
 	void ScrollCraftingRecipe(int direction);
 
@@ -72,6 +76,13 @@ private:
 
 	function<void(const string&)> m_onWeaponEquip;
 	function<void()> m_onWeaponUnequip;
+
+	//방패
+	function<void(const string&)> m_onShieldEquip;
+	function<void()> m_onShieldUnequip;
+
+	float m_equipShieldSlotY;
+
 
 	// 인벤토리 창 상태
 	bool m_isInventoryOpen = false;

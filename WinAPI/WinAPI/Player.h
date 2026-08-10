@@ -43,9 +43,6 @@ public:
 
 	Inventory* GetInventory() { return &m_inventory; }
 
-	//string GetEquippedWeapon() const { return m_equippedWeapon; }
-
-	//void EquipWeapon(string weaponID);
 	void Attack();
 
 	void SetWeapon(Weapon* weapon) { m_weapon = weapon; }
@@ -53,6 +50,13 @@ public:
 
 	void SetArmedVisaul(const string& spriteKey);
 	void ClearArmedVisual();
+
+	void SetShield(const string& spriteKey, int defense);
+	void ClearShield();
+	int GetDefense() const { return m_shieldDefense; }
+
+	void SetEquippedShieldId(const string& id) { m_equippedShieldId = id; }
+	string GetEquippedShieldId() const { return m_equippedShieldId; }
 
 private:
 	bool m_isAutoMoving = false;
@@ -76,6 +80,9 @@ private:
 
 	string m_currentArmedSprite = "";
 	string m_lastAppliedSprite = "";
+	string m_shieldSpriteKey = "";
+	int m_shieldDefense = 0;
+	string m_equippedShieldId = "";
 
 private:
 	bool m_isAttacking = false;

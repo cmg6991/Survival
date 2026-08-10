@@ -154,6 +154,10 @@ void UIManager::HandleInventoryClick(float mouseX, float mouseY)
 			{
 				EquipItem(itemId);
 			}
+			else if (item->type == "Shield")
+			{
+				EquipShield(itemId);
+			}
 
 			return;
 		}
@@ -165,6 +169,14 @@ void UIManager::HandleInventoryClick(float mouseX, float mouseY)
 	{
 		if (m_onWeaponUnequip)
 			m_onWeaponUnequip();
+		return;
+	}
+
+	if (mouseX >= m_equipSlotX && mouseX <= m_equipSlotX + m_slotSize &&
+		mouseY >= m_equipShieldSlotY && mouseY <= m_equipShieldSlotY + m_slotSize)
+	{
+		if (m_onShieldUnequip)
+			m_onShieldUnequip();
 		return;
 	}
 }
@@ -235,6 +247,25 @@ void UIManager::EquipItem(const string& itemId)
 			m_onWeaponEquip(itemId); // 실제 GameObject 생성/장착은 MainScene에 위임
 
 		ShowMessage(L"장착했습니다");
+	}
+	else
+	{
+		ShowMessage(L"아이템이 없습니다");
+	}
+}
+
+void UIManager::EquipShield(const string& itemId)
+{
+	if (m_player == nullptr)
+		return;
+	Inventory* inventory = m_player->GetInventory();
+
+	if (inventory->HasEnough(itemId, 1))
+	{
+		if (m_onShieldEquip)
+			m_onShieldEquip(itemId);
+
+		ShowMessage(L"방패를 장착했습니다");
 	}
 	else
 	{
@@ -449,6 +480,27 @@ void UIManager::RenderInventoryWindow(ID2D1DeviceContext* context)
 			{
 				float pad = 20.0f;
 				GRAPHICS.DrawBitmapUI(bitmap, m_equipSlotX + pad, m_equipWeaponSlotY + pad+20, m_slotSize - pad * 2, m_slotSize - pad * 2);
+			}
+		}
+	}
+
+	GRAPHICS.DrawString(L"===방어구===", m_equipSlotX, m_equipShieldSlotY - 30);
+
+	GRAPHICS.FillRect(m_equipSlotX, m_equipShieldSlotY + 20, m_slotSize, m_slotSize, D2D1::ColorF(0.1f, 0.15f, 0.25f, 1.0f));
+	GRAPHICS.DrawRect(m_equipSlotX, m_equipShieldSlotY + 20, m_slotSize, m_slotSize, D2D1::ColorF::SteelBlue, 2.0f);
+	GRAPHICS.DrawString(L"방패", m_equipSlotX, m_equipShieldSlotY - 10, 14.f);
+
+	string equippedShieldId = (m_player != nullptr) ? m_player->GetEquippedShieldId() : "";
+	if (!equippedShieldId.empty())
+	{
+		const ItemData* itemData = DataManager::GetInstance().FindItem(equippedShieldId);
+		if (itemData != nullptr)
+		{
+			ID2D1Bitmap* bitmap = m_resourceManager->GetImage(itemData->image);
+			if (bitmap != nullptr)
+			{
+				float pad = 20.0f;
+				GRAPHICS.DrawBitmapUI(bitmap, m_equipSlotX + pad, m_equipShieldSlotY + pad + 20, m_slotSize - pad * 2, m_slotSize - pad * 2);
 			}
 		}
 	}

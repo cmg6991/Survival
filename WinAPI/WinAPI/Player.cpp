@@ -285,11 +285,31 @@ void Player::ClearArmedVisual()
     UpdateSpriteState();
 }
 
+void Player::SetShield(const string& spriteKey, int defense)
+{
+    m_shieldSpriteKey = spriteKey;
+    m_shieldDefense = defense;
+    UpdateSpriteState();
+}
+
+void Player::ClearShield()
+{
+    m_shieldSpriteKey = "";
+    m_shieldDefense = 0;
+    UpdateSpriteState();
+}
+
 void Player::UpdateSpriteState()
 {
     if (m_sprite == nullptr) return;
 
-    string baseKey = m_currentArmedSprite.empty() ? "Player" : m_currentArmedSprite;
+    string baseKey;
+    if (!m_currentArmedSprite.empty())
+        baseKey = m_currentArmedSprite;
+    else if (!m_shieldSpriteKey.empty())
+        baseKey = m_shieldSpriteKey;
+    else
+        baseKey = "Player";
 
     string suffix;
     if (m_isAttacking)

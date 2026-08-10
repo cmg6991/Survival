@@ -38,5 +38,14 @@
     "type": "Weapon",
     "weaponType": "Sword",
     "weaponSpriteKey": "Player_Sword"
+  },
+  {
+    "id": "Item_Shield",
+    "name": "방패",
+    "image": "Item_Shield",
+    "type": "Shield",
+    "weaponType": "",
+    "weaponSpriteKey": "Player_Shield",
+    "defenseValue" :  2
   }
 ]

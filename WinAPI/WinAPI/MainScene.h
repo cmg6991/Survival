@@ -42,6 +42,9 @@ private:
 	void EquipWeaponToPlayer(const string& weaponId, bool returnInven = true);
 	void UnequipWeaponFromPlayer();
 
+	void EquipShieldToPlayer(const string& shieldId);
+	void UnequipShieldFromPlayer();
+
 	void CheckItemPickUps();
 	string MakeItemPositionId(float x, float y);
 	Interactable* FindNearByInteractable();

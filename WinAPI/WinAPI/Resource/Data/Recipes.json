@@ -55,7 +55,7 @@
   },
   {
     "id": "Recipe_Defense",
-    "result": "Item_Defense",
+    "result": "Item_Shield",
     "resultCount": 1,
     "station": "WorkTable",
     "isWeaponUpgrade": false,
@@ -63,7 +63,7 @@
     "ingredients": [
       {
         "id": "Item_Wood",
-        "count": 10
+        "count": 1
       }
     ]
   },

@@ -88,6 +88,10 @@
 		"path": "Resource/7Pistol07.png"
 	},
 	{
+		"key": "Item_Shield",
+		"path": "Resource/Shield.png"
+	},
+	{
 		"key": "SideBarUI",
 		"path": "Resource/vertical_type_1.png"
 	},

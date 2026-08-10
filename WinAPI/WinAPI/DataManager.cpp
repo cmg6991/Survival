@@ -116,6 +116,7 @@ ImageKey DataManager::StringToImageKey(const string& str) const
 	if (str == "Item_Stone")  return ImageKey::Item_Stone;
 	if (str == "Item_Sword")  return ImageKey::Item_Sword;
 	if (str == "Item_Gun")  return ImageKey::Item_Gun;
+	if (str == "Item_Shield")  return ImageKey::Item_Shield;
 	if (str == "Bullet")  return ImageKey::Bullet;
 	if (str == "SideBarUI")  return ImageKey::SideBarUI;
 
@@ -139,6 +140,7 @@ void DataManager::LoadItemData(const string& filePath)
 		data.type = item["type"].get<string>();
 		data.weaponType = item.value("weaponType", "");
 		data.weaponSpriteKey = item.value("weaponSpriteKey", "");
+		data.defenseValue = item.value("defenseValue", 0);
 		m_items.push_back(data);
 	}
 }
