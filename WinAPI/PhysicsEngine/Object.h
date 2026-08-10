@@ -39,7 +39,8 @@ namespace PhysicsEngine
 		bool isKinematic = false;
 
 		bool isColliding = false;
-		
+		bool isEnabled = true;
+
 		// �浹ü
 		Collider* collider;
 

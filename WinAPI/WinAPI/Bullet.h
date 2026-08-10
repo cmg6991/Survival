@@ -28,11 +28,14 @@ public:
 	virtual GameObject* GetGameObject() const override;
 	virtual void SetGameObject(GameObject* gameObject) override;
 
+	void Reset(const MathEngine::Vector2& dir, float speed, float range, int damage);
+
 	void SetCollisionManager(CollisionManager* cm) { m_collisionManager = cm; }
 	bool IsDead() const { return m_isDead; }
 	int GetDamage() const { return m_damage; }
 	void Kill() { m_isDead = true; }
 
+	void UpdateRotation();
 private:
 	Transform* m_transform = nullptr;
 	CollisionManager* m_collisionManager = nullptr;

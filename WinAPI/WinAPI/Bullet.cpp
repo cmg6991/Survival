@@ -17,20 +17,9 @@ Bullet::~Bullet()
 void Bullet::Init()
 {
 	m_transform = static_cast<Transform*>(m_gameObject->GetElement(ElementType::Transform));
+    m_sprite =static_cast<SpriteRenderer*>(m_gameObject->GetElement(ElementType::SpriteRenderer));
 
-    m_sprite = static_cast<SpriteRenderer*>(m_gameObject->GetElement(ElementType::SpriteRenderer));
-
-    if (m_sprite != nullptr)
-    {
-        MathEngine::Vector2 current = m_transform->GetPostion();
-
-        // 타일 좌표상 현재 위치와, 방향으로 살짝 이동한 위치를 화면 좌표로 각각 변환
-        MathEngine::Vector2 a = TileManager::GetInstance().TileToScreen(current);
-        MathEngine::Vector2 b = TileManager::GetInstance().TileToScreen(current + m_dir);
-
-        float angle = atan2f(b.y - a.y, b.x - a.x) * 180.0f / 3.14159265f;
-        m_sprite->SetRotation(angle);
-    }
+    UpdateRotation();
 }
 
 void Bullet::FixedUpdate()
@@ -99,4 +88,36 @@ GameObject* Bullet::GetGameObject() const
 void Bullet::SetGameObject(GameObject* gameObject)
 {
     m_gameObject = gameObject;
+}
+
+void Bullet::Reset(const MathEngine::Vector2& dir, float speed, float range, int damage)
+{
+    m_dir = dir;
+    m_speed = speed;
+    m_range = range;
+    m_damage = damage;
+    m_traveled = 0.0f;
+    m_isDead = false;
+    UpdateRotation();
+}
+
+void Bullet::UpdateRotation()
+{
+    if (m_sprite == nullptr || m_transform == nullptr)
+        return;
+
+    MathEngine::Vector2 current = m_transform->GetPostion();
+
+    MathEngine::Vector2 a =
+        TileManager::GetInstance().TileToScreen(current);
+
+    MathEngine::Vector2 b =
+        TileManager::GetInstance().TileToScreen(current + m_dir);
+
+    float angle = atan2f(
+        b.y - a.y,
+        b.x - a.x
+    ) * 180.0f / 3.14159265f;
+
+    m_sprite->SetRotation(angle);
 }

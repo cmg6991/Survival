@@ -18,7 +18,7 @@
     "result": "Item_Sword",
     "resultCount": 1,
     "station": "WorkTable",
-    "isWeaponUpgrade": true,
+    "isWeaponUpgrade": false,
     "successRate": 1,
     "ingredients": [
       {

@@ -162,6 +162,7 @@ void MainScene::Init()
 
 void MainScene::FixedUpdate()
 {
+	Scene::FixedUpdate();
 }
 
 void MainScene::Update(float deltaTime)
@@ -222,7 +223,7 @@ void MainScene::Update(float deltaTime)
 					{
 						EquipWeaponToPlayer(recipe.resultId, false);
 					}
-					else if (isWeaponResult && m_player->GetWeapon() == nullptr)
+					else if (isWeaponResult /*&& m_player->GetWeapon() == nullptr*/)
 					{
 						EquipWeaponToPlayer(recipe.resultId, true);
 					}
@@ -354,8 +355,8 @@ void MainScene::Update(float deltaTime)
 		}
 	}
 
-	m_physicsWorld->DetectCollision(deltaTime);
 	m_physicsWorld->Step(deltaTime);             // 추가
+	m_physicsWorld->DetectCollision(deltaTime);
 
 	CheckBullets();
 	CheckMonsters();
@@ -404,10 +405,10 @@ void MainScene::Release()
 	delete m_collisionManager;
 	m_collisionManager = nullptr;
 
+	Scene::Release();
+
 	delete m_physicsWorld; // 추가
 	m_physicsWorld = nullptr;
-
-	Scene::Release();
 }
 
 void MainScene::SaveGame()
@@ -491,7 +492,7 @@ void MainScene::CreateInteractable(float x, float y, InteractType type, const st
 	tr->SetPosition({ x, y });
 
 	SpriteRenderer* sprite = new SpriteRenderer(imageKey);
-	//sprite->SetPivot(50, 90);
+	//sprite->SetPivot(128, 176);
 	sprite->SetResourceManager(m_resourceManager);
 	sprite->SetScale(0.5f);
 	Interactable* interact = new Interactable(type);
@@ -513,7 +514,7 @@ void MainScene::CreateInteractable(float x, float y, InteractType type, const st
 	obj->Init();
 
 	auto rectCollider = std::make_unique<PhysicsEngine::RectangleCollider>(0.5f, 0.5f, 1.f,1.f);
-	collider->SetCollider(std::move(rectCollider), 1.0f, false);
+	collider->SetCollider(std::move(rectCollider), 1.0f, true);
 }
 
 void MainScene::CreateItemPickUp(float x, float y, const string& itemId, int count)
@@ -549,39 +550,59 @@ void MainScene::CreateItemPickUp(float x, float y, const string& itemId, int cou
 
 void MainScene::CreateBullet(const MathEngine::Vector2& startPos, const MathEngine::Vector2& dir, int damage, float speed, float range)
 {
-	GameObject* obj = CreateObject("Bullet");
-	Transform* tr = new Transform();
+	//GameObject* obj = CreateObject("Bullet");
+	//Transform* tr = new Transform();
+	//tr->SetPosition(startPos);
+
+	//Bullet* bullet = new Bullet(dir, speed, range, damage);
+	//bullet->SetCollisionManager(m_collisionManager);
+
+	//SpriteRenderer* sprite = new SpriteRenderer("Bullet");
+	//sprite->SetResourceManager(m_resourceManager);
+	//sprite->SetScale(5.f);
+
+	//ColliderComponent* collider = new ColliderComponent();           
+	//collider->SetPhysicsWorld(m_physicsWorld);                       
+	//collider->SetSyncMode(ColliderSyncMode::TransformDrivesPhysics); 
+
+	//obj->SetElement(tr, ElementType::Transform);
+	//obj->SetElement(bullet, ElementType::Bullet);
+	//obj->SetElement(sprite, ElementType::SpriteRenderer);
+	//obj->SetElement(collider, ElementType::Collider);             
+	//obj->Init();
+
+	//auto circleCollider = std::make_unique<PhysicsEngine::CircleCollider>(0.f, 0.f, 0.15f);  // ★ 추가
+	//collider->SetCollider(std::move(circleCollider), 0.1f, false);                            // ★ 추가
+
+	//collider->SetOnCollisionEnter([this, bullet](GameObject* other)  
+	//	{
+	//		Monster* monster = static_cast<Monster*>(other->GetElement(ElementType::Monster));
+	//		if (monster != nullptr && !monster->IsDead())
+	//		{
+	//			monster->TakeDamage(bullet->GetDamage());
+	//			bullet->Kill();
+	//		}
+	//	});
+
+	GameObject* obj = AcquireBullet();
+
+	Transform* tr = static_cast<Transform*>(obj->GetElement(ElementType::Transform));
 	tr->SetPosition(startPos);
 
-	Bullet* bullet = new Bullet(dir, speed, range, damage);
-	bullet->SetCollisionManager(m_collisionManager);
+	Bullet* bullet = static_cast<Bullet*>(obj->GetElement(ElementType::Bullet));
+	bullet->Reset(dir, speed, range, damage);
 
-	SpriteRenderer* sprite = new SpriteRenderer("Bullet");
-	sprite->SetResourceManager(m_resourceManager);
-	sprite->SetScale(5.f);
-
-	ColliderComponent* collider = new ColliderComponent();           
-	collider->SetPhysicsWorld(m_physicsWorld);                       
-	collider->SetSyncMode(ColliderSyncMode::TransformDrivesPhysics); 
-
-	obj->SetElement(tr, ElementType::Transform);
-	obj->SetElement(bullet, ElementType::Bullet);
-	obj->SetElement(sprite, ElementType::SpriteRenderer);
-	obj->SetElement(collider, ElementType::Collider);             
-	obj->Init();
-
-	auto circleCollider = std::make_unique<PhysicsEngine::CircleCollider>(0.f, 0.f, 0.15f);  // ★ 추가
-	collider->SetCollider(std::move(circleCollider), 0.1f, false);                            // ★ 추가
-
-	collider->SetOnCollisionEnter([this, bullet](GameObject* other)  
+	ColliderComponent* collider = static_cast<ColliderComponent*>(obj->GetElement(ElementType::Collider));
+	if (collider != nullptr)
+	{
+		collider->SetEnabled(true);   // 다시 충돌 검사 대상에 포함
+		if (collider->GetCollider() != nullptr)
 		{
-			Monster* monster = static_cast<Monster*>(other->GetElement(ElementType::Monster));
-			if (monster != nullptr && !monster->IsDead())
-			{
-				monster->TakeDamage(bullet->GetDamage());
-				bullet->Kill();
-			}
-		});
+			collider->GetCollider()->center = startPos;   // 콜라이더 위치도 즉시 갱신
+		}
+	}
+
+	obj->SetActive(true);   // 다시 Update/Render 시작
 }
 
 void MainScene::CreateMonster(float x, float y, int health)
@@ -804,6 +825,65 @@ void MainScene::OnInteract(Interactable* target)
 	UIManager::GetInstance().OpenCrafting(target->GetInteractType());
 }
 
+GameObject* MainScene::AcquireBullet()
+{
+	if (!m_bulletPool.empty())
+	{
+		GameObject* obj = m_bulletPool.back();
+		m_bulletPool.pop_back();
+		return obj;
+	}
+
+	// 없으면 새로 생성 (최초 워밍업 또는 풀이 부족할 때만 여기로 옴)
+	GameObject* obj = CreateObject("Bullet");
+
+	Transform* tr = new Transform();
+	Bullet* bullet = new Bullet({ 0, 0 }, 0.f, 0.f, 0);
+	bullet->SetCollisionManager(m_collisionManager);
+
+	SpriteRenderer* sprite = new SpriteRenderer("Bullet");
+	sprite->SetResourceManager(m_resourceManager);
+	sprite->SetScale(5.f);
+
+	ColliderComponent* collider = new ColliderComponent();
+	collider->SetPhysicsWorld(m_physicsWorld);
+	collider->SetSyncMode(ColliderSyncMode::TransformDrivesPhysics);
+
+	obj->SetElement(tr, ElementType::Transform);
+	obj->SetElement(bullet, ElementType::Bullet);
+	obj->SetElement(sprite, ElementType::SpriteRenderer);
+	obj->SetElement(collider, ElementType::Collider);
+	obj->Init();
+
+	auto circleCollider = std::make_unique<PhysicsEngine::CircleCollider>(0.f, 0.f, 0.15f);
+	collider->SetCollider(std::move(circleCollider), 0.1f, false);
+
+	collider->SetOnCollisionEnter([this, bullet](GameObject* other)
+		{
+			Monster* monster = static_cast<Monster*>(other->GetElement(ElementType::Monster));
+			if (monster != nullptr && !monster->IsDead())
+			{
+				monster->TakeDamage(bullet->GetDamage());
+				bullet->Kill();
+			}
+		});
+
+	return obj;
+}
+
+void MainScene::ReleaseBullet(GameObject* obj)
+{
+	obj->SetActive(false);   // Update/Render 멈춤
+
+	ColliderComponent* collider = static_cast<ColliderComponent*>(obj->GetElement(ElementType::Collider));
+	if (collider != nullptr)
+	{
+		collider->SetEnabled(false);   // 물리 충돌 검사에서 제외
+	}
+
+	m_bulletPool.push_back(obj);   // delete 대신 풀로 반납
+}
+
 void MainScene::LoadMap(const vector<string>& mapData)
 {
 	for (int y = 0; y < (int)mapData.size(); y++)
@@ -869,23 +949,42 @@ void MainScene::ApplyMeleeDamage(const MathEngine::Vector2& startPos, const Math
 
 void MainScene::CheckBullets()
 {
-	vector<GameObject*> toRemove;
+	vector<GameObject*> toRelease;
 
 	for (GameObject* obj : m_objects)
 	{
+		if (!obj->GetActive()) continue;   // 이미 비활성(풀에 있는) 건 건너뜀
+
 		Bullet* bullet = static_cast<Bullet*>(obj->GetElement(ElementType::Bullet));
 		if (bullet == nullptr) continue;
 
 		if (bullet->IsDead())
 		{
-			toRemove.push_back(obj);
+			toRelease.push_back(obj);
 		}
 	}
 
-	for (GameObject* obj : toRemove)
+	for (GameObject* obj : toRelease)
 	{
-		DeletePObject(obj);
+		ReleaseBullet(obj);   // DeletePObject 대신 풀로 반납
 	}
+	//vector<GameObject*> toRemove;
+
+	//for (GameObject* obj : m_objects)
+	//{
+	//	Bullet* bullet = static_cast<Bullet*>(obj->GetElement(ElementType::Bullet));
+	//	if (bullet == nullptr) continue;
+
+	//	if (bullet->IsDead())
+	//	{
+	//		toRemove.push_back(obj);
+	//	}
+	//}
+
+	//for (GameObject* obj : toRemove)
+	//{
+	//	DeletePObject(obj);
+	//}
 }
 
 void MainScene::CheckMonsters()

@@ -129,12 +129,12 @@ namespace PhysicsEngine
 		for (size_t i = 0; i < count; ++i)
 		{
 			Object* a = m_objects[i];
-			if (!a || !a->collider) continue;
+			if (!a || !a->collider || !a->isEnabled) continue;
 
 			for (size_t j = i + 1; j < count; ++j)
 			{
 				Object* b = m_objects[j];
-				if (!b || !b->collider) continue;
+				if (!b || !b->collider||!b->isEnabled) continue;
 				if (a->isStatic && b->isStatic) continue;
 
 				CollisionPoints points = a->collider->TestCollision(*b->collider);

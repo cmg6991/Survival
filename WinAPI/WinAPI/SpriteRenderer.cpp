@@ -97,6 +97,16 @@ void SpriteRenderer::Render(ID2D1DeviceContext* context)
     ID2D1Bitmap* bitmap = m_resourceManager->GetImage(m_imageName);
     if (bitmap == nullptr) return;
 
+    static int logCount = 0;
+    if (m_imageName == "Bullet" && logCount < 5)
+    {
+        logCount++;
+        char buf[256];
+        sprintf_s(buf, "[SpriteRender] frameW=%d frameH=%d scale=%.2f bitmap=%p\n",
+            m_frameWidth, m_frameHeight, m_scale, (void*)bitmap);
+        OutputDebugStringA(buf);
+    }
+
     float scaledWidth = m_frameWidth * m_scale;
     float scaledHeight = m_frameHeight * m_scale;
     float scaledPivotX = m_pivot.x * m_scale;

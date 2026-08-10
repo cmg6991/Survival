@@ -26,6 +26,14 @@ void ColliderComponent::Init()
 
 void ColliderComponent::FixedUpdate()
 {
+	if (!m_object || !m_transform)
+		return;
+
+	if (m_syncMode == ColliderSyncMode::TransformDrivesPhysics)
+	{
+		m_object->position = m_transform->GetPostion();
+		m_object->collider->center = m_object->position;
+	}
 }
 
 void ColliderComponent::Update(float deltaTime)
@@ -50,12 +58,44 @@ void ColliderComponent::Update(float deltaTime)
 
 void ColliderComponent::LateUpdate()
 {
-	if (!m_object || !m_transform)
+	/*if (!m_object || !m_transform)
 		return;
 
 	m_transform->SetPosition(m_object->position);
 
+	m_isCollision = m_object->isColliding;*/
+
+	/*if (!m_object || !m_transform)
+		return;
+
 	m_isCollision = m_object->isColliding;
+
+	if (m_syncMode == ColliderSyncMode::PhysicsDrivesTransform)
+	{
+		m_transform->SetPosition(m_object->position);
+	}*/
+	/*if (!m_object || !m_transform)
+		return;
+
+	m_isCollision = m_object->isColliding;
+
+	if (m_syncMode == ColliderSyncMode::PhysicsDrivesTransform)
+	{
+		m_transform->SetPosition(m_object->position);
+	}
+	else if (m_syncMode == ColliderSyncMode::TransformDrivesPhysics)
+	{
+		m_object->position = m_transform->GetPostion();
+	}*/
+	if (!m_object || !m_transform)
+		return;
+
+	m_isCollision = m_object->isColliding;
+
+	if (m_syncMode == ColliderSyncMode::PhysicsDrivesTransform)
+	{
+		m_transform->SetPosition(m_object->position);
+	}
 }
 
 void ColliderComponent::PreRender()

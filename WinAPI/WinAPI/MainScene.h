@@ -52,6 +52,10 @@ private:
 	Interactable* FindNearByInteractable();
 	void OnInteract(Interactable* target);
 
+	//총알 오브젝트 풀
+	GameObject* AcquireBullet();
+	void ReleaseBullet(GameObject* obj);
+
 	void LoadMap(const vector<string>& mapData);
 
 	void ApplyMeleeDamage(const MathEngine::Vector2& startPos, const MathEngine::Vector2& dir, int damage, float range);
@@ -73,5 +77,5 @@ private:
 	unordered_set<string> m_collectedItemsIds;
 
 	PhysicsEngine::PhysicsWorld* m_physicsWorld;
+	vector<GameObject*> m_bulletPool;
 };
-

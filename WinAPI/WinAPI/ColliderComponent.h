@@ -54,6 +54,7 @@ public:
 	bool GetIsCollision() const { return m_isCollision; }
 	void SetIsCollision(bool isCollision) { m_isCollision = isCollision; }
 
+	void SetEnabled(bool enabled) { if (m_object == nullptr) return; m_object->isEnabled = enabled; }
 public:
 	void SetOnCollisionEnter(std::function<void(GameObject* other)> callback);
 	void SetOnCollisionStay(std::function<void(GameObject* other)> callback);

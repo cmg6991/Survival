@@ -104,6 +104,11 @@ void GameEngine::Init(const HWND hwnd)
 	//}
 }
 
+void GameEngine::FixedUpdate()
+{
+	m_sceneManager->FixedUpdate();
+}
+
 void GameEngine::Update(float deltaTime)
 {
 	/*InputManager::GetInstance().Update();

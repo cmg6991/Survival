@@ -14,7 +14,7 @@ namespace PhysicsEngine
 
 			if (a->isStatic && b->isStatic) continue;
 
-			if (a->isKinematic || b->isKinematic) continue;
+			//if (a->isKinematic || b->isKinematic) continue;
 
 			// 정적 오브젝트는 질량 무한대로 취급 (역질량 0)
 			float invMassA = a->isStatic ? 0.f : 1.f / a->mass;
