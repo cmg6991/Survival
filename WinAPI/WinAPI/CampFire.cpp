@@ -26,8 +26,6 @@ void CampFire::Update(float deltaTime)
         m_burnTimer = 0.0f;
         m_isLit = false;
 
-        OutputDebugStringA("CampFire -> OFF\n");
-
         if (m_fire)
         {
             m_fire->SetLit(false);
