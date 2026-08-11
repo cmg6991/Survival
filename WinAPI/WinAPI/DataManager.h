@@ -31,6 +31,7 @@ enum class ImageKey
 	Bullet,
 	Monster,
 	SideBarUI,
+	Fire,
 	Count
 };
 

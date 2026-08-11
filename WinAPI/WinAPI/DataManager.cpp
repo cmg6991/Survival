@@ -120,6 +120,7 @@ ImageKey DataManager::StringToImageKey(const string& str) const
 	if (str == "Bullet")  return ImageKey::Bullet;
 	if (str == "Monster")  return ImageKey::Monster;
 	if (str == "SideBarUI")  return ImageKey::SideBarUI;
+	if (str == "Fire")  return ImageKey::Fire;
 
 	return ImageKey::Count;
 }

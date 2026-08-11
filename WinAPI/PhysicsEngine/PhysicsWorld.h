@@ -11,6 +11,7 @@ namespace PhysicsEngine
 	class Solver;
 	struct Collision;
 	struct CollisionPoints;
+	struct Collider;
 
 	class PhysicsWorld
 	{
@@ -40,6 +41,8 @@ namespace PhysicsEngine
 			m_ScreenWidth = w;
 			m_ScreenHeight = h;
 		}
+
+		bool IsColliderBlocked(const Collider& testCollider) const;
 
 	private:
 		std::vector<Object*> m_objects;

@@ -34,12 +34,13 @@ namespace PhysicsEngine
 		// 질량
 		float mass;
 
-		bool isStatic=false;
+		bool isStatic=false;			//정적 오브젝트 
 
-		bool isKinematic = false;
+		bool isKinematic = false;		//플레이어한테 kinematic
 
-		bool isColliding = false;
-		bool isEnabled = true;
+		bool isColliding = false;		//충돌 처리 
+		bool isEnabled = true;			//오브젝트 풀 전용함수
+		bool isTrigger = false;
 
 		// 충돌체
 		Collider* collider;

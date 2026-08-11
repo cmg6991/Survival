@@ -2,10 +2,13 @@
 #include "ElementBase.h"
 #include "pch.h"
 
+class SpriteRenderer;
+class Animator;
+
 class CampFire : public ElementBase
 {
 public:
-	CampFire() {}
+	CampFire():m_sprite(nullptr), m_animator(nullptr) {}
 	~CampFire() {}
 
 	virtual void Init() override;
@@ -33,5 +36,8 @@ private:
 	bool m_isLit = false;
 	float m_burnTimer = 0.f;
 	const float m_burnTimePerWood = 30.0f;
+
+	SpriteRenderer* m_sprite;
+	Animator* m_animator;
 };
 

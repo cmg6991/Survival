@@ -47,6 +47,7 @@ public:
 	void SetFlip(bool flip) { m_flip = flip; }
 	void ChangeImage(const string& imageName) { m_imageName = imageName; }
 	//Bitmap* CreateFlip(Bitmap* src);
+	void SetVisible(bool isVisible) { m_isVisible = isVisible; }
 
 private:
 	string m_imageName;
@@ -66,4 +67,5 @@ private:
 	bool m_flip = false;
 	float m_scale = 1.0f;
 	float m_rotDeg = 0.0f;
+	bool m_isVisible = true;
 };

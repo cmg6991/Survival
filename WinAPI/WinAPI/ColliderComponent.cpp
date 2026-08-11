@@ -29,6 +29,8 @@ void ColliderComponent::FixedUpdate()
 	if (!m_object || !m_transform)
 		return;
 
+	m_isCollision = m_object->isColliding;
+
 	if (m_syncMode == ColliderSyncMode::TransformDrivesPhysics)
 	{
 		m_object->position = m_transform->GetPostion();
@@ -58,12 +60,12 @@ void ColliderComponent::Update(float deltaTime)
 
 void ColliderComponent::LateUpdate()
 {
-	/*if (!m_object || !m_transform)
-		return;
+	//if (!m_object || !m_transform)
+	//	return;
 
-	m_transform->SetPosition(m_object->position);
+	//m_transform->SetPosition(m_object->position);
 
-	m_isCollision = m_object->isColliding;*/
+	//m_isCollision = m_object->isColliding;
 
 	/*if (!m_object || !m_transform)
 		return;
@@ -92,10 +94,11 @@ void ColliderComponent::LateUpdate()
 
 	m_isCollision = m_object->isColliding;
 
-	if (m_syncMode == ColliderSyncMode::PhysicsDrivesTransform)
-	{
-		m_transform->SetPosition(m_object->position);
-	}
+	m_transform->SetPosition(m_object->position);
+	//if (m_syncMode == ColliderSyncMode::PhysicsDrivesTransform)
+	//{
+	//	m_transform->SetPosition(m_object->position);
+	//}
 }
 
 void ColliderComponent::PreRender()
@@ -202,7 +205,7 @@ void ColliderComponent::SetOnCollisionStay(std::function<void(GameObject* other)
 	if (m_object == nullptr) return;
 	m_object->onCollisionStay = [callback](PhysicsEngine::Object* other)
 		{
-			if (other != nullptr && other->owner != nullptr)
+			if (other != nullptr && other->owner != nullptr)	
 				callback(static_cast<GameObject*>(other->owner));
 		};
 }

@@ -299,6 +299,16 @@ void Player::ClearShield()
     UpdateSpriteState();
 }
 
+void Player::TakeDamage(int rawDamage)
+{
+    if (IsDead()) return;
+
+    int finalDamage = max(0, rawDamage - GetDefense());
+    m_currentHealth -= finalDamage;
+    if (m_currentHealth < 0)
+        m_currentHealth = 0;
+}
+
 void Player::UpdateSpriteState()
 {
     if (m_sprite == nullptr) return;

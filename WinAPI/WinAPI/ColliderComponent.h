@@ -54,11 +54,13 @@ public:
 	bool GetIsCollision() const { return m_isCollision; }
 	void SetIsCollision(bool isCollision) { m_isCollision = isCollision; }
 
-	void SetEnabled(bool enabled) { if (m_object == nullptr) return; m_object->isEnabled = enabled; }
+	void SetEnabled(bool enabled) { if (m_object) m_object->isEnabled = enabled; }
+	void SetTrigger(bool isTrigger) { if (m_object) m_object->isTrigger = isTrigger; }
 public:
 	void SetOnCollisionEnter(std::function<void(GameObject* other)> callback);
 	void SetOnCollisionStay(std::function<void(GameObject* other)> callback);
 	void SetOnCollisionExit(std::function<void(GameObject* other)> callback);
+
 private:
 	// 충돌 여부
 	bool m_isCollision = false;

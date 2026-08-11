@@ -8,6 +8,8 @@
 #include <functional>
 #include <algorithm>
 #include <cmath>
+#include <queue>
+#include <climits>
 
 #include <fstream>
 #include <filesystem>

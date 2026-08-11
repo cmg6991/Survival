@@ -16,14 +16,14 @@ class Player : public ElementBase
 {
 public:
 	Player();
-    ~Player();
+	~Player();
 
 	virtual void Init() override;
 
 	virtual void FixedUpdate() override;
 	virtual void Update(float deltaTime) override;
 	virtual void LateUpdate() override;
-	 
+
 	virtual void PreRender() override;
 	virtual void Render(ID2D1DeviceContext* context) override;
 	virtual void PostRender(ID2D1DeviceContext* context) override;
@@ -58,6 +58,10 @@ public:
 	void SetEquippedShieldId(const string& id) { m_equippedShieldId = id; }
 	string GetEquippedShieldId() const { return m_equippedShieldId; }
 
+	int GetMaxHealth() const { return m_maxHealth; }
+	int GetHealth() const { return m_currentHealth; }
+	bool IsDead() const { return m_currentHealth <= 0;}
+	void TakeDamage(int rawDamage);
 private:
 	bool m_isAutoMoving = false;
 
@@ -88,5 +92,8 @@ private:
 	bool m_isAttacking = false;
 	float m_attackTimer = 0.0f;
 	float m_attackDuration = 0.3f;
-};
 
+private:
+	int m_maxHealth = 100;
+	int m_currentHealth = 100;
+};

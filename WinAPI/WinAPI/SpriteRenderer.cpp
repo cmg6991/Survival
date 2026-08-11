@@ -84,6 +84,8 @@ void SpriteRenderer::PreRender()
 
 void SpriteRenderer::Render(ID2D1DeviceContext* context)
 {
+    if (!m_isVisible)
+        return;
     int TILE_W = TileManager::GetInstance().GetTileWidth();
     int TILE_H = TileManager::GetInstance().GetTileHeight();
 

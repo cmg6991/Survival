@@ -12,6 +12,7 @@
 #include "UIManager.h"
 #include "EnvironmentManager.h"
 #include "TileManager.h"
+#include "FlowFieldManager.h"
 
 #include "Player.h"
 #include "GameObject.h"
@@ -158,6 +159,7 @@ void MainScene::Init()
 		{
 			UnequipShieldFromPlayer();
 		});
+	m_flowField.Init(m_collisionManager, 100, 100);
 }
 
 void MainScene::FixedUpdate()
@@ -316,9 +318,22 @@ void MainScene::Update(float deltaTime)
 		return;
 	}
 
+	UpdateMonsterSeparation();
 	Scene::Update(deltaTime);
 	CameraManager::GetInstance().Follow(m_player->GetTransform());
 	CheckItemPickUps();
+
+
+	Transform* playerTr = m_player->GetTransform();
+	int playerTileX = (int)round(playerTr->GetPostion().x);
+	int playerTileY = (int)round(playerTr->GetPostion().y);
+
+	if (playerTileX != m_lastPlayerTileX || playerTileY != m_lastPlayerTileY)
+	{
+		m_flowField.Recompute(playerTileX, playerTileY);
+		m_lastPlayerTileX = playerTileX;
+		m_lastPlayerTileY = playerTileY;
+	}
 
 	Interactable* nearby = FindNearByInteractable();
 	if (nearby != nullptr)
@@ -492,7 +507,7 @@ void MainScene::CreateInteractable(float x, float y, InteractType type, const st
 	tr->SetPosition({ x, y });
 
 	SpriteRenderer* sprite = new SpriteRenderer(imageKey);
-	//sprite->SetPivot(128, 176);
+	sprite->SetPivot(128, 300);
 	sprite->SetResourceManager(m_resourceManager);
 	sprite->SetScale(0.5f);
 	Interactable* interact = new Interactable(type);
@@ -514,7 +529,8 @@ void MainScene::CreateInteractable(float x, float y, InteractType type, const st
 	obj->Init();
 
 	auto rectCollider = std::make_unique<PhysicsEngine::RectangleCollider>(0.5f, 0.5f, 1.f,1.f);
-	collider->SetCollider(std::move(rectCollider), 1.0f, true);
+	collider->SetCollider(std::move(rectCollider), 1.0f, false);
+	//m_collisionManager->SetBlocked((int)x, (int)y, true);
 }
 
 void MainScene::CreateItemPickUp(float x, float y, const string& itemId, int count)
@@ -596,9 +612,16 @@ void MainScene::CreateBullet(const MathEngine::Vector2& startPos, const MathEngi
 	if (collider != nullptr)
 	{
 		collider->SetEnabled(true);   // 다시 충돌 검사 대상에 포함
-		if (collider->GetCollider() != nullptr)
+		//if (collider->GetCollider() != nullptr)
+		//{
+		//	collider->GetCollider()->center = startPos;   // 콜라이더 위치도 즉시 갱신
+		//}
+		PhysicsEngine::Object* physObj = collider->GetPhysicsObject();
+		if (physObj != nullptr)
 		{
-			collider->GetCollider()->center = startPos;   // 콜라이더 위치도 즉시 갱신
+			physObj->position = startPos;              // ★ 이게 빠져있었음
+			physObj->velocity = MathEngine::Vector2(0.f, 0.f);   // ★ 이전 생애의 속도 잔재 제거
+			physObj->collider->center = startPos;
 		}
 	}
 
@@ -633,6 +656,25 @@ void MainScene::CreateMonster(float x, float y, int health)
 
 	auto circleCollider = std::make_unique<PhysicsEngine::CircleCollider>(0.f, 0.f, 0.4f);
 	collider->SetCollider(std::move(circleCollider), 1.0f, false);
+	collider->SetTrigger(true);
+
+	monster->SetTarget(m_player->GetTransform());
+	monster->SetCollisionManager(m_collisionManager);
+	monster->SetPhysicsWorld(m_physicsWorld);
+	monster->SetFlowField(&m_flowField);
+	monster->SetStats(1.5f, 5);   // 이동속도, 접촉 데미지
+
+	auto contactDamage = [this, monster](GameObject* other)
+		{
+			if (other == m_player->GetGameObject() && monster->CanDealDamage())
+			{
+				m_player->TakeDamage(monster->GetContactDamage());
+				monster->ResetDamageCooldown();
+			}
+		};
+
+	collider->SetOnCollisionEnter(contactDamage);
+	collider->SetOnCollisionStay(contactDamage);
 }
 
 void MainScene::EquipWeaponToPlayer(const string& weaponId, bool returnInven)
@@ -857,6 +899,7 @@ GameObject* MainScene::AcquireBullet()
 
 	auto circleCollider = std::make_unique<PhysicsEngine::CircleCollider>(0.f, 0.f, 0.15f);
 	collider->SetCollider(std::move(circleCollider), 0.1f, false);
+	collider->SetTrigger(true);
 
 	collider->SetOnCollisionEnter([this, bullet](GameObject* other)
 		{
@@ -864,7 +907,13 @@ GameObject* MainScene::AcquireBullet()
 			if (monster != nullptr && !monster->IsDead())
 			{
 				monster->TakeDamage(bullet->GetDamage());
-				bullet->Kill();
+				bullet->Despawn();
+			}
+			Interactable* interactable = static_cast<Interactable*>(other->GetElement(ElementType::Interactable));
+			if (interactable != nullptr)
+			{
+				bullet->Despawn();
+				return;
 			}
 		});
 
@@ -1056,6 +1105,66 @@ void MainScene::RenderAimLine(ID2D1DeviceContext* context)
 
 	// 크로스헤어 (마우스 위치)
 	GRAPHICS.DrawCircle(mouseScreen.x, mouseScreen.y, 15.0f, D2D1::ColorF::White);
+}
+
+void MainScene::UpdateMonsterSeparation()
+{
+	vector<Monster*> monsters;
+
+	// 1. 살아있는 몬스터 수집
+	for (GameObject* obj : m_objects)
+	{
+		if (!obj->GetActive())
+			continue;
+
+		Monster* monster =static_cast<Monster*>(obj->GetElement(ElementType::Monster));
+
+		if (monster != nullptr && !monster->IsDead())
+		{
+			monsters.push_back(monster);
+		}
+	}
+
+	// 2. 각각의 몬스터에 대해 주변 몬스터를 계산
+	for (Monster* monster : monsters)
+	{
+		Transform* myTransform = monster->GetTransform();
+
+		if (myTransform == nullptr)
+			continue;
+
+		MathEngine::Vector2 myPos = myTransform->GetPostion();
+
+		MathEngine::Vector2 separation(0.0f, 0.0f);
+
+		for (Monster* other : monsters)
+		{
+			if (monster == other)
+				continue;
+
+			Transform* otherTransform = other->GetTransform();
+
+			if (otherTransform == nullptr)
+				continue;
+
+			MathEngine::Vector2 diff =
+				myPos - otherTransform->GetPostion();
+
+			float distance = diff.Magnitude();
+
+			// 몬스터끼리 너무 가까워졌을 때만 밀어냄
+			const float separationRadius = 0.9f;
+
+			if (distance < separationRadius && distance > 0.001f)
+			{
+				float strength =(separationRadius - distance) / separationRadius;
+
+				separation += diff.Normalize() * strength;
+			}
+		}
+
+		monster->SetSeparation(separation);
+	}
 }
 
 

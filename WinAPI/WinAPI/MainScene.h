@@ -4,6 +4,7 @@
 #include <unordered_set>
 #include "../PhysicsEngine/PhysicsWorld.h"
 #include "../PhysicsEngine/Collider.h"
+#include "FlowFieldManager.h"
 
 class TileMap;
 class ResourceManager;
@@ -64,6 +65,7 @@ private:
 	void CheckMonsters();
 	void CheckAttackHitBoxes();
 	void RenderAimLine(ID2D1DeviceContext* context);
+	void UpdateMonsterSeparation();
 
 private:
 	string InteractTypeToStationString(InteractType type);
@@ -72,10 +74,14 @@ private:
 	ResourceManager* m_resourceManager;
 	CollisionManager* m_collisionManager;
 	Player* m_player;
+	FlowFieldManager m_flowField;
 
 	unordered_map<char, function<void(float, float)>> m_tileHandlers;
 	unordered_set<string> m_collectedItemsIds;
 
 	PhysicsEngine::PhysicsWorld* m_physicsWorld;
 	vector<GameObject*> m_bulletPool;
+
+	int m_lastPlayerTileX = -9999;
+	int m_lastPlayerTileY = -9999;
 };

@@ -3,6 +3,7 @@
 #include "Object.h"
 #include "Solver.h"
 #include "Collision.h"
+#include "Collider.h"
 
 #include <windowsx.h>
 #include <windows.h>
@@ -140,7 +141,7 @@ namespace PhysicsEngine
 				CollisionPoints points = a->collider->TestCollision(*b->collider);
 				if (points.hasCollision)
 				{
-					collisions.emplace_back(a, b, points);
+					//collisions.emplace_back(a, b, points);
 					a->isColliding = true;
 					b->isColliding = true;
 
@@ -158,6 +159,11 @@ namespace PhysicsEngine
 					{
 						if (a->onCollisionEnter) a->onCollisionEnter(b);
 						if (b->onCollisionEnter) b->onCollisionEnter(a);
+					}
+
+					if (!a->isTrigger && !b->isTrigger)
+					{
+						collisions.emplace_back(a, b, points);
 					}
 				}
 			}
@@ -236,6 +242,21 @@ namespace PhysicsEngine
 		delete *itr;
 
 		m_solvers.erase(itr);
+	}
+
+	bool PhysicsWorld::IsColliderBlocked(const Collider& testCollider) const
+	{
+		for (Object* obj : m_objects)
+		{
+			if (!obj || !obj->collider) continue;
+			if (obj->isTrigger) continue;
+
+			CollisionPoints points = testCollider.TestCollision(*obj->collider);
+			if (points.hasCollision)
+				return true;
+		}
+		return false;
+
 	}
 
 	//void PhysicsWorld::TestResolve(
