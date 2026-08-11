@@ -171,6 +171,9 @@
     <ClInclude Include="FlowFieldManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Fire.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="InputManager.cpp">
@@ -282,6 +285,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="FlowFieldManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Fire.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

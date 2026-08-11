@@ -12,6 +12,7 @@ enum class ElementType
 	ItemPickUp,
 	Interactable,
 	CampFire,
+	Fire,
 	Weapon,
 	Bullet,
 	Monster,

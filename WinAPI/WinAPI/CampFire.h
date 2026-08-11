@@ -4,11 +4,12 @@
 
 class SpriteRenderer;
 class Animator;
+class Fire;
 
 class CampFire : public ElementBase
 {
 public:
-	CampFire():m_sprite(nullptr), m_animator(nullptr) {}
+	CampFire():m_sprite(nullptr), m_animator(nullptr),m_fire(nullptr) {}
 	~CampFire() {}
 
 	virtual void Init() override;
@@ -32,6 +33,8 @@ public:
 	void AddFuel(int woodCount);
 	float GetRemainingTime() const { return m_burnTimer; }
 
+	void SetFire(Fire* fire) { m_fire = fire; }
+
 private:
 	bool m_isLit = false;
 	float m_burnTimer = 0.f;
@@ -39,5 +42,6 @@ private:
 
 	SpriteRenderer* m_sprite;
 	Animator* m_animator;
+	Fire* m_fire;
 };
 

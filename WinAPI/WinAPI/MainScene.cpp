@@ -28,6 +28,7 @@
 #include "ColliderComponent.h"
 #include "Monster.h"
 #include "AttackHitBox.h"
+#include "Fire.h"
 #include <utility>
 #include <memory>
 
@@ -524,6 +525,26 @@ void MainScene::CreateInteractable(float x, float y, InteractType type, const st
 	{
 		CampFire* campFire = new CampFire();
 		obj->SetElement(campFire, ElementType::CampFire);
+		GameObject* fireObj =CreateObject("Fire");
+
+		Transform* fireTr =new Transform();
+		fireTr->SetPosition({ x, y });
+		SpriteRenderer* fireSprite =new SpriteRenderer("Fire");
+		fireSprite->SetPivot(16, 32);
+		fireSprite->SetResourceManager(m_resourceManager);
+		fireSprite->SetScale(3.f);
+
+		Animator* fireAnimator =new Animator();
+		Fire* fire =new Fire();
+		fireObj->SetElement(fireTr,ElementType::Transform);
+		fireObj->SetElement(fireSprite,ElementType::SpriteRenderer);
+		fireObj->SetElement(fireAnimator,ElementType::Animator);
+		fireObj->SetElement(fire, ElementType::Fire);
+		// Fire 초기화
+		fireObj->Init();
+
+		// CampFire와 Fire 연결
+		campFire->SetFire(fire);
 	}
 
 	obj->Init();

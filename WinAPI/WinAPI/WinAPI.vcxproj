@@ -137,6 +137,7 @@
     <ClInclude Include="DrawUtil.h" />
     <ClInclude Include="ElementBase.h" />
     <ClInclude Include="EnvironmentManager.h" />
+    <ClInclude Include="Fire.h" />
     <ClInclude Include="FlowFieldManager.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameEngine.h" />
@@ -183,6 +184,7 @@
     <ClCompile Include="CraftingManager.cpp" />
     <ClCompile Include="DataManager.cpp" />
     <ClCompile Include="EnvironmentManager.cpp" />
+    <ClCompile Include="Fire.cpp" />
     <ClCompile Include="FlowFieldManager.cpp" />
     <ClCompile Include="GameEngine.cpp" />
     <ClCompile Include="GameObject.cpp" />
