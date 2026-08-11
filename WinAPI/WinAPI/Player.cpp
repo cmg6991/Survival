@@ -307,6 +307,16 @@ void Player::TakeDamage(int rawDamage)
     m_currentHealth -= finalDamage;
     if (m_currentHealth < 0)
         m_currentHealth = 0;
+
+
+    wchar_t buffer[128];
+    swprintf_s(
+        buffer,
+        L"Player Health: %d\n",
+        m_currentHealth
+    );
+
+    OutputDebugStringW(buffer);
 }
 
 void Player::UpdateSpriteState()

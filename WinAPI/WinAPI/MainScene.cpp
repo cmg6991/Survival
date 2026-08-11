@@ -550,7 +550,7 @@ void MainScene::CreateInteractable(float x, float y, InteractType type, const st
 	obj->Init();
 
 	auto rectCollider = std::make_unique<PhysicsEngine::RectangleCollider>(0.5f, 0.5f, 1.f,1.f);
-	collider->SetCollider(std::move(rectCollider), 1.0f, false);
+	collider->SetCollider(std::move(rectCollider), 1.0f, true);
 	//m_collisionManager->SetBlocked((int)x, (int)y, true);
 }
 
