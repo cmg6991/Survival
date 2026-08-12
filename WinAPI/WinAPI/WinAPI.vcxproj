@@ -151,6 +151,7 @@
     <ClInclude Include="ItemPickUp.h" />
     <ClInclude Include="MainScene.h" />
     <ClInclude Include="Monster.h" />
+    <ClInclude Include="MonsterSpawner.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Resource.h" />
@@ -196,6 +197,7 @@
     <ClCompile Include="ItemPickUp.cpp" />
     <ClCompile Include="MainScene.cpp" />
     <ClCompile Include="Monster.cpp" />
+    <ClCompile Include="MonsterSpawner.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="SaveManager.cpp" />

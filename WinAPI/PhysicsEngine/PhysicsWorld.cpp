@@ -244,6 +244,28 @@ namespace PhysicsEngine
 		m_solvers.erase(itr);
 	}
 
+	bool PhysicsWorld::IsColliderBlocked(const Collider& testCollider, std::initializer_list<const Object*> ignoreObjs, bool onlyStatic) const
+	{
+		for (Object* obj : m_objects)
+		{
+			if (!obj || !obj->collider) continue;
+			if (obj->isTrigger) continue;
+			if (onlyStatic && !obj->isStatic) continue;
+
+			bool ignored = false;
+			for (const Object* ig : ignoreObjs)
+			{
+				if (obj == ig) { ignored = true; break; }
+			}
+			if (ignored) continue;
+
+			CollisionPoints points = testCollider.TestCollision(*obj->collider);
+			if (points.hasCollision)
+				return true;
+		}
+		return false;
+	}
+
 	bool PhysicsWorld::IsColliderBlocked(const Collider& testCollider,const Object* ignoreObj, bool onlyStatic) const
 	{
 		for (Object* obj : m_objects)

@@ -30,6 +30,8 @@ enum class ImageKey
 	Item_Shield,
 	Bullet,
 	Monster,
+	Monster2,
+	Monster3,
 	SideBarUI,
 	Fire,
 	Count
@@ -59,6 +61,10 @@ public:
 	const ItemData* FindItem(const string& id) const;
 
 	vector<RecipeData> GetRecipesByStation(const string& station) const;
+
+	const vector<MonsterData>& GetMonsterList() const { return m_monsters; }
+	const MonsterData* FindMonster(const string& id) const;
+
 private:
 	void LoadImageData(const string& filePath);
 	void LoadMapData(const string& filePath);
@@ -67,6 +73,7 @@ private:
 
 	void LoadItemData(const string& filePath);
 	void LoadRecipeData(const string& filePath);
+	void LoadMonsterData(const string& filePath);
 
 private:
 	vector<ImageData> m_images;
@@ -74,7 +81,7 @@ private:
 	unordered_map<string, vector<string>> m_maps;
 	vector<ItemData> m_items;
 	vector<RecipeData> m_recipes;
-
+	vector<MonsterData> m_monsters;
 private:
 	DataManager() {};
 	~DataManager() {};

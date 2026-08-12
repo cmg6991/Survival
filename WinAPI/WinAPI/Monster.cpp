@@ -4,8 +4,9 @@
 #include "Animator.h"
 #include "CollisionManager.h"
 #include "FlowFieldManager.h"
-#include "../PhysicsEngine/PhysicsWorld.h"
-#include "../PhysicsEngine/CircleCollider.h"
+//#include "../PhysicsEngine/PhysicsWorld.h"
+//#include "../PhysicsEngine/CircleCollider.h"
+#include "ColliderComponent.h"
 
 Monster::Monster(int maxHealth) :m_health(maxHealth)
 {
@@ -19,7 +20,7 @@ void Monster::Init()
 {
 	m_transform = static_cast<Transform*>(m_gameObject->GetElement(ElementType::Transform));
 	m_animator = static_cast<Animator*>(m_gameObject->GetElement(ElementType::Animator));
-
+     m_collider = static_cast<ColliderComponent*>(m_gameObject->GetElement(ElementType::Collider));
 	if (m_animator != nullptr)
 	{
 		// 방향 구분 없이 제자리 애니메이션 하나만 반복 재생
@@ -72,10 +73,14 @@ void Monster::Update(float deltaTime)
       dir += m_separation * 1.5f;
 
       MathEngine::Vector2 obstacleAvoid(0.0f, 0.0f);
-      if (m_physicsWorld != nullptr)
+      //if (m_physicsWorld != nullptr)
+      //{
+      //    obstacleAvoid = m_physicsWorld->GetPushAwayVector(current, 0.4f, 0.9f, m_targetPhysicsObject);
+      //    // 0.9f = 이 반경 안에 있는 장애물이면 밀어냄 (몬스터 반지름 + 여유폭)
+      //}
+      if (m_collider != nullptr)
       {
-          obstacleAvoid = m_physicsWorld->GetPushAwayVector(current, 0.4f, 0.9f, m_targetPhysicsObject);
-          // 0.9f = 이 반경 안에 있는 장애물이면 밀어냄 (몬스터 반지름 + 여유폭)
+          obstacleAvoid = m_collider->GetAvoidVector(current, 0.9f, m_targetCollider);
       }
       dir += obstacleAvoid * 1.5f;
       if (dir.Magnitude() > 0.01f)
@@ -91,12 +96,17 @@ void Monster::Update(float deltaTime)
       bool blockedByTile = (m_collisionManager != nullptr && m_collisionManager->IsBlocked(nextTileX, nextTileY));
 
       bool blockedByPhysics = false;
-      if (!blockedByTile && m_physicsWorld != nullptr)
+      //if (!blockedByTile && m_physicsWorld != nullptr)
+      //{
+      //    PhysicsEngine::CircleCollider testCollider(0.f, 0.f, 0.4f);
+      //    testCollider.center = nextPos;
+      //    blockedByPhysics = m_physicsWorld->IsColliderBlocked(testCollider, m_targetPhysicsObject,true);
+      //    m_physicsWorld->PushDynamicObjects(testCollider, current, 0.4f, m_targetPhysicsObject);
+      //}
+      if (!blockedByTile && m_collider != nullptr)
       {
-          PhysicsEngine::CircleCollider testCollider(0.f, 0.f, 0.4f);
-          testCollider.center = nextPos;
-          blockedByPhysics = m_physicsWorld->IsColliderBlocked(testCollider, m_targetPhysicsObject,true);
-          m_physicsWorld->PushDynamicObjects(testCollider, current, 0.4f, m_targetPhysicsObject);
+          blockedByPhysics = m_collider->IsPositionBlocked(nextPos, 0.4f, m_targetCollider, true);
+          m_collider->PushNearbyDynamics(nextPos, 0.4f, current, m_targetCollider);
       }
 
       if (!blockedByTile && !blockedByPhysics)
@@ -122,12 +132,17 @@ void Monster::Update(float deltaTime)
           bool altBlockedByTile = (m_collisionManager != nullptr && m_collisionManager->IsBlocked(altTileX, altTileY));
 
           bool altBlockedByPhysics = false;
-          if (!altBlockedByTile && m_physicsWorld != nullptr)
+          //if (!altBlockedByTile && m_physicsWorld != nullptr)
+          //{
+          //    PhysicsEngine::CircleCollider testCollider2(0.f, 0.f, 0.4f);
+          //    testCollider2.center = altPos;
+          //    altBlockedByPhysics = m_physicsWorld->IsColliderBlocked(testCollider2,m_targetPhysicsObject,true);
+          //    m_physicsWorld->PushDynamicObjects(testCollider2, current, 0.4f, m_targetPhysicsObject);
+          //}
+          if (!altBlockedByTile && m_collider != nullptr)
           {
-              PhysicsEngine::CircleCollider testCollider2(0.f, 0.f, 0.4f);
-              testCollider2.center = altPos;
-              altBlockedByPhysics = m_physicsWorld->IsColliderBlocked(testCollider2,m_targetPhysicsObject,true);
-              m_physicsWorld->PushDynamicObjects(testCollider2, current, 0.4f, m_targetPhysicsObject);
+              altBlockedByPhysics = m_collider->IsPositionBlocked(altPos, 0.4f, m_targetCollider, true);
+              m_collider->PushNearbyDynamics(altPos, 0.4f, current, m_targetCollider);
           }
 
           if (!altBlockedByTile && !altBlockedByPhysics)
@@ -292,4 +307,37 @@ void Monster::TakeDamage(int amount)
 {
 	m_health -= amount;
 	if (m_health < 0) m_health = 0;
+}
+
+void Monster::Reset(int maxHealth)
+{
+    m_health = maxHealth;
+    m_damageCooldownTimer = 0.0f;
+    m_separation = MathEngine::Vector2(0.0f, 0.0f);
+    m_avoidDirection = MathEngine::Vector2(0.0f, 0.0f);
+    m_avoidTimer = 0.0f;
+    m_target = nullptr;
+    m_targetCollider = nullptr;
+
+    if (m_animator != nullptr)
+    {
+        m_animator->SetAnimation(6, 0, 0.15f); // 애니메이션 처음부터
+    }
+}
+
+void Monster::Reset(int maxHealth, int cellWidth, int cellHeight, int animColumn)
+{
+    m_health = maxHealth;
+    m_damageCooldownTimer = 0.0f;
+    m_separation = MathEngine::Vector2(0.0f, 0.0f);
+    m_avoidDirection = MathEngine::Vector2(0.0f, 0.0f);
+    m_avoidTimer = 0.0f;
+    m_target = nullptr;
+    m_targetCollider = nullptr;
+
+    if (m_animator != nullptr)
+    {
+        m_animator->SetCellSize(cellWidth, cellHeight);
+        m_animator->SetAnimation(animColumn, 0, 0.15f);
+    }
 }

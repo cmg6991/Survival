@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "FlowFieldManager.h"
 #include "CollisionManager.h"
+#include "MonsterSpawner.h"
 
 FlowFieldManager::FlowFieldManager() : m_width(0), m_height(0), m_collisionManager(nullptr)
 {

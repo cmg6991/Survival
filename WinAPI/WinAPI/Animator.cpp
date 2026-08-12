@@ -21,7 +21,7 @@ void Animator::FixedUpdate()
 
 void Animator::Update(float deltaTime)
 {
-    if (m_sprite == nullptr)
+    /*if (m_sprite == nullptr)
         return;
 
     m_timer += deltaTime;
@@ -40,7 +40,24 @@ void Animator::Update(float deltaTime)
         m_row * m_cellHeight,
         m_cellWidth,
         m_cellHeight);
+    ApplyCurrentFrame();*/
 
+    if (m_sprite == nullptr)
+        return;
+
+    m_timer += deltaTime;
+
+    if (m_timer >= m_frameTime)
+    {
+        m_timer -= m_frameTime;
+
+        m_frame++;
+
+        if (m_frame >= m_column)
+            m_frame = 0;
+    }
+
+    ApplyCurrentFrame();
 }
 
 void Animator::LateUpdate()
@@ -80,26 +97,75 @@ void Animator::SetGameObject(GameObject* gameObject)
 
 void Animator::SetAnimation(int column, int row,float frameTime)
 {
-    if (m_row != row)
-    {
-        m_row = row;
+ //   if (m_row != row)
+ //   {
+ //       m_row = row;
+ //       m_frame = 0;
+ //       m_timer = 0;
+ //   }
+	//m_column = column;
+	//m_frameTime = frameTime;
+    //bool changed = (m_row != row);
+
+    //if (changed)
+    //{
+    //    m_row = row;
+    //    m_frame = 0;
+    //    m_timer = 0;
+    //}
+    //m_column = column;
+    //m_frameTime = frameTime;
+
+    //if (changed)
+    //{
+    //    ApplyCurrentFrame();   // ★ 즉시 첫 프레임 반영
+    //}
+    bool changed =
+        (m_column != column) ||
+        (m_row != row) ||
+        (m_frameTime != frameTime);
+
+    m_column = column;
+    m_row = row;
+    m_frameTime = frameTime;
+
+    if (changed)
+    { 
         m_frame = 0;
-        m_timer = 0;
+        m_timer = 0.0f;
+
+        ApplyCurrentFrame();
     }
-	m_column = column;
-	m_frameTime = frameTime;
 
 }
 
 void Animator::Play(int row, int frameCount, float frameTime)
 {
-    if (m_row != row)
+    bool changed = (m_row != row);
+
+    if (changed)
     {
         m_row = row;
         m_frame = 0;
         m_timer = 0;
     }
-
     m_frameCount = frameCount;
     m_frameTime = frameTime;
+
+    if (changed)
+    {
+        ApplyCurrentFrame();
+    }
+}
+
+void Animator::ApplyCurrentFrame()
+{
+    if (m_sprite == nullptr)
+        return;
+
+    m_sprite->SetFrameRect(
+        m_frame * m_cellWidth,
+        m_row * m_cellHeight,
+        m_cellWidth,
+        m_cellHeight);
 }

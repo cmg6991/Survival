@@ -33,3 +33,18 @@ struct RecipeData
 	float successRate = 1.f;
 	vector<Ingredient> ingredients;
 };
+
+struct MonsterData
+{
+	string id;
+	string name;
+	string image;
+	int health;
+	float moveSpeed;
+	int contactDamage;
+	int cellWidth;
+	int cellHeight;
+	int animColumn;
+	float colliderRadius;
+	float scale;
+};

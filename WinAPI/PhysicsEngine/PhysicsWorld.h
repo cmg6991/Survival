@@ -42,6 +42,8 @@ namespace PhysicsEngine
 			m_ScreenHeight = h;
 		}
 
+		bool IsColliderBlocked(const Collider& testCollider,
+			std::initializer_list<const Object*> ignoreObjs, bool onlyStatic = true) const;
 		bool IsColliderBlocked(const Collider& testCollider, const Object* ignoreObj = nullptr, bool onlyStatic = true) const;
 
 		MathEngine::Vector2 GetPushAwayVector(const MathEngine::Vector2& pos, float selfRadius, float checkRadius, const Object* ignoreObj = nullptr) const;

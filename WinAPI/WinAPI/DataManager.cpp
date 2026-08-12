@@ -7,6 +7,7 @@ void DataManager::Init()
 	LoadMapData("Resource/Data/maps/MapData.json");
 	LoadItemData("Resource/Data/Items.json");
 	LoadRecipeData("Resource/Data/Recipes.json");
+	LoadMonsterData("Resource/Data/Monsters.json");
 }
 
 const string& DataManager::GetImagePath(ImageKey key) const
@@ -119,6 +120,8 @@ ImageKey DataManager::StringToImageKey(const string& str) const
 	if (str == "Item_Shield")  return ImageKey::Item_Shield;
 	if (str == "Bullet")  return ImageKey::Bullet;
 	if (str == "Monster")  return ImageKey::Monster;
+	if (str == "Monster2")  return ImageKey::Monster2;
+	if (str == "Monster3")  return ImageKey::Monster3;
 	if (str == "SideBarUI")  return ImageKey::SideBarUI;
 	if (str == "Fire")  return ImageKey::Fire;
 
@@ -179,6 +182,32 @@ void DataManager::LoadRecipeData(const string& filePath)
 	}
 }
 
+void DataManager::LoadMonsterData(const string& filePath)
+{
+	ifstream file(filePath);
+	if (!file.is_open()) return;
+
+	json j;
+	file >> j;
+
+	for (auto& item : j)
+	{
+		MonsterData data;
+		data.id = item["id"].get<string>();
+		data.name = item.value("name", "");
+		data.image = item["image"].get<string>();
+		data.health = item.value("health", 30);
+		data.moveSpeed = item.value("moveSpeed", 1.5f);
+		data.contactDamage = item.value("contactDamage", 5);
+		data.cellWidth = item.value("cellWidth", 46);
+		data.cellHeight = item.value("cellHeight", 33);
+		data.animColumn = item.value("animColumn", 6);
+		data.colliderRadius = item.value("colliderRadius", 0.4f);
+		data.scale = item.value("scale", 1.f);
+		m_monsters.push_back(data);
+	}
+}
+
 vector<RecipeData> DataManager::GetRecipesByStation(const string& station) const
 {
 	vector<RecipeData> result;
@@ -188,4 +217,13 @@ vector<RecipeData> DataManager::GetRecipesByStation(const string& station) const
 			result.push_back(recipe);
 	}
 	return result;
+}
+
+const MonsterData* DataManager::FindMonster(const string& id) const
+{
+	for (const MonsterData& monster : m_monsters)
+	{
+		if (monster.id == id) return &monster;
+	}
+	return nullptr;
 }

@@ -1,0 +1,40 @@
+[
+  {
+    "id": "Monster2",
+    "name": "몬스터2",
+    "image": "Monster2",
+    "health": 10,
+    "moveSpeed": 2.2,
+    "contactDamage": 3,
+    "cellWidth": 32,
+    "cellHeight": 32,
+    "animColumn": 4,
+    "colliderRadius": 0.3,
+    "scale" : 2
+  },
+  {
+    "id": "Monster",
+    "name": "기본",
+    "image": "Monster",
+    "health": 30,
+    "moveSpeed": 1.5,
+    "contactDamage": 5,
+    "cellWidth": 46,
+    "cellHeight": 33,
+    "animColumn": 6,
+    "colliderRadius": 0.4
+  },
+  {
+    "id": "Monster3",
+    "name": "몬스터3",
+    "image": "Monster3",
+    "health": 50,
+    "moveSpeed": 1.0,
+    "contactDamage": 10,
+    "cellWidth": 32,
+    "cellHeight": 32,
+    "animColumn": 4,
+    "colliderRadius": 0.55,
+    "scale" : 3
+  }
+]

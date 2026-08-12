@@ -11,8 +11,9 @@ class CollisionManager;
 class Animator;
 class SpriteRenderer;
 class Weapon;
+class ColliderComponent;
 
-namespace PhysicsEngine { class PhysicsWorld; struct Object; }
+//namespace PhysicsEngine { class PhysicsWorld; struct Object; }
 
 class Player : public ElementBase
 {
@@ -65,8 +66,8 @@ public:
 	bool IsDead() const { return m_currentHealth <= 0;}
 	void TakeDamage(int rawDamage);
 
-	void SetPhysicsWorld(PhysicsEngine::PhysicsWorld* world) { m_physicsWorld = world; }
-	void SetSelfPhysicsObject(PhysicsEngine::Object* obj) { m_selfPhysicsObject = obj; }
+	//void SetPhysicsWorld(PhysicsEngine::PhysicsWorld* world) { m_physicsWorld = world; }
+	//void SetSelfPhysicsObject(PhysicsEngine::Object* obj) { m_selfPhysicsObject = obj; }
 
 private:
 	bool m_isAutoMoving = false;
@@ -84,6 +85,7 @@ private:
 	CollisionManager* m_collisionManager;
 	Animator* m_animator;
 	SpriteRenderer* m_sprite;
+	ColliderComponent* m_collider = nullptr;
 
 	Inventory m_inventory = Inventory(10, 50);
 	Weapon* m_weapon;
@@ -103,6 +105,6 @@ private:
 	int m_maxHealth = 100;
 	int m_currentHealth = 100;
 
-	PhysicsEngine::PhysicsWorld* m_physicsWorld = nullptr;
-	PhysicsEngine::Object* m_selfPhysicsObject = nullptr;
+	//PhysicsEngine::PhysicsWorld* m_physicsWorld = nullptr;
+	//PhysicsEngine::Object* m_selfPhysicsObject = nullptr;
 };

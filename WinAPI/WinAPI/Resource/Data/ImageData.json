@@ -104,6 +104,14 @@
 		"path": "Resource/Animation/slimes_pink.png"
 	},
 	{
+		"key": "Monster2",
+		"path": "Resource/Animation/jorg_idle.png"
+	},
+	{
+		"key": "Monster3",
+		"path": "Resource/Animation/chomp_idle.png"
+	},
+	{
 		"key": "Fire",
 		"path": "Resource/Animation/Group 6 - 5.png"
 	}

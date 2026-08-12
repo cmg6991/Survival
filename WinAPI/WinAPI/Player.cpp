@@ -13,8 +13,9 @@
 #include "Animator.h"
 #include "SpriteRenderer.h"
 #include "Weapon.h"
-#include "../PhysicsEngine/PhysicsWorld.h"
-#include "../PhysicsEngine/CircleCollider.h"
+//#include "../PhysicsEngine/PhysicsWorld.h"
+//#include "../PhysicsEngine/CircleCollider.h"
+#include "ColliderComponent.h"
 
 using namespace std;
 
@@ -35,6 +36,7 @@ void Player::Init()
 
     m_animator = static_cast<Animator*>(m_gameObject->GetElement(ElementType::Animator));
     m_sprite = static_cast<SpriteRenderer*>(m_gameObject->GetElement(ElementType::SpriteRenderer));
+    m_collider = static_cast<ColliderComponent*>(m_gameObject->GetElement(ElementType::Collider));
     UpdateSpriteState();
 }
 
@@ -202,11 +204,15 @@ void Player::Update(float deltaTime)
         bool blockedByTile = m_collisionManager->IsBlocked(tileX, tileY);
 
         bool blockedByPhysics = false;
-        if (!blockedByTile && m_physicsWorld != nullptr)
+        /*if (!blockedByTile && m_physicsWorld != nullptr)
         {
             PhysicsEngine::CircleCollider testCollider(0.f, 0.f, 0.5f);
             testCollider.center = nextPos;
             blockedByPhysics = m_physicsWorld->IsColliderBlocked(testCollider, m_selfPhysicsObject);
+        }*/
+        if (!blockedByTile && m_collider != nullptr)
+        {
+            blockedByPhysics = m_collider->IsPositionBlocked(nextPos, 0.5f, nullptr, true); // static¸¸ Â÷´Ü
         }
 
         if (!blockedByTile && !blockedByPhysics)

@@ -31,6 +31,8 @@ public:
 	void Play(int row, int frameCount, float frameTime);
 
 private:
+	void ApplyCurrentFrame();
+private:
 	SpriteRenderer* m_sprite;
 
 	int m_frame;

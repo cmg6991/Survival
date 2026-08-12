@@ -5,6 +5,7 @@
 #include "../PhysicsEngine/PhysicsWorld.h"
 #include "../PhysicsEngine/Collider.h"
 #include "FlowFieldManager.h"
+#include <map>
 
 class TileMap;
 class ResourceManager;
@@ -12,6 +13,7 @@ class CollisionManager;
 class Player;
 class Interactable;
 class ColliderComponent;
+class MonsterSpawner;
 
 class MainScene : public Scene
 {
@@ -40,7 +42,8 @@ private:
 	void CreateItemPickUp(float x, float y, const string& itemId, int count);
 	void CreateBullet(const MathEngine::Vector2& startPos, const MathEngine::Vector2& dir,
 		int damage, float speed, float range);
-	void CreateMonster(float x, float y, int health);
+	//void CreateMonster(float x, float y, int health);
+	void CreateMonster(const string& monsterId, float x, float y);
 
 	void EquipWeaponToPlayer(const string& weaponId, bool returnInven = true);
 	void UnequipWeaponFromPlayer();
@@ -56,6 +59,12 @@ private:
 	//총알 오브젝트 풀
 	GameObject* AcquireBullet();
 	void ReleaseBullet(GameObject* obj);
+
+	//몬스터 오브젝트 풀
+	GameObject* AcquireMonster(const string& monsterId);
+	void ReleaseMonster(GameObject* obj,const string& monsterId);
+
+	void ClearAllMonsters();
 
 	void LoadMap(const vector<string>& mapData);
 
@@ -75,12 +84,16 @@ private:
 	CollisionManager* m_collisionManager;
 	Player* m_player;
 	FlowFieldManager m_flowField;
+	MonsterSpawner* m_monsterSpawner;
 
 	unordered_map<char, function<void(float, float)>> m_tileHandlers;
 	unordered_set<string> m_collectedItemsIds;
 
 	PhysicsEngine::PhysicsWorld* m_physicsWorld;
+	
+	//오브젝트 풀
 	vector<GameObject*> m_bulletPool;
+	map<string, vector<GameObject*>> m_monsterPool;
 
 	int m_lastPlayerTileX = -9999;
 	int m_lastPlayerTileY = -9999;

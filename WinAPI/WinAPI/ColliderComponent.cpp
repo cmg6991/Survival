@@ -219,3 +219,40 @@ void ColliderComponent::SetOnCollisionExit(std::function<void(GameObject* other)
 				callback(static_cast<GameObject*>(other->owner));
 		};
 }
+
+bool ColliderComponent::IsPositionBlocked(const MathEngine::Vector2& pos, float radius, ColliderComponent* ignoreTarget, bool onlyStatic) const
+{
+	if (m_world == nullptr) return false;
+
+	PhysicsEngine::CircleCollider testCollider(0.f, 0.f, radius);
+	testCollider.center = pos;
+
+	// 자기 자신은 항상 무시하고, 추가로 무시할 대상(예: 몬스터의 타겟)도 무시
+	PhysicsEngine::Object* ignoreObj = (ignoreTarget != nullptr) ? ignoreTarget->GetPhysicsObject() : nullptr;
+
+	if (m_world->IsColliderBlocked(testCollider, m_object, onlyStatic))
+		return true;
+
+	PhysicsEngine::Object* ignoreExtra = (ignoreTarget != nullptr) ? ignoreTarget->GetPhysicsObject() : nullptr;
+
+	return m_world->IsColliderBlocked(testCollider, { m_object, ignoreExtra }, onlyStatic);
+}
+
+void ColliderComponent::PushNearbyDynamics(const MathEngine::Vector2& testPos, float radius, const MathEngine::Vector2& pusherCenter, ColliderComponent* ignoreTarget)
+{
+	if (m_world == nullptr) return;
+
+	PhysicsEngine::CircleCollider testCollider(0.f, 0.f, radius);
+	testCollider.center = testPos;
+
+	PhysicsEngine::Object* ignoreObj = (ignoreTarget != nullptr) ? ignoreTarget->GetPhysicsObject() : nullptr;
+	m_world->PushDynamicObjects(testCollider, pusherCenter, radius, ignoreObj);
+}
+
+MathEngine::Vector2 ColliderComponent::GetAvoidVector(const MathEngine::Vector2& pos, float checkRadius, ColliderComponent* ignoreTarget) const
+{
+	if (m_world == nullptr) return MathEngine::Vector2(0.f, 0.f);
+
+	PhysicsEngine::Object* ignoreObj = (ignoreTarget != nullptr) ? ignoreTarget->GetPhysicsObject() : nullptr;
+	return m_world->GetPushAwayVector(pos, 0.f, checkRadius, ignoreObj);
+}

@@ -7,11 +7,12 @@ class Transform;
 class Animator;
 class CollisionManager;
 class FlowFieldManager;
-namespace PhysicsEngine
-{
-    class PhysicsWorld;
-    struct Object;
-}
+class ColliderComponent;
+//namespace PhysicsEngine
+//{
+//    class PhysicsWorld;
+//    struct Object;
+//}
 
 class Monster : public ElementBase
 {
@@ -38,7 +39,7 @@ public:
 
     void SetTarget(Transform* target) { m_target = target; }
     void SetCollisionManager(CollisionManager* cm) { m_collisionManager = cm; }
-    void SetPhysicsWorld(PhysicsEngine::PhysicsWorld* world) { m_physicsWorld = world; }
+    //void SetPhysicsWorld(PhysicsEngine::PhysicsWorld* world) { m_physicsWorld = world; }
     void SetFlowField(FlowFieldManager* flowField) { m_flowField = flowField; }
     void SetStats(float moveSpeed, int contactDamage) { m_moveSpeed = moveSpeed; m_contactDamage = contactDamage; }
 
@@ -47,15 +48,24 @@ public:
     void ResetDamageCooldown() { m_damageCooldownTimer = m_damageCooldownInterval; }
     void SetSeparation(const MathEngine::Vector2& separation) {m_separation = separation;}
 
-    void SetTargetPhysicsObject(PhysicsEngine::Object* obj) { m_targetPhysicsObject = obj; }
+    void SetTargetCollider(ColliderComponent* targetCollider) { m_targetCollider = targetCollider; }
+   //void SetTargetPhysicsObject(PhysicsEngine::Object* obj) { m_targetPhysicsObject = obj; }
+
+    void Reset(int maxHealth);
+    void SetDead(bool dead) { m_isDeadOverride = dead; }
+
+    void SetMonsterId(const string& id) { m_monsterId = id; }
+    const string& GetMonsterId() const { return m_monsterId; }
+    void Reset(int maxHealth, int cellWidth, int cellHeight, int animColumn);
 
 private:
     Transform* m_transform = nullptr;
     Animator* m_animator = nullptr;
     Transform* m_target = nullptr;
     CollisionManager* m_collisionManager = nullptr;
-    PhysicsEngine::PhysicsWorld* m_physicsWorld = nullptr;
     FlowFieldManager* m_flowField = nullptr;
+    ColliderComponent* m_collider = nullptr;
+    ColliderComponent* m_targetCollider = nullptr;
 
     int m_health;
     float m_moveSpeed = 1.5f;
@@ -69,6 +79,10 @@ private:
     MathEngine::Vector2 m_avoidDirection = { 0.0f, 0.0f };
     float m_avoidTimer = 0.0f;
 
-    PhysicsEngine::Object* m_targetPhysicsObject = nullptr;
+    bool m_isDeadOverride = false;
+
+    string m_monsterId;
+    //PhysicsEngine::Object* m_targetPhysicsObject = nullptr;
+    //PhysicsEngine::PhysicsWorld* m_physicsWorld = nullptr;
 };
 

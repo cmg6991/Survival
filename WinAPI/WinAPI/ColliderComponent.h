@@ -16,7 +16,7 @@ namespace PhysicsEngine
 
 enum class ColliderSyncMode
 {
-	PhysicsDrivesTransform, // 물리가 위치를 정함 (몬스터, 투사체 등)
+	PhysicsDrivesTransform, // 물리가 위치를 정함(상호작용 오브젝트들))
 	TransformDrivesPhysics  // 게임 로직이 이미 위치를 정함 (플레이어처럼 직접 이동하는 애)
 };
 
@@ -60,6 +60,18 @@ public:
 	void SetOnCollisionEnter(std::function<void(GameObject* other)> callback);
 	void SetOnCollisionStay(std::function<void(GameObject* other)> callback);
 	void SetOnCollisionExit(std::function<void(GameObject* other)> callback);
+
+	// 이 위치로 이동해도 되는지 (onlyStatic=true면 dynamic은 차단 대상에서 제외)
+	bool IsPositionBlocked(const MathEngine::Vector2& pos, float radius,
+		ColliderComponent* ignoreTarget = nullptr, bool onlyStatic = true) const;
+
+	// 근처 dynamic 오브젝트를 밀어냄 (박스 밀기용)
+	void PushNearbyDynamics(const MathEngine::Vector2& testPos, float radius,
+		const MathEngine::Vector2& pusherCenter, ColliderComponent* ignoreTarget = nullptr);
+
+	// 근처 장애물로부터 밀려나는 회피 벡터 계산 (몬스터 방향 보정용)
+	MathEngine::Vector2 GetAvoidVector(const MathEngine::Vector2& pos, float checkRadius,
+		ColliderComponent* ignoreTarget = nullptr) const;
 
 private:
 	// 충돌 여부
