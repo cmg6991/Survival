@@ -244,12 +244,14 @@ namespace PhysicsEngine
 		m_solvers.erase(itr);
 	}
 
-	bool PhysicsWorld::IsColliderBlocked(const Collider& testCollider) const
+	bool PhysicsWorld::IsColliderBlocked(const Collider& testCollider,const Object* ignoreObj, bool onlyStatic) const
 	{
 		for (Object* obj : m_objects)
 		{
 			if (!obj || !obj->collider) continue;
 			if (obj->isTrigger) continue;
+			if (obj == ignoreObj) continue;
+			if (onlyStatic && !obj->isStatic) continue;
 
 			CollisionPoints points = testCollider.TestCollision(*obj->collider);
 			if (points.hasCollision)
@@ -257,6 +259,51 @@ namespace PhysicsEngine
 		}
 		return false;
 
+	}
+
+	MathEngine::Vector2 PhysicsWorld::GetPushAwayVector(const MathEngine::Vector2& pos, float selfRadius, float checkRadius, const Object* ignoreObj) const
+	{
+		MathEngine::Vector2 result(0.f, 0.f);
+
+		for (Object* obj : m_objects)
+		{
+			if (!obj || !obj->collider) continue;
+			if (obj->isTrigger) continue;
+			if (obj == ignoreObj) continue;
+
+			MathEngine::Vector2 diff = pos - obj->collider->center;
+			float dist = diff.Magnitude();
+
+			if (dist < checkRadius && dist > 0.001f)
+			{
+				float strength = (checkRadius - dist) / checkRadius;
+				result += diff.Normalize() * strength;
+			}
+		}
+
+		return result;
+	}
+
+	void PhysicsWorld::PushDynamicObjects(const Collider& testCollider, const MathEngine::Vector2& pusherCenter, float pushStrengthRadius, const Object* ignoreObj)
+	{
+		for (Object* obj : m_objects)
+		{
+			if (!obj || !obj->collider) continue;
+			if (obj->isStatic || obj->isKinematic) continue;  // dynamic¸¸ ´ë»ó
+			if (obj->isTrigger) continue;
+			if (obj == ignoreObj) continue;
+
+			CollisionPoints points = testCollider.TestCollision(*obj->collider);
+			if (points.hasCollision)
+			{
+				MathEngine::Vector2 pushDir = obj->collider->center - pusherCenter;
+				if (pushDir.Magnitude() < 0.001f) continue;
+				pushDir = pushDir.Normalize();
+
+				obj->position += pushDir * points.depth;   // °ãÄ£ ¸¸Å­ ¹Ð¾î³¿
+				obj->collider->center = obj->position;
+			}
+		}
 	}
 
 	//void PhysicsWorld::TestResolve(

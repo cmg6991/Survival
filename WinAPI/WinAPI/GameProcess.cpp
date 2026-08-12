@@ -74,6 +74,7 @@ void GameProcess::Loop()
 
 		FixedUpdate();
 		Update();
+		LateUpdate();
 
 		PreRender();
 		Render();
@@ -112,7 +113,6 @@ void GameProcess::Loop()
 
 		SetWindowText(m_hWnd, title);
 
-		LateUpdate();
 	}
 }
 
@@ -134,6 +134,7 @@ void GameProcess::Release()
 
 void GameProcess::FixedUpdate()
 {
+	m_gameEngine->FixedUpdate();
 }
 
 void GameProcess::Update()

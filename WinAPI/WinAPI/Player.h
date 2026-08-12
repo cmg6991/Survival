@@ -12,6 +12,8 @@ class Animator;
 class SpriteRenderer;
 class Weapon;
 
+namespace PhysicsEngine { class PhysicsWorld; struct Object; }
+
 class Player : public ElementBase
 {
 public:
@@ -62,6 +64,10 @@ public:
 	int GetHealth() const { return m_currentHealth; }
 	bool IsDead() const { return m_currentHealth <= 0;}
 	void TakeDamage(int rawDamage);
+
+	void SetPhysicsWorld(PhysicsEngine::PhysicsWorld* world) { m_physicsWorld = world; }
+	void SetSelfPhysicsObject(PhysicsEngine::Object* obj) { m_selfPhysicsObject = obj; }
+
 private:
 	bool m_isAutoMoving = false;
 
@@ -96,4 +102,7 @@ private:
 private:
 	int m_maxHealth = 100;
 	int m_currentHealth = 100;
+
+	PhysicsEngine::PhysicsWorld* m_physicsWorld = nullptr;
+	PhysicsEngine::Object* m_selfPhysicsObject = nullptr;
 };

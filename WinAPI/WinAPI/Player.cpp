@@ -13,6 +13,8 @@
 #include "Animator.h"
 #include "SpriteRenderer.h"
 #include "Weapon.h"
+#include "../PhysicsEngine/PhysicsWorld.h"
+#include "../PhysicsEngine/CircleCollider.h"
 
 using namespace std;
 
@@ -181,17 +183,40 @@ void Player::Update(float deltaTime)
 
     if (isKeyMoving || m_isAutoMoving)
     {
+        //int tileX = (int)round(nextPos.x);
+        //int tileY = (int)round(nextPos.y);
+
+        //if (!m_collisionManager->IsBlocked(tileX, tileY))
+        //{
+        //    current = nextPos;
+        //    m_transform->SetPosition(current);
+        //}
+        //else if (m_isAutoMoving)
+        //{
+        //    m_targetPos = current; // 자동이동 중 벽 만나면 멈춤
+        //    m_isAutoMoving = false;
+        //}
         int tileX = (int)round(nextPos.x);
         int tileY = (int)round(nextPos.y);
 
-        if (!m_collisionManager->IsBlocked(tileX, tileY))
+        bool blockedByTile = m_collisionManager->IsBlocked(tileX, tileY);
+
+        bool blockedByPhysics = false;
+        if (!blockedByTile && m_physicsWorld != nullptr)
+        {
+            PhysicsEngine::CircleCollider testCollider(0.f, 0.f, 0.5f);
+            testCollider.center = nextPos;
+            blockedByPhysics = m_physicsWorld->IsColliderBlocked(testCollider, m_selfPhysicsObject);
+        }
+
+        if (!blockedByTile && !blockedByPhysics)
         {
             current = nextPos;
             m_transform->SetPosition(current);
         }
         else if (m_isAutoMoving)
         {
-            m_targetPos = current; // 자동이동 중 벽 만나면 멈춤
+            m_targetPos = current;
             m_isAutoMoving = false;
         }
     }

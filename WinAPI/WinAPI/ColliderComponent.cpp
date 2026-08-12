@@ -29,7 +29,7 @@ void ColliderComponent::FixedUpdate()
 	if (!m_object || !m_transform)
 		return;
 
-	m_isCollision = m_object->isColliding;
+	//m_isCollision = m_object->isColliding;
 
 	if (m_syncMode == ColliderSyncMode::TransformDrivesPhysics)
 	{

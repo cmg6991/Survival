@@ -42,8 +42,10 @@ namespace PhysicsEngine
 			m_ScreenHeight = h;
 		}
 
-		bool IsColliderBlocked(const Collider& testCollider) const;
+		bool IsColliderBlocked(const Collider& testCollider, const Object* ignoreObj = nullptr, bool onlyStatic = true) const;
 
+		MathEngine::Vector2 GetPushAwayVector(const MathEngine::Vector2& pos, float selfRadius, float checkRadius, const Object* ignoreObj = nullptr) const;
+		void PushDynamicObjects(const Collider& testCollider, const MathEngine::Vector2& pusherCenter, float pushStrengthRadius, const Object* ignoreObj = nullptr);
 	private:
 		std::vector<Object*> m_objects;
 		std::vector<Solver*> m_solvers;

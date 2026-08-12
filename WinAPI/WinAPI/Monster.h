@@ -10,6 +10,7 @@ class FlowFieldManager;
 namespace PhysicsEngine
 {
     class PhysicsWorld;
+    struct Object;
 }
 
 class Monster : public ElementBase
@@ -46,6 +47,8 @@ public:
     void ResetDamageCooldown() { m_damageCooldownTimer = m_damageCooldownInterval; }
     void SetSeparation(const MathEngine::Vector2& separation) {m_separation = separation;}
 
+    void SetTargetPhysicsObject(PhysicsEngine::Object* obj) { m_targetPhysicsObject = obj; }
+
 private:
     Transform* m_transform = nullptr;
     Animator* m_animator = nullptr;
@@ -65,5 +68,7 @@ private:
 
     MathEngine::Vector2 m_avoidDirection = { 0.0f, 0.0f };
     float m_avoidTimer = 0.0f;
+
+    PhysicsEngine::Object* m_targetPhysicsObject = nullptr;
 };
 

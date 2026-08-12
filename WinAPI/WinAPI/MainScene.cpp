@@ -113,6 +113,14 @@ void MainScene::Init()
 	m_objects.push_back(playerObj);
 	m_player = player;
 
+	std::unique_ptr<PhysicsEngine::Collider> circleCollider =
+		std::make_unique<PhysicsEngine::CircleCollider>(0.f, 0.f, 0.5f);
+
+	collider->SetCollider(std::move(circleCollider), 1.0f, false);
+
+	player->SetPhysicsWorld(m_physicsWorld);
+	player->SetSelfPhysicsObject(collider->GetPhysicsObject());
+
 	SaveData data;
 	bool hasSave = SaveManager::HasSaveFile();
 	if (hasSave)
@@ -135,11 +143,6 @@ void MainScene::Init()
 
 		m_player->GetInventory()->SetAllItems(data.inventory);
 	}
-
-	std::unique_ptr<PhysicsEngine::Collider> circleCollider =
-		std::make_unique<PhysicsEngine::CircleCollider>(0.f, 0.f, 0.5f);
-
-	collider->SetCollider(std::move(circleCollider), 1.0f, false);
 
 	UIManager::GetInstance().SetInventory(m_player->GetInventory());
 	UIManager::GetInstance().SetResourceManager(m_resourceManager);
@@ -550,7 +553,7 @@ void MainScene::CreateInteractable(float x, float y, InteractType type, const st
 	obj->Init();
 
 	auto rectCollider = std::make_unique<PhysicsEngine::RectangleCollider>(0.5f, 0.5f, 1.f,1.f);
-	collider->SetCollider(std::move(rectCollider), 1.0f, true);
+	collider->SetCollider(std::move(rectCollider), 1.0f, false);
 	//m_collisionManager->SetBlocked((int)x, (int)y, true);
 }
 
@@ -684,6 +687,13 @@ void MainScene::CreateMonster(float x, float y, int health)
 	monster->SetPhysicsWorld(m_physicsWorld);
 	monster->SetFlowField(&m_flowField);
 	monster->SetStats(1.5f, 5);   // 이동속도, 접촉 데미지
+
+	ColliderComponent* playerCollider =
+		static_cast<ColliderComponent*>(m_player->GetGameObject()->GetElement(ElementType::Collider));
+	if (playerCollider != nullptr)
+	{
+		monster->SetTargetPhysicsObject(playerCollider->GetPhysicsObject());
+	}
 
 	auto contactDamage = [this, monster](GameObject* other)
 		{
