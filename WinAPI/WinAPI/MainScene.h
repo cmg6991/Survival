@@ -14,6 +14,7 @@ class Player;
 class Interactable;
 class ColliderComponent;
 class MonsterSpawner;
+class MiniMap;
 
 class MainScene : public Scene
 {
@@ -97,4 +98,6 @@ private:
 
 	int m_lastPlayerTileX = -9999;
 	int m_lastPlayerTileY = -9999;
+
+	MiniMap* m_miniMap;
 };

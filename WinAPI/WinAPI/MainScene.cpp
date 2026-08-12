@@ -33,6 +33,8 @@
 #include <utility>
 #include <memory>
 
+#include "MiniMap.h"
+
 #include "../PhysicsEngine/CircleCollider.h"
 #include "../PhysicsEngine/RectangleCollider.h"
 #include "../PhysicsEngine/Collider.h"
@@ -65,7 +67,7 @@ wstring UTF8ToWString(const string& str)
 MainScene::MainScene(ResourceManager* resourceManager)
 	: Scene("MainScene"), m_tileMap(nullptr),
 	m_resourceManager(resourceManager), m_collisionManager(nullptr),
-	m_player(nullptr), m_physicsWorld(nullptr), m_monsterSpawner(nullptr)
+	m_player(nullptr), m_physicsWorld(nullptr), m_monsterSpawner(nullptr), m_miniMap(nullptr)
 {
 	m_tileMap = new TileMap;
 	m_collisionManager = new CollisionManager;
@@ -185,6 +187,12 @@ void MainScene::Init()
 		{
 			ClearAllMonsters();
 		});
+
+	m_miniMap = new MiniMap();
+
+	m_miniMap->Init(
+		m_player,
+		m_resourceManager);
 }
 
 void MainScene::FixedUpdate()
@@ -430,6 +438,8 @@ void MainScene::Render(ID2D1DeviceContext* context)
 
 	UIManager::GetInstance().Render(context);
 	EnvironmentManager::GetInstance().Render(context);
+	if (m_miniMap)
+		m_miniMap->Render(context);
 }
 
 void MainScene::PostRender(ID2D1DeviceContext* context)
