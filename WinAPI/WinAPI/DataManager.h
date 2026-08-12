@@ -34,6 +34,7 @@ enum class ImageKey
 	Monster3,
 	SideBarUI,
 	Fire,
+	GrassRoad,
 	Count
 };
 

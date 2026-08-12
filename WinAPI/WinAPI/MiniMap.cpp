@@ -4,9 +4,13 @@
 #include "Transform.h"
 #include "TileManager.h"
 #include "ResourceManager.h"
+#include "GameObject.h"
+#include "Interactable.h"
+#include "ItemPickUp.h"
+#include "Monster.h"
 
 MiniMap::MiniMap() 
-	:m_player(nullptr), m_resourceManager(nullptr), m_centerX(1110.0f),m_centerY(600.0f), m_width(240.f),m_height(140.0f),m_tileWidth(12.0f), m_tileHeight(6.0f)
+	:m_player(nullptr), m_resourceManager(nullptr), m_centerX(1100.0f),m_centerY(550.0f), m_width(360.f),m_height(220.0f),m_tileWidth(12.0f), m_tileHeight(6.0f)
 {
 }
 
@@ -23,37 +27,20 @@ void MiniMap::Init(Player* player, ResourceManager* resourceManager)
 
 MathEngine::Vector2 MiniMap::TileToMiniMap(float tileX, float tileY) const
 {
-	float isoX =
-		(tileX - tileY) *
-		(m_tileWidth * 0.5f);
+    MathEngine::Vector2 playerPos = m_player->GetTransform()->GetPostion();
 
-	float isoY =
-		(tileX + tileY) *
-		(m_tileHeight * 0.5f);
-    float mapCenterX =
-        (MAP_WIDTH - 1) * 0.5f;
+    // 플레이어 기준 상대 좌표
+    float relativeX = tileX - playerPos.x;
+    float relativeY = tileY - playerPos.y;
 
-    float mapCenterY =
-        (MAP_HEIGHT - 1) * 0.5f;
-
-
-    float centerIsoX =
-        (mapCenterX - mapCenterY) *
-        (m_tileWidth * 0.5f);
-
-    float centerIsoY =
-        (mapCenterX + mapCenterY) *
-        (m_tileHeight * 0.5f);
-
-
-    isoX -= centerIsoX;
-    isoY -= centerIsoY;
-
+    // 평면(직교) 투영: 그냥 타일 크기만큼 스케일
+    float mapX = relativeX * m_tileWidth;
+    float mapY = relativeY * m_tileHeight;
 
     return
     {
-        m_centerX + isoX,
-        m_centerY + isoY
+        m_centerX + mapX,
+        m_centerY + mapY
     };
 }
 
@@ -61,269 +48,256 @@ void MiniMap::CreateDiamondGeometry(ID2D1Factory* factory, ID2D1PathGeometry** g
 {
     if (factory == nullptr)
         return;
-
     if (geometry == nullptr)
         return;
-
-
-    factory->CreatePathGeometry(
-        geometry);
-
-
+    factory->CreatePathGeometry(geometry);
     if (*geometry == nullptr)
         return;
-
-
     ID2D1GeometrySink* sink = nullptr;
-
-    (*geometry)->Open(
-        &sink);
-
+    (*geometry)->Open(&sink);
 
     if (sink == nullptr)
         return;
 
-
-    float halfWidth =
-        m_width * 0.5f;
-
-    float halfHeight =
-        m_height * 0.5f;
-
+    float halfWidth = m_width * 0.5f;
+    float halfHeight = m_height * 0.5f;
 
     // 위
-    sink->BeginFigure(
-        D2D1::Point2F(
-            m_centerX,
-            m_centerY - halfHeight),
-        D2D1_FIGURE_BEGIN_FILLED);
-
-
-    // 오른쪽
-    sink->AddLine(
-        D2D1::Point2F(
-            m_centerX + halfWidth,
-            m_centerY));
-
-
+    sink->BeginFigure(D2D1::Point2F(m_centerX,m_centerY - halfHeight), D2D1_FIGURE_BEGIN_FILLED);
+    //오른쪽
+    sink->AddLine( D2D1::Point2F( m_centerX + halfWidth,m_centerY));
     // 아래
-    sink->AddLine(
-        D2D1::Point2F(
-            m_centerX,
-            m_centerY + halfHeight));
-
-
+    sink->AddLine(D2D1::Point2F(m_centerX, m_centerY + halfHeight));
     // 왼쪽
-    sink->AddLine(
-        D2D1::Point2F(
-            m_centerX - halfWidth,
-            m_centerY));
-
-
-    sink->EndFigure(
-        D2D1_FIGURE_END_CLOSED);
-
-
+    sink->AddLine( D2D1::Point2F(m_centerX - halfWidth,m_centerY));
+    sink->EndFigure(D2D1_FIGURE_END_CLOSED);
     sink->Close();
-
     sink->Release();
 }
 
-void MiniMap::Render(
-    ID2D1DeviceContext* context)
+void MiniMap::RenderObjects(ID2D1DeviceContext* context, const std::vector<GameObject*>& objects)
 {
-    if (context == nullptr)
-        return;
+	if (context == nullptr)
+		return;
 
-    if (m_player == nullptr)
-        return;
+	// 미니맵 오브젝트는 픽셀 단위로 선명하게 표시
+	context->SetAntialiasMode(D2D1_ANTIALIAS_MODE_ALIASED);
 
-    if (m_resourceManager == nullptr)
-        return;
-    ID2D1Factory* factory = nullptr;
+	for (GameObject* obj : objects)
+	{
+		if (obj == nullptr)
+			continue;
 
-    context->GetFactory(
-        &factory);
+		if (!obj->GetActive())
+			continue;
 
-    if (factory == nullptr)
-        return;
+		Transform* tr = static_cast<Transform*>(obj->GetElement(ElementType::Transform));
+		if (tr == nullptr)
+			continue;
 
-    ID2D1PathGeometry* diamond = nullptr;
+		D2D1_COLOR_F color;
+		float radius = 3.0f;
+		bool shouldDraw = true;
 
-    CreateDiamondGeometry(
-        factory,
-        &diamond);
+		if (obj->GetElement(ElementType::Wall) != nullptr)
+		{
+			color = D2D1::ColorF(D2D1::ColorF::Gray);
+			radius = m_tileWidth * 0.5f; // 벽은 타일 하나 크기만큼
+		}
+		else if (obj->GetElement(ElementType::Monster) != nullptr)
+		{
+			Monster* monster = static_cast<Monster*>(obj->GetElement(ElementType::Monster));
+			if (monster != nullptr && monster->IsDead())
+			{
+				shouldDraw = false; // 죽은 몬스터는 표시 안 함
+			}
+			color = D2D1::ColorF(D2D1::ColorF::Orange);
+			radius = 6.0f;
+		}
+		else if (obj->GetElement(ElementType::Interactable) != nullptr)
+		{
+			color = D2D1::ColorF(D2D1::ColorF::Yellow);
+			radius = 6.0;
+		}
+		else if (obj->GetElement(ElementType::ItemPickUp) != nullptr)
+		{
+			color = D2D1::ColorF(D2D1::ColorF::Cyan);
+			radius = 4.5f;
+		}
+		else
+		{
+			// 표시할 필요 없는 오브젝트(총알, 이펙트 등)는 건너뜀
+			continue;
+		}
 
-    if (diamond == nullptr)
-    {
-        factory->Release();
-        return;
-    }
+		if (!shouldDraw)
+			continue;
 
-    ID2D1SolidColorBrush* backgroundBrush = nullptr;
+		MathEngine::Vector2 pos = TileToMiniMap(tr->GetPostion().x, tr->GetPostion().y);
 
-    context->CreateSolidColorBrush(
-        D2D1::ColorF(
-            D2D1::ColorF::Black,
-            0.75f),
-        &backgroundBrush);
+		ID2D1SolidColorBrush* brush = nullptr;
+		context->CreateSolidColorBrush(color, &brush);
 
+		if (brush != nullptr)
+		{
+			if (obj->GetElement(ElementType::Wall) != nullptr)
+			{
+				// 벽은 사각형으로
+				D2D1_RECT_F rect = D2D1::RectF(
+					pos.x - radius, pos.y - radius,
+					pos.x + radius, pos.y + radius);
+				context->FillRectangle(rect, brush);
+			}
+			else
+			{
+				// 나머지는 점으로
+				D2D1_ELLIPSE ellipse = D2D1::Ellipse(
+					D2D1::Point2F(pos.x, pos.y), radius, radius);
+				context->FillEllipse(ellipse, brush);
+			}
 
-    if (backgroundBrush)
-    {
-        context->FillGeometry(
-            diamond,
-            backgroundBrush);
+			brush->Release();
+		}
+		context->SetAntialiasMode(D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
+	}
+}
 
-        backgroundBrush->Release();
-    }
+void MiniMap::Render(ID2D1DeviceContext* context, const std::vector<GameObject*>& objects)
+{
+	if (context == nullptr)
+		return;
 
-    ID2D1Layer* layer = nullptr;
+	if (m_player == nullptr)
+		return;
 
-    context->CreateLayer(
-        nullptr,
-        &layer);
+	if (m_resourceManager == nullptr)
+		return;
 
+	ID2D1Factory* factory = nullptr;
+	context->GetFactory(&factory);
 
-    if (layer == nullptr)
-    {
-        diamond->Release();
-        factory->Release();
-        return;
-    }
+	if (factory == nullptr)
+		return;
 
-    D2D1_LAYER_PARAMETERS layerParameters =
-        D2D1::LayerParameters();
+	ID2D1PathGeometry* diamond = nullptr;
+	CreateDiamondGeometry(factory, &diamond);
 
-    layerParameters.contentBounds =
-        D2D1::InfiniteRect();
+	if (diamond == nullptr)
+	{
+		factory->Release();
+		return;
+	}
 
-    layerParameters.geometricMask =
-        diamond;
+	// 배경
+	ID2D1SolidColorBrush* backgroundBrush = nullptr;
+	context->CreateSolidColorBrush(
+		D2D1::ColorF(D2D1::ColorF::Black, 0.75f),
+		&backgroundBrush);
 
-    layerParameters.maskAntialiasMode =
-        D2D1_ANTIALIAS_MODE_PER_PRIMITIVE;
+	if (backgroundBrush)
+	{
+		context->FillGeometry(diamond, backgroundBrush);
+		backgroundBrush->Release();
+	}
 
-    layerParameters.opacity =
-        1.0f;
+	// 마름모 마스크로 클리핑
+	ID2D1Layer* layer = nullptr;
+	context->CreateLayer(nullptr, &layer);
 
+	if (layer == nullptr)
+	{
+		diamond->Release();
+		factory->Release();
+		return;
+	}
 
-    context->PushLayer(
-        layerParameters,
-        layer);
+	D2D1_LAYER_PARAMETERS layerParameters = D2D1::LayerParameters();
+	layerParameters.contentBounds = D2D1::InfiniteRect();
+	layerParameters.geometricMask = diamond;
+	layerParameters.maskAntialiasMode = D2D1_ANTIALIAS_MODE_PER_PRIMITIVE;
+	layerParameters.opacity = 1.0f;
 
-    ID2D1Bitmap* tileBitmap =
-        m_resourceManager->GetImage(
-            "Tile_W");
+	context->PushLayer(layerParameters, layer);
 
+	// ---- 여기서부터 마름모 안쪽에 그려질 내용 ----
 
-    if (tileBitmap != nullptr)
-    {
-        D2D1_SIZE_F bitmapSize =
-            tileBitmap->GetSize();
+	RenderObjects(context, objects);
 
-        D2D1_RECT_F sourceRect =
-            D2D1::RectF(
-                0.0f,
-                0.0f,
-                bitmapSize.width,
-                bitmapSize.height);
-        for (int y = 0;
-            y < MAP_HEIGHT;
-            y++)
-        {
-            for (int x = 0;
-                x < MAP_WIDTH;
-                x++)
-            {
-                MathEngine::Vector2 pos =
-                    TileToMiniMap(
-                        (float)x,
-                        (float)y);
+	MathEngine::Vector2 playerPos = m_player->GetTransform()->GetPostion();
 
+	// 미니맵에 표시할 범위(타일 단위)를 미니맵 크기 기준으로 계산
+	int rangeX = (int)((m_width * 0.5f) / m_tileWidth) + 1;
+	int rangeY = (int)((m_height * 0.5f) / m_tileHeight) + 1;
 
-                D2D1_RECT_F destRect =
-                    D2D1::RectF(
-                        pos.x -
-                        m_tileWidth * 0.5f,
+	int playerTileX = (int)playerPos.x;
+	int playerTileY = (int)playerPos.y;
 
-                        pos.y,
+	int startX = playerTileX - rangeX;
+	int endX = playerTileX + rangeX;
+	int startY = playerTileY - rangeY;
+	int endY = playerTileY + rangeY;
 
-                        pos.x +
-                        m_tileWidth * 0.5f,
+	// 지형(바닥) 색상 - 단색 사각형으로 표시 (아이소 텍스처 깨짐 방지)
+	ID2D1SolidColorBrush* groundBrush = nullptr;
+	context->CreateSolidColorBrush(
+		D2D1::ColorF(0x1A1A1A), // 원하는 색으로 조정 가능
+		&groundBrush);
 
-                        pos.y +
-                        m_tileHeight);
+	if (groundBrush)
+	{
+		for (int y = startY; y <= endY; y++)
+		{
+			for (int x = startX; x <= endX; x++)
+			{
+				MathEngine::Vector2 pos = TileToMiniMap((float)x, (float)y);
 
+				D2D1_RECT_F destRect = D2D1::RectF(
+					pos.x - m_tileWidth * 0.5f,
+					pos.y - m_tileHeight * 0.5f,
+					pos.x + m_tileWidth * 0.5f,
+					pos.y + m_tileHeight * 0.5f);
 
-                DrawBitmap(
-                    context,
-                    tileBitmap,
-                    destRect,
-                    sourceRect,
-                    false);
-            }
-        }
-        MathEngine::Vector2 playerPos =
-            m_player
-            ->GetTransform()
-            ->GetPostion();
+				context->FillRectangle(destRect, groundBrush);
+			}
+		}
 
+		groundBrush->Release();
+	}
 
-        MathEngine::Vector2 playerMiniPos =
-            TileToMiniMap(
-                playerPos.x,
-                playerPos.y);
-        ID2D1SolidColorBrush* playerBrush = nullptr;
+	// 플레이어 위치 (항상 미니맵 중앙)
+	MathEngine::Vector2 playerMiniPos = TileToMiniMap(playerPos.x, playerPos.y);
 
-        context->CreateSolidColorBrush(
-            D2D1::ColorF(
-                D2D1::ColorF::Red),
-            &playerBrush);
+	ID2D1SolidColorBrush* playerBrush = nullptr;
+	context->CreateSolidColorBrush(
+		D2D1::ColorF(D2D1::ColorF::Red),
+		&playerBrush);
 
+	if (playerBrush)
+	{
+		D2D1_ELLIPSE playerCircle = D2D1::Ellipse(
+			D2D1::Point2F(playerMiniPos.x, playerMiniPos.y),
+			4.0f, 4.0f);
 
-        if (playerBrush)
-        {
-            D2D1_ELLIPSE playerCircle =
-                D2D1::Ellipse(
-                    D2D1::Point2F(
-                        playerMiniPos.x,
-                        playerMiniPos.y +
-                        m_tileHeight * 0.5f),
+		context->FillEllipse(playerCircle, playerBrush);
+		playerBrush->Release();
+	}
 
-                    4.0f,
-                    4.0f);
+	// ---- 마스크 해제 ----
+	context->PopLayer();
 
+	// 테두리
+	ID2D1SolidColorBrush* borderBrush = nullptr;
+	context->CreateSolidColorBrush(
+		D2D1::ColorF(D2D1::ColorF::White),
+		&borderBrush);
 
-            context->FillEllipse(
-                playerCircle,
-                playerBrush);
+	if (borderBrush)
+	{
+		context->DrawGeometry(diamond, borderBrush, 2.0f);
+		borderBrush->Release();
+	}
 
-
-            playerBrush->Release();
-        }
-        context->PopLayer();
-        ID2D1SolidColorBrush* borderBrush = nullptr;
-
-        context->CreateSolidColorBrush(
-            D2D1::ColorF(
-                D2D1::ColorF::White),
-            &borderBrush);
-
-
-        if (borderBrush)
-        {
-            context->DrawGeometry(
-                diamond,
-                borderBrush,
-                2.0f);
-
-            borderBrush->Release();
-        }
-        layer->Release();
-
-        diamond->Release();
-
-        factory->Release();
-    }
+	layer->Release();
+	diamond->Release();
+	factory->Release();
 }

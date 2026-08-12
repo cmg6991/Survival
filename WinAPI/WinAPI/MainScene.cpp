@@ -439,7 +439,7 @@ void MainScene::Render(ID2D1DeviceContext* context)
 	UIManager::GetInstance().Render(context);
 	EnvironmentManager::GetInstance().Render(context);
 	if (m_miniMap)
-		m_miniMap->Render(context);
+		m_miniMap->Render(context,m_objects);
 }
 
 void MainScene::PostRender(ID2D1DeviceContext* context)

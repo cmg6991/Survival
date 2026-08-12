@@ -163,4 +163,3 @@ void TileMap::Render(ID2D1DeviceContext* context,ResourceManager* resourceManage
         }
     }
 }
-
