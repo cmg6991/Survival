@@ -153,6 +153,7 @@
     <ClInclude Include="MiniMap.h" />
     <ClInclude Include="Monster.h" />
     <ClInclude Include="MonsterSpawner.h" />
+    <ClInclude Include="ObjectSpawner.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Resource.h" />
@@ -200,6 +201,7 @@
     <ClCompile Include="MiniMap.cpp" />
     <ClCompile Include="Monster.cpp" />
     <ClCompile Include="MonsterSpawner.cpp" />
+    <ClCompile Include="ObjectSpawner.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="SaveManager.cpp" />

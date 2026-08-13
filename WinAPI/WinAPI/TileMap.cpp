@@ -4,6 +4,7 @@
 #include "ResourceManager.h"
 #include "TileManager.h"
 #include "pch.h"
+#include "ObjectSpawner.h"
 
 long long MakeChunkKey(int chunkX,int chunkY)
 {
