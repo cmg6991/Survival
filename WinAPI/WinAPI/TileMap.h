@@ -4,6 +4,7 @@
 #include "pch.h"
 
 class ResourceManager;
+class ObjectSpawner;
 
 enum class TileType
 {
@@ -42,7 +43,7 @@ public:
     bool IsType(int x, int y, TileType type) const;
     TileType GetTile(int x, int y) const;
     void SetTile(int x, int y, TileType type);
-
+    void SetObjectSpawner(ObjectSpawner* spawner) { m_objectSpawner = spawner; }
 private:
     int GetPathBitmask(int x, int y,TileType type) const;
     D2D1_RECT_F GetSrcRect(const AutotileConfig& config, int bitmask) const;
@@ -72,4 +73,6 @@ private:
     // 자동 생성된 Chunk
     unordered_set<long long> m_generatedChunks;
     unordered_map<long long, TileType> m_proceduralTiles;
+
+    ObjectSpawner* m_objectSpawner = nullptr;
 };

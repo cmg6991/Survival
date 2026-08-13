@@ -1,169 +1,341 @@
+#include "ObjectSpawner.h"
+#include "MainScene.h"
+#include "TileMap.h"
+#include "TileManager.h"
+#include "ResourceManager.h"
+#include "GameObject.h"
+#include "Transform.h"
+#include "SpriteRenderer.h"
+#include "Interactable.h"
+#include "ResourceNode.h"
+#include "pch.h"
+
+ObjectSpawner::ObjectSpawner() : m_scene(nullptr), m_resourceManager(nullptr), m_tileMap(nullptr)
+{
+    random_device rd;
+    m_random.seed(rd());
+}
+
+ObjectSpawner::~ObjectSpawner()
+{
+}
+
+void ObjectSpawner::Init(MainScene* scene, ResourceManager* resourceManager, TileMap* tileMap)
+{
+    m_scene = scene;
+    m_resourceManager = resourceManager;
+    m_tileMap = tileMap;
+}
+
+void ObjectSpawner::SpawnChunk(int startX,int startY,int chunkWidth,int chunkHeight)
+{
+    OutputDebugStringA("=== ObjectSpawner::SpawnChunk ===\n");
+    uniform_real_distribution<float> chance(0.0f, 1.0f);
+
+    for (int y = startY;y < startY + chunkHeight;y++)
+    {
+        for (int x = startX;x < startX + chunkWidth;x++)
+        {
+            // 이미 생성된 자리면 무시
+            string key =to_string(x) + "_" +to_string(y);
+
+            if (m_spawnedPositions.find(key)
+                != m_spawnedPositions.end())
+            {
+                continue;
+            }
+
+            // 물/도로 등에는 생성하지 않음
+            if (!CanSpawnAt(x, y))
+                continue;
+
+            float value = chance(m_random);
+
+            if (value < 0.05f)
+            {
+                SpawnObject(SpawnObjectType::Tree,x,y);
+            }
+            else if (value < 0.08f)
+            {
+                SpawnObject(SpawnObjectType::Rock,x,y);
+            }
+            else if (value < 0.13f)
+            {
+                SpawnObject(SpawnObjectType::Grass,x,y);
+            }
+
+            m_spawnedPositions.insert(key);
+        }
+    }
+
+
+}
+
+bool ObjectSpawner::CanSpawnAt(int x, int y) const
+{
+    if (m_tileMap == nullptr)
+        return false;
+
+    TileType tile =m_tileMap->GetTile(x, y);
+
+    // 도로에는 생성하지 않음
+    if (tile == TileType::ROAD)
+        return false;
+
+    // 물에는 생성하지 않음
+    if (tile == TileType::WATER)
+        return false;
+
+    // 기본 땅에만 생성
+    if (tile != TileType::FLOOR)
+        return false;
+
+    return true;
+}
+
+void ObjectSpawner::SpawnObject(SpawnObjectType type, int x, int y)
+{
+    switch (type)
+    {
+    case SpawnObjectType::Tree:
+        SpawnTree(x, y);
+        break;
+
+    case SpawnObjectType::Rock:
+        SpawnRock(x, y);
+        break;
+
+    case SpawnObjectType::Grass:
+        SpawnGrass(x, y);
+        break;
+    }
+}
+
+void ObjectSpawner::SpawnTree(int x, int y)
+{
+    //MathEngine::Vector2 world =TileManager::GetInstance().TileToScreen({(float)x,(float)y});
+
+    GameObject* obj =m_scene->CreateObject("Tree");
+
+    Transform* tr =new Transform();
+
+    //tr->SetPosition(world);
+    tr->SetPosition({ (float)x, (float)y });
+    SpriteRenderer* sprite =new SpriteRenderer("Item_Wood");
+
+    sprite->SetResourceManager(m_resourceManager);
+ ///*   sprite->SetPivot(64,120 );
+
+ //   sprite->SetScale(0.5f);*/
+
+    Interactable* interact =new Interactable(InteractType::Tree);
+
+    ResourceNode* resource =new ResourceNode("Item_Wood",1,3);
+
+
+    obj->SetElement(tr,ElementType::Transform);
+
+    obj->SetElement(sprite, ElementType::SpriteRenderer);
+    obj->SetElement(interact,ElementType::Interactable);
+    obj->SetElement(resource,ElementType::ResourceNode);
+    obj->Init();
+}
+
+void ObjectSpawner::SpawnRock(int x, int y)
+{
+    //MathEngine::Vector2 world =TileManager::GetInstance().TileToScreen({(float)x,(float)y});
+
+    GameObject* obj =m_scene->CreateObject("Rock");
+
+
+    Transform* tr =new Transform();
+    //tr->SetPosition(world);
+    tr->SetPosition({ (float)x, (float)y });
+    SpriteRenderer* sprite =new SpriteRenderer("Item_Stone");
+
+    sprite->SetResourceManager(m_resourceManager);
+
+    //sprite->SetPivot(32,32);
+
+    //sprite->SetScale(0.5f);
+
+    Interactable* interact =new Interactable(InteractType::Rock);
+    ResourceNode* resource =new ResourceNode("Item_Stone",1,2);
+
+    obj->SetElement(tr,ElementType::Transform);
+    obj->SetElement(sprite,ElementType::SpriteRenderer);
+    obj->SetElement(interact,ElementType::Interactable);
+    obj->SetElement(resource,ElementType::ResourceNode);
+    obj->Init();
+}
+
+void ObjectSpawner::SpawnGrass(int x, int y)
+{
+   // MathEngine::Vector2 world =TileManager::GetInstance().TileToScreen({(float)x,(float)y});
+
+    GameObject* obj =m_scene->CreateObject("GrassObject");
+    Transform* tr =new Transform();
+    //tr->SetPosition(world);
+    tr->SetPosition({ (float)x, (float)y });
+    SpriteRenderer* sprite =new SpriteRenderer("Grass");
+
+    sprite->SetResourceManager(m_resourceManager);
+    //sprite->SetPivot(16,32);
+    //sprite->SetScale(0.5f);
+    obj->SetElement(tr,ElementType::Transform);
+    obj->SetElement(sprite, ElementType::SpriteRenderer);
+    obj->Init();
+}
+
+
 //#include "ObjectSpawner.h"
-//#include "TileMap.h"
+//
 //#include "MainScene.h"
+//#include "TileMap.h"
+//#include "ResourceManager.h"
+//#include "CollisionManager.h"
 //
-//namespace
+//#include "GameObject.h"
+//#include "Transform.h"
+//#include "SpriteRenderer.h"
+//
+//ObjectSpawner::ObjectSpawner()
+//    : m_scene(nullptr)
+//    , m_tileMap(nullptr)
+//    , m_resourceManager(nullptr)
+//    , m_collisionManager(nullptr)
 //{
-//    long long MakeChunkKey(int x,int y)
-//    {
-//        return(static_cast<long long>(x) << 32)^static_cast<unsigned int>(y);
-//    }
-//}
-//
-//void ObjectSpawner::Init(TileMap* tileMap, MainScene* scene)
-//{
-//    m_tileMap = tileMap;
-//    m_scene = scene;
-//
-//    std::random_device rd;
-//
+//    random_device rd;
 //    m_rng.seed(rd());
 //}
 //
-//void ObjectSpawner::GenerateChunk(int chunkX,int chunkY)
+//ObjectSpawner::~ObjectSpawner()
 //{
-//    if (IsChunkGenerated(chunkX,chunkY))
+//}
+//
+//void ObjectSpawner::Init(
+//    MainScene* scene,
+//    TileMap* tileMap,
+//    ResourceManager* resourceManager,
+//    CollisionManager* collisionManager)
+//{
+//    m_scene = scene;
+//    m_tileMap = tileMap;
+//    m_resourceManager = resourceManager;
+//    m_collisionManager = collisionManager;
+//}
+//void ObjectSpawner::SpawnTree(float x, float y)
+//{
+//    if (m_scene == nullptr)
+//        return;
+//
+//    GameObject* obj =
+//        m_scene->CreateObject("Tree");
+//
+//    Transform* tr = new Transform();
+//    tr->SetPosition({ x, y });
+//
+//    SpriteRenderer* sprite =
+//        new SpriteRenderer("Item_Wood");
+//
+//    sprite->SetResourceManager(
+//        m_resourceManager
+//    );
+//
+//    obj->SetElement(
+//        tr,
+//        ElementType::Transform
+//    );
+//
+//    obj->SetElement(
+//        sprite,
+//        ElementType::SpriteRenderer
+//    );
+//
+//    obj->Init();
+//}
+//void ObjectSpawner::SpawnRock(float x, float y)
+//{
+//    if (m_scene == nullptr)
+//        return;
+//
+//    GameObject* obj =
+//        m_scene->CreateObject("Rock");
+//
+//    Transform* tr = new Transform();
+//    tr->SetPosition({ x, y });
+//
+//    SpriteRenderer* sprite =
+//        new SpriteRenderer("Item_Stone");
+//
+//    sprite->SetResourceManager(
+//        m_resourceManager
+//    );
+//
+//    obj->SetElement(
+//        tr,
+//        ElementType::Transform
+//    );
+//
+//    obj->SetElement(
+//        sprite,
+//        ElementType::SpriteRenderer
+//    );
+//
+//    obj->Init();
+//}
+//void ObjectSpawner::SpawnChunk(
+//    int chunkX,
+//    int chunkY)
+//{
+//    string chunkId =
+//        to_string(chunkX) +
+//        "_" +
+//        to_string(chunkY);
+//
+//    // 이미 생성한 청크면 다시 생성하지 않음
+//    if (m_spawnedChunks.find(chunkId)
+//        != m_spawnedChunks.end())
 //    {
 //        return;
 //    }
 //
-//    m_generatedChunks.insert(MakeChunkKey(chunkX,chunkY));
+//    m_spawnedChunks.insert(chunkId);
+//
 //    const int CHUNK_SIZE = 16;
-//    // Chunk 안에서 몇 개의 위치를 검사할지
-//    const int ATTEMPTS = 30;
 //
-//    std::uniform_int_distribution<int> randomTile(0, CHUNK_SIZE - 1);
-//    std::uniform_real_distribution<float> randomChance(0.0f, 1.0f);
+//    int startX =
+//        chunkX * CHUNK_SIZE;
 //
-//    for (int i = 0;i < ATTEMPTS;i++)
-//    {
-//        int localX =randomTile(m_rng);
-//        int localY =randomTile(m_rng);
-//        int worldX =chunkX * CHUNK_SIZE+ localX;
-//        int worldY =chunkY * CHUNK_SIZE+ localY;
+//    int startY =
+//        chunkY * CHUNK_SIZE;
 //
-//        if (!CanSpawnAt(worldX,worldY))
-//        {
-//            continue;
-//        }
+//    // =====================================
+//    // 테스트용
+//    // =====================================
 //
-//        float chance = randomChance(m_rng);
+//    SpawnTree(
+//        startX + 3.0f,
+//        startY + 3.0f
+//    );
 //
-//        if (chance < 0.25f)
-//        {
-//            SpawnObject(SpawnObjectType::DecorationTree,worldX,worldY
-//            );
-//        }
-//        else if (chance < 0.40f)
-//        {
-//            SpawnObject(SpawnObjectType::DecorationRock,worldX,worldY);
-//        }
+//    SpawnTree(
+//        startX + 7.0f,
+//        startY + 5.0f
+//    );
 //
-//        else if (chance < 0.65f)
-//        {
-//            SpawnObject(SpawnObjectType::Grass,worldX,worldY);
-//        }
+//    SpawnTree(
+//        startX + 12.0f,
+//        startY + 8.0f
+//    );
 //
-//        else if (chance < 0.80f)
-//        {
-//            SpawnObject(SpawnObjectType::ResourceTree,worldX,worldY);
-//        }
-//        else
-//        {
-//            SpawnObject(SpawnObjectType::ResourceRock,worldX,worldY);
-//        }
-//    }
-//}
+//    SpawnRock(
+//        startX + 5.0f,
+//        startY + 10.0f
+//    );
 //
-//void ObjectSpawner::SpawnObject(SpawnObjectType type, int tileX, int tileY)
-//{
-//    //i/*f (m_scene == nullptr)
-//    //    return;
-//
-//
-//    //MathEngine::Vector2 worldPos =
-//    //    TileManager::GetInstance()
-//    //    .TileToScreen(
-//    //        {
-//    //            static_cast<float>(tileX),
-//    //            static_cast<float>(tileY)
-//    //        }
-//    //    );
-//
-//
-//    //float x = worldPos.x;
-//    //float y = worldPos.y;
-//
-//
-//    //switch (type)
-//    //{
-//    //case SpawnObjectType::DecorationTree:
-//
-//    //    m_scene->CreateDecorationTree(
-//    //        x,
-//    //        y
-//    //    );
-//
-//    //    break;
-//
-//
-//    //case SpawnObjectType::DecorationRock:
-//
-//    //    m_scene->CreateDecorationRock(
-//    //        x,
-//    //        y
-//    //    );
-//
-//    //    break;
-//
-//
-//    //case SpawnObjectType::Grass:
-//
-//    //    m_scene->CreateDecorationGrass(
-//    //        x,
-//    //        y
-//    //    );
-//
-//    //    break;
-//
-//
-//    //case SpawnObjectType::ResourceTree:
-//
-//    //    m_scene->CreateResourceTree(
-//    //        x,
-//    //        y
-//    //    );
-//
-//    //    break;
-//
-//
-//    //case SpawnObjectType::ResourceRock:
-//
-//    //    m_scene->CreateResourceRock(
-//    //        x,
-//    //        y
-//    //    );
-//
-//    //    break;
-//    //}*/
-//}
-//
-//bool ObjectSpawner::CanSpawnAt(int tileX, int tileY)
-//{
-//    if (m_tileMap == nullptr)
-//        return false;
-//
-//    TileType tile =m_tileMap->GetTile(tileX,tileY);
-//    // 물
-//    if (tile == TileType::WATER)
-//        return false;
-//    // 도로
-//    if (tile == TileType::ROAD)
-//        return false;
-//    // 일반 바닥만 허용
-//    if (tile != TileType::FLOOR)
-//        return false;
-//
-//
-//    return true;
+//    SpawnRock(
+//        startX + 10.0f,
+//        startY + 12.0f
+//    );
 //}

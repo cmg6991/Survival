@@ -14,6 +14,7 @@
 #include "TileManager.h"
 #include "FlowFieldManager.h"
 #include "MonsterSpawner.h"
+#include "ObjectSpawner.h"
 
 #include "Player.h"
 #include "GameObject.h"
@@ -32,6 +33,7 @@
 #include "Fire.h"
 #include <utility>
 #include <memory>
+#include "ResourceNode.h"
 
 #include "MiniMap.h"
 
@@ -67,7 +69,7 @@ wstring UTF8ToWString(const string& str)
 MainScene::MainScene(ResourceManager* resourceManager)
 	: Scene("MainScene"), m_tileMap(nullptr),
 	m_resourceManager(resourceManager), m_collisionManager(nullptr),
-	m_player(nullptr), m_physicsWorld(nullptr), m_monsterSpawner(nullptr), m_miniMap(nullptr)
+	m_player(nullptr), m_physicsWorld(nullptr), m_monsterSpawner(nullptr), m_miniMap(nullptr),m_objectSpawner(nullptr)
 {
 	m_tileMap = new TileMap;
 	m_collisionManager = new CollisionManager;
@@ -75,6 +77,7 @@ MainScene::MainScene(ResourceManager* resourceManager)
 	m_physicsWorld->AddSolver(new PhysicsEngine::ImpulseSolver());
 	m_physicsWorld->AddSolver(new PhysicsEngine::PositionSolver());
 	m_monsterSpawner = new MonsterSpawner();
+	m_objectSpawner = new ObjectSpawner();
 }
 
 MainScene::~MainScene()
@@ -83,13 +86,23 @@ MainScene::~MainScene()
 
 void MainScene::Init()
 {
-	m_tileMap->Init();
 	m_resourceManager->Init();
 	EnvironmentManager::GetInstance().Init();
 	for (const ImageData& img : DataManager::GetInstance().GetImageList())
 	{
 		m_resourceManager->AddImage(img.keyString, img.path);
 	}
+
+	m_tileMap->Init();
+	m_objectSpawner->Init(
+		this,
+		m_resourceManager,
+		m_tileMap
+	);
+	m_tileMap->SetObjectSpawner(
+		m_objectSpawner
+	);
+
 
 	GameObject* playerObj = new GameObject("Player");
 
@@ -137,6 +150,7 @@ void MainScene::Init()
 	const vector<string>& mapData = DataManager::GetInstance().GetMap("MainMap");
 	LoadMap(mapData);
 	m_tileMap->LoadFromMapData(mapData);
+
 
 	TimeManager::GetInstance().Init();
 
@@ -387,6 +401,11 @@ void MainScene::Update(float deltaTime)
 			{
 				UIManager::GetInstance().SetInteractionHint(L"[E] 나무를 넣어 불 붙이기");
 			}
+		}
+		else if (nearby->GetInteractType() == InteractType::Tree ||
+			nearby->GetInteractType() == InteractType::Rock)
+		{
+			UIManager::GetInstance().SetInteractionHint(L"[E] 채집하기");
 		}
 		else
 		{
@@ -985,8 +1004,51 @@ void MainScene::OnInteract(Interactable* target)
 		UIManager::GetInstance().OpenCrafting(InteractType::CampFire);
 		return;
 	}
+	if (target->GetInteractType() == InteractType::Tree ||
+		target->GetInteractType() == InteractType::Rock)
+	{
+		GameObject* obj = target->GetGameObject();
+		ResourceNode* resource =
+			static_cast<ResourceNode*>(obj->GetElement(ElementType::ResourceNode));
+
+		HarvestResource(resource);
+		return;
+	}
 
 	UIManager::GetInstance().OpenCrafting(target->GetInteractType());
+}
+
+void MainScene::HarvestResource(ResourceNode* resource)
+{
+	if (resource == nullptr)
+		return;
+
+	GameObject* obj = resource->GetGameObject();
+	if (obj == nullptr)
+		return;
+
+	// 랜덤 수량 뽑기 (min ~ max)
+	static mt19937 rng(random_device{}());
+	uniform_int_distribution<int> dist(resource->GetMinCount(), resource->GetMaxCount());
+	int count = dist(rng);
+
+	// 인벤토리에 바로 자동 획득
+	int added = m_player->GetInventory()->AddItem(resource->GetItemId(), count);
+
+	if (added > 0)
+	{
+		wchar_t buf[128];
+		swprintf_s(buf, L"%s 획득 (%d개)", UTF8ToWString(resource->GetItemId()).c_str(), added);
+		UIManager::GetInstance().ShowMessage(buf);
+	}
+	else
+	{
+		UIManager::GetInstance().ShowMessage(L"인벤토리가 가득 찼습니다");
+		return; // 인벤토리 꽉 찼으면 나무/돌 그대로 남겨둠 (선택사항)
+	}
+
+	// 오브젝트(나무/돌) 제거
+	DeletePObject(obj);
 }
 
 GameObject* MainScene::AcquireBullet()

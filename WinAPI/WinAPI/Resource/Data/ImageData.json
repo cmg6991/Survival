@@ -122,5 +122,9 @@
 	{
 		"key": "WaterTile",
 		"path": "Resource/Tile_WaterAuto_matched.png"
+	},
+	{
+		"key": "Grass",
+		"path": "Resource/grass_detail(6).png"
 	}
 ]

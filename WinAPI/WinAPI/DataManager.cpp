@@ -126,6 +126,7 @@ ImageKey DataManager::StringToImageKey(const string& str) const
 	if (str == "Fire")  return ImageKey::Fire;
 	if (str == "GrassRoad")  return ImageKey::GrassRoad;
 	if (str == "WaterTile")  return ImageKey::WaterTile;
+	if (str == "Grass")  return ImageKey::Grass;
 
 	return ImageKey::Count;
 }

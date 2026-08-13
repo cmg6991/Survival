@@ -15,6 +15,8 @@ class Interactable;
 class ColliderComponent;
 class MonsterSpawner;
 class MiniMap;
+class ObjectSpawner;
+class ResourceNode;
 
 class MainScene : public Scene
 {
@@ -57,6 +59,7 @@ private:
 	string MakeItemPositionId(float x, float y);
 	Interactable* FindNearByInteractable();
 	void OnInteract(Interactable* target);
+	void HarvestResource(ResourceNode* resource);
 
 	//총알 오브젝트 풀
 	GameObject* AcquireBullet();
@@ -89,6 +92,7 @@ private:
 	Player* m_player;
 	FlowFieldManager m_flowField;
 	MonsterSpawner* m_monsterSpawner;
+	ObjectSpawner* m_objectSpawner;
 
 	unordered_map<char, function<void(float, float)>> m_tileHandlers;
 	unordered_set<string> m_collectedItemsIds;

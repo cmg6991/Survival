@@ -2,5 +2,7 @@
 enum class InteractType
 {
 	CampFire,
-	WorkTable
+	WorkTable,
+	Tree,
+	Rock
 };

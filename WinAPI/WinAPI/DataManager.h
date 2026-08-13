@@ -36,6 +36,7 @@ enum class ImageKey
 	Fire,
 	GrassRoad,
 	WaterTile,
+	Grass,
 	Count
 };
 

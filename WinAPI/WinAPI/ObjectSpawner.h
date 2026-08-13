@@ -3,43 +3,82 @@
 
 class TileMap;
 class MainScene;
+class ResourceManager;
 
 enum class SpawnObjectType
 {
-	DecorationTree,
-	DecorationRock,
-	Grass,
-
-	ResourceTree,
-	ResourceRock,
-	End
-};
-
-struct SpawnRule
-{
-	SpawnObjectType type;
-	float probability;
-	int minCount;
-	int maxCount;
+	Tree,
+	Rock,
+	Grass
 };
 
 class ObjectSpawner
 {
 public:
-	void Init(TileMap* tileMap, MainScene* scene);
-	void GenerateChunk(int chunkX, int chunkY);
+    ObjectSpawner();
+    ~ObjectSpawner();
+
+    void Init(MainScene* scene, ResourceManager* resourceManager, TileMap* tileMap);
+    void SpawnChunk(int startX, int startY, int chunkWidth, int chunkHeight);
 
 private:
-	void SpawnObject(SpawnObjectType type, int tileX, int tileY);
-	bool CanSpawnAt(int tileX, int tileY);
-	bool IsChunkGenerated(int chunkX, int chunkY) const;
+    bool CanSpawnAt(int x,int y) const;
+
+    void SpawnObject(SpawnObjectType type,int x,int y);
+
+    void SpawnTree(int x,int y);
+
+    void SpawnRock(int x,int y);
+
+    void SpawnGrass(int x,int y);
 
 private:
-	TileMap* m_tileMap = nullptr;
-	MainScene* m_scene = nullptr;
+    MainScene* m_scene;
+    ResourceManager* m_resourceManager;
+    TileMap* m_tileMap;
 
-	std::unordered_set<long long> m_generatedChunks;
+    mt19937 m_random;
 
-	std::mt19937 m_rng;
+    // 중복 생성 방지
+    unordered_set<string> m_spawnedPositions;
+
 };
 
+
+//class MainScene;
+//class TileMap;
+//class ResourceManager;
+//class CollisionManager;
+//
+//class ObjectSpawner
+//{
+//public:
+//    ObjectSpawner();
+//    ~ObjectSpawner();
+//
+//    void Init(
+//        MainScene* scene,
+//        TileMap* tileMap,
+//        ResourceManager* resourceManager,
+//        CollisionManager* collisionManager
+//    );
+//
+//    // 청크 하나가 생성될 때 호출
+//    void SpawnChunk(int chunkX, int chunkY);
+//
+//private:
+//
+//    void SpawnTree(float x, float y);
+//    void SpawnRock(float x, float y);
+//
+//private:
+//
+//    MainScene* m_scene;
+//    TileMap* m_tileMap;
+//    ResourceManager* m_resourceManager;
+//    CollisionManager* m_collisionManager;
+//
+//    unordered_set<string> m_spawnedChunks;
+//
+//    mt19937 m_rng;
+//};

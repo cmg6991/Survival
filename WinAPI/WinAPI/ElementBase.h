@@ -17,6 +17,7 @@ enum class ElementType
 	Bullet,
 	Monster,
 	AttackHitBox,
+	ResourceNode,
 	Collider,
 	End
 };

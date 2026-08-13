@@ -121,17 +121,33 @@ void TileMap::LoadFromMapData(const vector<string>& mapData)
             }
         }
     }
-    int maxChunkX =(m_width - 1) / CHUNK_SIZE;
+    //int maxChunkX = (m_width - 1) / CHUNK_SIZE;
+    //int maxChunkY = (m_height - 1) / CHUNK_SIZE;
 
-    int maxChunkY =(m_height - 1) / CHUNK_SIZE;
+    //for (int cy = 0; cy <= maxChunkY; cy++)
+    //{
+    //    for (int cx = 0; cx <= maxChunkX; cx++)
+    //    {
+    //        int startX = cx * CHUNK_SIZE;
+    //        int startY = cy * CHUNK_SIZE;
 
-    for (int cy = 0;cy <= maxChunkY;cy++)
-    {
-        for (int cx = 0;cx <= maxChunkX;cx++)
-        {
-            m_generatedChunks.insert(MakeChunkKey(cx, cy));
-        }
-    }
+    //        // 맵 데이터 영역은 이미 타일이 존재하므로
+    //        // 여기서는 오브젝트만 생성
+    //        if (m_objectSpawner != nullptr)
+    //        {
+    //            m_objectSpawner->SpawnChunk(
+    //                startX,
+    //                startY,
+    //                CHUNK_SIZE,
+    //                CHUNK_SIZE
+    //            );
+    //        }
+
+    //        m_generatedChunks.insert(
+    //            MakeChunkKey(cx, cy)
+    //        );
+    //    }
+    //}
 }
 
 void TileMap::Render(ID2D1DeviceContext* context,ResourceManager* resourceManager)
@@ -402,12 +418,14 @@ void TileMap::EnsureChunk(int chunkX, int chunkY)
     if (IsChunkGenerated(chunkX, chunkY))
         return;
 
-    GenerateChunk(chunkX, chunkY);
     m_generatedChunks.insert(MakeChunkKey(chunkX, chunkY));
+    GenerateChunk(chunkX, chunkY);
 }
 
 void TileMap::GenerateChunk(int chunkX, int chunkY)
 {
+    int startX = chunkX * CHUNK_SIZE;
+    int startY = chunkY * CHUNK_SIZE;
     for (int localY = 0;localY < CHUNK_SIZE;localY++)
     {
         for (int localX = 0;localX < CHUNK_SIZE;localX++)
@@ -418,6 +436,10 @@ void TileMap::GenerateChunk(int chunkX, int chunkY)
 
             m_proceduralTiles[MakeTileKey(worldX,worldY)] = type;
         }
+    }
+    if (m_objectSpawner != nullptr)
+    {
+        m_objectSpawner->SpawnChunk(startX, startY, CHUNK_SIZE, CHUNK_SIZE);
     }
 }
 
