@@ -30,6 +30,8 @@ struct AutotileConfig
 
 class TileMap
 {
+public :
+    static constexpr int CHUNK_SIZE = 16;
 public:
     void Init();
 
