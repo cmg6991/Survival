@@ -134,7 +134,9 @@ void MainScene::Init()
 	}
 
 	RegisterTileHandlers();
-	LoadMap(DataManager::GetInstance().GetMap("MainMap")); // 이 시점에 m_collectedItemIds를 참조해서 이미 주운 자리는 스킵
+	const vector<string>& mapData = DataManager::GetInstance().GetMap("MainMap");
+	LoadMap(mapData);
+	m_tileMap->LoadFromMapData(mapData);
 
 	TimeManager::GetInstance().Init();
 
@@ -502,13 +504,13 @@ void MainScene::RegisterTileHandlers()
 
 	m_tileHandlers['C'] = [this](float x, float y)
 		{
-			CreateInteractable(x, y, InteractType::CampFire, "CampFire");
+			CreateInteractableFire(x, y, InteractType::CampFire, "CampFire");
 		};
 
 	// 작업대
 	m_tileHandlers['T'] = [this](float x, float y)
 		{
-			CreateInteractable(x, y, InteractType::WorkTable, "WorkTable");
+			CreateInteractableWorkTable(x, y, InteractType::WorkTable, "WorkTable");
 		};
 	// 앞으로 몬스터/아이템/모닥불 등이 생기면 여기 계속 추가하면 됨
 	// 예시 (해당 클래스들 만드신 뒤 주석 해제):
@@ -538,15 +540,42 @@ void MainScene::CreateWall(float x, float y, const string& imageName)
 	m_collisionManager->SetBlocked(x, y, true);
 }
 
-void MainScene::CreateInteractable(float x, float y, InteractType type, const string& imageKey)
+void MainScene::CreateInteractableWorkTable(float x, float y, InteractType type, const string& imageKey)
 {
-	GameObject* obj = CreateObject("Interactable");
+	GameObject* obj = CreateObject("WorkTable");
 
 	Transform* tr = new Transform();
 	tr->SetPosition({ x, y });
 
 	SpriteRenderer* sprite = new SpriteRenderer(imageKey);
-	sprite->SetPivot(128, 300);
+	sprite->SetPivot(50, 50);
+	sprite->SetResourceManager(m_resourceManager);
+	sprite->SetScale(2.f);
+	Interactable* interact = new Interactable(type);
+
+	ColliderComponent* collider = new ColliderComponent();
+	collider->SetPhysicsWorld(m_physicsWorld);
+	collider->SetSyncMode(ColliderSyncMode::PhysicsDrivesTransform);
+
+	obj->SetElement(tr, ElementType::Transform);
+	obj->SetElement(sprite, ElementType::SpriteRenderer);
+	obj->SetElement(interact, ElementType::Interactable);
+	obj->SetElement(collider, ElementType::Collider);
+	obj->Init();
+
+	auto rectCollider = std::make_unique<PhysicsEngine::RectangleCollider>(0.f, 0.f, 2.f,2.f);
+	collider->SetCollider(std::move(rectCollider), 1.0f, true);
+}
+
+void MainScene::CreateInteractableFire(float x, float y, InteractType type, const string& imageKey)
+{
+	GameObject* obj = CreateObject("CampFire");
+
+	Transform* tr = new Transform();
+	tr->SetPosition({ x, y });
+
+	SpriteRenderer* sprite = new SpriteRenderer(imageKey);
+	sprite->SetPivot(128,300);
 	sprite->SetResourceManager(m_resourceManager);
 	sprite->SetScale(0.5f);
 	Interactable* interact = new Interactable(type);
@@ -563,20 +592,20 @@ void MainScene::CreateInteractable(float x, float y, InteractType type, const st
 	{
 		CampFire* campFire = new CampFire();
 		obj->SetElement(campFire, ElementType::CampFire);
-		GameObject* fireObj =CreateObject("Fire");
+		GameObject* fireObj = CreateObject("Fire");
 
-		Transform* fireTr =new Transform();
-		fireTr->SetPosition({ x, y });
-		SpriteRenderer* fireSprite =new SpriteRenderer("Fire");
+		Transform* fireTr = new Transform();
+		fireTr->SetPosition({ x+0.5f, y + 0.5f });
+		SpriteRenderer* fireSprite = new SpriteRenderer("Fire");
 		fireSprite->SetPivot(16, 32);
 		fireSprite->SetResourceManager(m_resourceManager);
-		fireSprite->SetScale(3.f);
+		fireSprite->SetScale(4.f);
 
-		Animator* fireAnimator =new Animator();
-		Fire* fire =new Fire();
-		fireObj->SetElement(fireTr,ElementType::Transform);
-		fireObj->SetElement(fireSprite,ElementType::SpriteRenderer);
-		fireObj->SetElement(fireAnimator,ElementType::Animator);
+		Animator* fireAnimator = new Animator();
+		Fire* fire = new Fire();
+		fireObj->SetElement(fireTr, ElementType::Transform);
+		fireObj->SetElement(fireSprite, ElementType::SpriteRenderer);
+		fireObj->SetElement(fireAnimator, ElementType::Animator);
 		fireObj->SetElement(fire, ElementType::Fire);
 		// Fire 초기화
 		fireObj->Init();
@@ -587,9 +616,8 @@ void MainScene::CreateInteractable(float x, float y, InteractType type, const st
 
 	obj->Init();
 
-	auto rectCollider = std::make_unique<PhysicsEngine::RectangleCollider>(0.5f, 0.5f, 1.f,1.f);
-	collider->SetCollider(std::move(rectCollider), 1.0f, false);
-	//m_collisionManager->SetBlocked((int)x, (int)y, true);
+	auto rectCollider = std::make_unique<PhysicsEngine::RectangleCollider>(0.5f, 0.5f, 1.f, 1.f);
+	collider->SetCollider(std::move(rectCollider), 1.0f, true);
 }
 
 void MainScene::CreateItemPickUp(float x, float y, const string& itemId, int count)
@@ -1194,31 +1222,70 @@ void MainScene::ClearAllMonsters()
 
 void MainScene::LoadMap(const vector<string>& mapData)
 {
+	//for (int y = 0; y < (int)mapData.size(); y++)
+	//{
+	//	const string& row = mapData[y];
+	//	for (int x = 0; x < (int)row.size(); x++)
+	//	{
+	//		char tile = row[x];
+
+	//		// 벽은 방향 판별이 필요해서 예외로 별도 처리
+	//		if (tile == '#')
+	//		{
+	//			string wallImage = "Wall_N";
+	//			if (y == 0) wallImage = "Wall_N";
+	//			else if (y == (int)mapData.size() - 1) wallImage = "Wall_S";
+	//			else if (x == 0) wallImage = "Wall_W";
+	//			else if (x == (int)row.size() - 1) wallImage = "Wall_E";
+
+	//			CreateWall((float)x, (float)y, wallImage);
+	//			continue;
+	//		}
+
+	//		// 그 외 문자는 등록된 핸들러로 위임
+	//		auto it = m_tileHandlers.find(tile);
+	//		if (it != m_tileHandlers.end())
+	//		{
+	//			it->second((float)x, (float)y);
+	//		}
+	//	}
+	//}
 	for (int y = 0; y < (int)mapData.size(); y++)
 	{
 		const string& row = mapData[y];
+
 		for (int x = 0; x < (int)row.size(); x++)
 		{
 			char tile = row[x];
 
-			// 벽은 방향 판별이 필요해서 예외로 별도 처리
+			// ========================================
+			// Wall
+			// ========================================
 			if (tile == '#')
 			{
-				string wallImage = "Wall_N";
-				if (y == 0) wallImage = "Wall_N";
-				else if (y == (int)mapData.size() - 1) wallImage = "Wall_S";
-				else if (x == 0) wallImage = "Wall_W";
-				else if (x == (int)row.size() - 1) wallImage = "Wall_E";
+				string wallImage =
+					GetWallImage(mapData, x, y);
 
-				CreateWall((float)x, (float)y, wallImage);
+				CreateWall(
+					(float)x,
+					(float)y,
+					wallImage
+				);
+
 				continue;
 			}
 
-			// 그 외 문자는 등록된 핸들러로 위임
+			// ========================================
+			// 기타 타일
+			// ========================================
 			auto it = m_tileHandlers.find(tile);
+
 			if (it != m_tileHandlers.end())
 			{
-				it->second((float)x, (float)y);
+				it->second(
+					(float)x,
+					(float)y
+				);
 			}
 		}
 	}
@@ -1464,4 +1531,34 @@ string MainScene::InteractTypeToStationString(InteractType type)
 	case InteractType::WorkTable: return "WorkTable";
 	}
 	return "";
+}
+
+bool MainScene::IsWall(const vector<string>& mapData, int x, int y)
+{
+	if (y < 0 || y >= (int)mapData.size())
+		return false;
+
+	if (x < 0 || x >= (int)mapData[y].size())
+		return false;
+
+	return mapData[y][x] == '#';
+}
+
+string MainScene::GetWallImage(const vector<string>& mapData, int x, int y)
+{
+	bool north = IsWall(mapData, x, y - 1);
+	bool east = IsWall(mapData, x + 1, y);
+	bool south = IsWall(mapData, x, y + 1);
+	bool west = IsWall(mapData, x - 1, y);
+	if (east || west)
+	{
+		return "Wall_E";
+	}
+
+	if (north || south)
+	{
+		return "Wall_N";
+	}
+
+	return "Wall_E";
 }

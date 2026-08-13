@@ -35,6 +35,7 @@ enum class ImageKey
 	SideBarUI,
 	Fire,
 	GrassRoad,
+	WaterTile,
 	Count
 };
 

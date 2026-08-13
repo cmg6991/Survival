@@ -96,33 +96,40 @@ void MiniMap::RenderObjects(ID2D1DeviceContext* context, const std::vector<GameO
 			continue;
 
 		D2D1_COLOR_F color;
-		float radius = 3.0f;
+		float radius = 4.0f;
+		bool isWall = false;
 		bool shouldDraw = true;
 
 		if (obj->GetElement(ElementType::Wall) != nullptr)
 		{
-			color = D2D1::ColorF(D2D1::ColorF::Gray);
-			radius = m_tileWidth * 0.5f; // 벽은 타일 하나 크기만큼
+			color = D2D1::ColorF(0xB0B0B0, 1.0f);
+			radius = 7.0f;
+			isWall = true;
 		}
 		else if (obj->GetElement(ElementType::Monster) != nullptr)
 		{
-			Monster* monster = static_cast<Monster*>(obj->GetElement(ElementType::Monster));
+			Monster* monster =static_cast<Monster*>(obj->GetElement(ElementType::Monster));
 			if (monster != nullptr && monster->IsDead())
 			{
-				shouldDraw = false; // 죽은 몬스터는 표시 안 함
+				shouldDraw = false;
 			}
-			color = D2D1::ColorF(D2D1::ColorF::Orange);
-			radius = 6.0f;
+
+			color = D2D1::ColorF(0xFF7A00, 1.0f);
+			radius = 7.0f;
 		}
 		else if (obj->GetElement(ElementType::Interactable) != nullptr)
 		{
-			color = D2D1::ColorF(D2D1::ColorF::Yellow);
-			radius = 6.0;
+			color = D2D1::ColorF(0xFFD900,1.0f);
+
+			radius = 8.0f;
 		}
 		else if (obj->GetElement(ElementType::ItemPickUp) != nullptr)
 		{
-			color = D2D1::ColorF(D2D1::ColorF::Cyan);
-			radius = 4.5f;
+			color = D2D1::ColorF(
+				0x00FFFF,   // Cyan
+				1.0f);
+
+			radius = 6.0f;
 		}
 		else
 		{
@@ -135,31 +142,107 @@ void MiniMap::RenderObjects(ID2D1DeviceContext* context, const std::vector<GameO
 
 		MathEngine::Vector2 pos = TileToMiniMap(tr->GetPostion().x, tr->GetPostion().y);
 
-		ID2D1SolidColorBrush* brush = nullptr;
-		context->CreateSolidColorBrush(color, &brush);
+		ID2D1SolidColorBrush* outlineBrush = nullptr;
 
-		if (brush != nullptr)
+		context->CreateSolidColorBrush(
+			D2D1::ColorF(
+				D2D1::ColorF::Black,
+				1.0f),
+			&outlineBrush);
+
+		// ========================================
+		// 본체 브러시
+		// ========================================
+		ID2D1SolidColorBrush* objectBrush = nullptr;
+
+		context->CreateSolidColorBrush(
+			color,
+			&objectBrush);
+
+		if (objectBrush == nullptr)
 		{
-			if (obj->GetElement(ElementType::Wall) != nullptr)
+			if (outlineBrush != nullptr)
+				outlineBrush->Release();
+
+			continue;
+		}
+
+		// ========================================
+		// 벽
+		// ========================================
+		if (isWall)
+		{
+			float halfSize = 7.0f;
+
+			D2D1_RECT_F rect =
+				D2D1::RectF(
+					pos.x - halfSize,
+					pos.y - halfSize,
+					pos.x + halfSize,
+					pos.y + halfSize);
+
+			// 검은 외곽선
+			if (outlineBrush != nullptr)
 			{
-				// 벽은 사각형으로
-				D2D1_RECT_F rect = D2D1::RectF(
-					pos.x - radius, pos.y - radius,
-					pos.x + radius, pos.y + radius);
-				context->FillRectangle(rect, brush);
-			}
-			else
-			{
-				// 나머지는 점으로
-				D2D1_ELLIPSE ellipse = D2D1::Ellipse(
-					D2D1::Point2F(pos.x, pos.y), radius, radius);
-				context->FillEllipse(ellipse, brush);
+				context->FillRectangle(
+					D2D1::RectF(
+						rect.left - 1.5f,
+						rect.top - 1.5f,
+						rect.right + 1.5f,
+						rect.bottom + 1.5f),
+					outlineBrush);
 			}
 
-			brush->Release();
+			// 밝은 벽 본체
+			context->FillRectangle(
+				rect,
+				objectBrush);
 		}
-		context->SetAntialiasMode(D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
+
+		// ========================================
+		// 나머지 오브젝트
+		// ========================================
+		else
+		{
+			// 검은 외곽 원
+			if (outlineBrush != nullptr)
+			{
+				D2D1_ELLIPSE outline =
+					D2D1::Ellipse(
+						D2D1::Point2F(
+							pos.x,
+							pos.y),
+						radius + 2.0f,
+						radius + 2.0f);
+
+				context->FillEllipse(
+					outline,
+					outlineBrush);
+			}
+
+			// 오브젝트 본체
+			D2D1_ELLIPSE ellipse =
+				D2D1::Ellipse(
+					D2D1::Point2F(
+						pos.x,
+						pos.y),
+					radius,
+					radius);
+
+			context->FillEllipse(
+				ellipse,
+				objectBrush);
+		}
+
+		if (objectBrush != nullptr)
+			objectBrush->Release();
+
+		if (outlineBrush != nullptr)
+			outlineBrush->Release();
 	}
+
+	context->SetAntialiasMode(
+		D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
 }
 
 void MiniMap::Render(ID2D1DeviceContext* context, const std::vector<GameObject*>& objects)
@@ -221,8 +304,6 @@ void MiniMap::Render(ID2D1DeviceContext* context, const std::vector<GameObject*>
 
 	// ---- 여기서부터 마름모 안쪽에 그려질 내용 ----
 
-	RenderObjects(context, objects);
-
 	MathEngine::Vector2 playerPos = m_player->GetTransform()->GetPostion();
 
 	// 미니맵에 표시할 범위(타일 단위)를 미니맵 크기 기준으로 계산
@@ -263,6 +344,8 @@ void MiniMap::Render(ID2D1DeviceContext* context, const std::vector<GameObject*>
 
 		groundBrush->Release();
 	}
+
+	RenderObjects(context, objects);
 
 	// 플레이어 위치 (항상 미니맵 중앙)
 	MathEngine::Vector2 playerMiniPos = TileToMiniMap(playerPos.x, playerPos.y);

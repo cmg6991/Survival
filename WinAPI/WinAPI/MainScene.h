@@ -39,7 +39,8 @@ private:
 	void RegisterTileHandlers();
 
 	void CreateWall(float x, float y, const string& imageName);
-	void CreateInteractable(float x, float y, InteractType type, const string& imageKey);
+	void CreateInteractableWorkTable(float x, float y, InteractType type, const string& imageKey);
+	void CreateInteractableFire(float x, float y, InteractType type, const string& imageKey);
 	void CreateItemPickUp(float x, float y, const string& itemId, int count);
 	void CreateBullet(const MathEngine::Vector2& startPos, const MathEngine::Vector2& dir,
 		int damage, float speed, float range);
@@ -79,6 +80,8 @@ private:
 
 private:
 	string InteractTypeToStationString(InteractType type);
+	bool IsWall(const vector<string>& mapData, int x, int y);
+	string GetWallImage(const vector<string>& mapData, int x, int y);
 private:
 	TileMap* m_tileMap;
 	ResourceManager* m_resourceManager;

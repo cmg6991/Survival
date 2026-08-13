@@ -45,27 +45,27 @@
 	},
 	{
 		"key": "Wall_E",
-		"path": "Resource/castle_wall(7).png"
+		"path": "Resource/prop_fence_wood_a.png"
 	},
 	{
 		"key": "Wall_N",
-		"path": "Resource/castle_wall(7).png"
+		"path": "Resource/prop_fence_wood_b.png"
 	},
 	{
 		"key": "Wall_S",
-		"path": "Resource/castle_wall(7).png"
+		"path": "Resource/prop_fence_wood_a.png"
 	},
 	{
 		"key": "Wall_W",
-		"path": "Resource/castle_wall(7).png"
+		"path": "Resource/prop_fence_wood_b.png"
 	},
 	{
 		"key": "Tile_W",
-		"path": "Resource/stoneTile03.png"
+		"path": "Resource/grass.png"
 	},
 	{
 		"key": "WorkTable",
-		"path": "Resource/building_corner_S.png"
+		"path": "Resource/bld_construction_b.png"
 	},
 	{
 		"key": "CampFire",
@@ -118,5 +118,9 @@
 	{
 		"key": "GrassRoad",
 		"path": "Resource/grass_road.png"
+	},
+	{
+		"key": "WaterTile",
+		"path": "Resource/Tile_WaterAuto_matched.png"
 	}
 ]
