@@ -5,10 +5,23 @@
 #include "TileManager.h"
 #include "pch.h"
 
+long long MakeChunkKey(int chunkX,int chunkY)
+{
+    return(static_cast<long long>(chunkX) << 32) ^static_cast<unsigned int>(chunkY);
+}
+long long MakeTileKey(int x,int y)
+{
+    return(static_cast<long long>(x) << 32) ^static_cast<unsigned int>(y);
+}
+
 void TileMap::Init()
 {
     m_width = 0;
     m_height = 0;
+
+    m_tiles.clear();
+    m_proceduralTiles.clear();
+    m_generatedChunks.clear();
 
     m_tileImageKeys[TileType::FLOOR] = "Tile_W";
     m_tileImageKeys[TileType::GRASS] = "Tile_W";
@@ -105,6 +118,17 @@ void TileMap::LoadFromMapData(const vector<string>& mapData)
                 m_tiles[y][x] = TileType::FLOOR;
                 break;
             }
+        }
+    }
+    int maxChunkX =(m_width - 1) / CHUNK_SIZE;
+
+    int maxChunkY =(m_height - 1) / CHUNK_SIZE;
+
+    for (int cy = 0;cy <= maxChunkY;cy++)
+    {
+        for (int cx = 0;cx <= maxChunkX;cx++)
+        {
+            m_generatedChunks.insert(MakeChunkKey(cx, cy));
         }
     }
 }
@@ -313,15 +337,40 @@ bool TileMap::IsType(int x, int y, TileType type) const
 
 TileType TileMap::GetTile(int x, int y) const
 {
-    if (y < 0 || y >= m_height || x < 0 || x >= m_width)
-        return TileType::FLOOR;
-    return m_tiles[y][x];
+    if (x >= 0 &&x < m_width &&y >= 0 &&y < m_height)
+    {
+        return m_tiles[y][x];
+    }
+
+    int chunkX =WorldToChunk(x);
+    int chunkY =WorldToChunk(y);
+
+    if (!IsChunkGenerated(chunkX,chunkY))
+    {
+        const_cast<TileMap*>(this)->EnsureChunk(chunkX,chunkY);
+    }
+
+    auto it =m_proceduralTiles.find(MakeTileKey(x,y));
+    if (it != m_proceduralTiles.end())
+    {
+        return it->second;
+    }
+    return TileType::FLOOR;
+
 }
 
 void TileMap::SetTile(int x, int y, TileType type)
 {
-    if (y < 0 || y >= m_height || x < 0 || x >= m_width) return;
-    m_tiles[y][x] = type;
+    if (x >= 0 &&x < m_width &&y >= 0 &&y < m_height)
+    {
+        m_tiles[y][x] = type;
+        return;
+    }
+    // 자동 Chunk 영역
+    int chunkX =WorldToChunk(x);
+    int chunkY =WorldToChunk(y);
+    EnsureChunk(chunkX,chunkY);
+    m_proceduralTiles[MakeTileKey(x, y)] = type;
 }
 
 int TileMap::GetPathBitmask(int x, int y,TileType type) const
@@ -346,6 +395,108 @@ D2D1_RECT_F TileMap::GetSrcRect(const AutotileConfig& config, int bitmask) const
     float top = (float)(coord.row * config.tileH);
     return D2D1::RectF(left, top, left + config.tileW, top + config.tileH);
 }
+
+void TileMap::EnsureChunk(int chunkX, int chunkY)
+{
+    if (IsChunkGenerated(chunkX, chunkY))
+        return;
+
+    GenerateChunk(chunkX, chunkY);
+    m_generatedChunks.insert(MakeChunkKey(chunkX, chunkY));
+}
+
+void TileMap::GenerateChunk(int chunkX, int chunkY)
+{
+    for (int localY = 0;localY < CHUNK_SIZE;localY++)
+    {
+        for (int localX = 0;localX < CHUNK_SIZE;localX++)
+        {
+            int worldX =chunkX * CHUNK_SIZE+ localX;
+            int worldY =chunkY * CHUNK_SIZE+ localY;
+            TileType type =GenerateProceduralTile(worldX,worldY,chunkX,chunkY);
+
+            m_proceduralTiles[MakeTileKey(worldX,worldY)] = type;
+        }
+    }
+}
+
+bool TileMap::IsChunkGenerated(int chunkX, int chunkY) const
+{
+    return m_generatedChunks.find(MakeChunkKey(chunkX, chunkY)) != m_generatedChunks.end();
+}
+
+int TileMap::WorldToChunk(int worldCoord) const
+{
+    if (worldCoord >= 0)
+        return worldCoord / CHUNK_SIZE;
+
+    return(worldCoord - CHUNK_SIZE + 1)/ CHUNK_SIZE;
+}
+
+int TileMap::WorldToLocal(int worldCoord) const
+{
+    int local =worldCoord % CHUNK_SIZE;
+    if (local < 0)
+        local += CHUNK_SIZE;
+    return local;
+}
+
+TileType TileMap::GenerateProceduralTile(int worldX, int worldY, int chunkX, int chunkY)
+{
+    if (IsProceduralRoad(worldX,worldY))
+    {
+        return TileType::ROAD;
+    }
+    return TileType::FLOOR;
+}
+
+bool TileMap::IsProceduralRoad(int worldX, int worldY) const
+{
+    const int ROAD_INTERVAL = 32;
+    const int ROAD_WIDTH = 2;
+
+    int xMod =((worldX % ROAD_INTERVAL)+ ROAD_INTERVAL)% ROAD_INTERVAL;
+
+    bool verticalRoad =xMod < ROAD_WIDTH;
+
+    int yMod =((worldY % ROAD_INTERVAL)+ ROAD_INTERVAL)% ROAD_INTERVAL;
+    bool horizontalRoad =yMod < ROAD_WIDTH;
+    return verticalRoad ||horizontalRoad;
+}
+
+bool TileMap::IsRoadConnectionFromMap(int worldX, int worldY) const
+{
+    if (worldX >= m_width)
+    {
+        if (worldX == m_width)
+        {
+            for (int y = 0;y < m_height;y++)
+            {
+                if (y == worldY &&GetTile(m_width - 1,y) == TileType::ROAD)
+                {
+                    return true;
+                }
+            }
+        }
+    }
+
+
+    if (worldY >= m_height)
+    {
+        if (worldY == m_height)
+        {
+            for (int x = 0; x < m_width; x++)
+            {
+                if (x == worldX && GetTile(x, m_height - 1) == TileType::ROAD)
+                {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
 
 //D2D1_RECT_F TileMap::GetPathSrcRec(int bitmask) const
 //{

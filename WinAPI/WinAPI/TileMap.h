@@ -48,6 +48,19 @@ private:
     D2D1_RECT_F GetSrcRect(const AutotileConfig& config, int bitmask) const;
 
 private:
+    //chunk
+    void EnsureChunk(int chunkX, int chunkY);
+    void GenerateChunk(int chunkX,int chunkY);
+    bool IsChunkGenerated(int chunkX,int chunkY) const;
+    int WorldToChunk(int worldCoord) const;
+    int WorldToLocal(int worldCoord) const;
+
+    //tile
+    TileType GenerateProceduralTile(int worldX,int worldY,int chunkX,int chunkY);
+    bool IsProceduralRoad(int worldX,int worldY) const;
+    bool IsRoadConnectionFromMap(int worldX,int worldY) const;
+
+private:
     vector<vector<TileType>> m_tiles;
 
     int m_width;
@@ -55,4 +68,8 @@ private:
 
     unordered_map<TileType, string> m_tileImageKeys;       // 일반 바닥 타입 -> 이미지 키
     unordered_map<TileType, AutotileConfig> m_autotiles;
+
+    // 자동 생성된 Chunk
+    unordered_set<long long> m_generatedChunks;
+    unordered_map<long long, TileType> m_proceduralTiles;
 };
