@@ -46,6 +46,9 @@ void Player::FixedUpdate()
 
 void Player::Update(float deltaTime)
 {
+    if (m_isDying)
+        return;
+
     if (m_isAttacking)
     {
         m_attackTimer -= deltaTime;
@@ -332,14 +335,24 @@ void Player::ClearShield()
 
 void Player::TakeDamage(int rawDamage)
 {
-    if (IsDead()) return;
+    if (m_isDying)
+        return;
 
     int finalDamage = max(0, rawDamage - GetDefense());
     m_currentHealth -= finalDamage;
-    if (m_currentHealth < 0)
+    if (m_currentHealth <= 0)
+    {
         m_currentHealth = 0;
 
+        m_isDying = true;
 
+        OutputDebugStringW(L"PLAYER DIE ANIMATION!\n");
+        m_sprite->ChangeImage("Player_Die");
+
+        // ★ Die 애니메이션
+        m_animator->SetAnimation(6, 4, 0.15f);
+        return;
+    }
     wchar_t buffer[128];
     swprintf_s(
         buffer,

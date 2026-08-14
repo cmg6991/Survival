@@ -8,6 +8,7 @@ enum class ImageKey
 	Player_Idle,
 	Player_Walk,
 	Player_Attack,
+	Player_Die,
 	Player_Gun_Idle,
 	Player_Gun_Walk,
 	Player_Gun_Attack,

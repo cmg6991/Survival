@@ -98,6 +98,7 @@ ImageKey DataManager::StringToImageKey(const string& str) const
 	if (str == "Player_Idle")  return ImageKey::Player_Idle;
 	if (str == "Player_Walk")  return ImageKey::Player_Walk;
 	if (str == "Player_Attack")  return ImageKey::Player_Attack;
+	if (str == "Player_Die")  return ImageKey::Player_Die;
 	if (str == "Player_Gun_Idle")  return ImageKey::Player_Gun_Idle;
 	if (str == "Player_Gun_Walk") return ImageKey::Player_Gun_Walk;
 	if (str == "Player_Gun_Attack") return ImageKey::Player_Gun_Attack;

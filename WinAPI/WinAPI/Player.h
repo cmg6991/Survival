@@ -106,6 +106,7 @@ private:
 private:
 	int m_maxHealth = 100;
 	int m_currentHealth = 100;
+	bool m_isDying = false;
 
 	//PhysicsEngine::PhysicsWorld* m_physicsWorld = nullptr;
 	//PhysicsEngine::Object* m_selfPhysicsObject = nullptr;

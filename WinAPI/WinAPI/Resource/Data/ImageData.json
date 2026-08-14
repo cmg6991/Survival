@@ -12,6 +12,10 @@
 		"path": "Resource/Animation/Character0_Swing.png"
 	},
 	{
+		"key": "Player_Die",
+		"path": "Resource/Animation/Character0_Die.png"
+	},
+	{
 		"key": "Player_Gun_Idle",
 		"path": "Resource/Animation/Character0_IdleHoldingTool.png"
 	},
