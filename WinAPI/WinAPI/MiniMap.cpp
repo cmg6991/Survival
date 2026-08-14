@@ -245,6 +245,322 @@ void MiniMap::RenderObjects(ID2D1DeviceContext* context, const std::vector<GameO
 		D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
 }
 
+void MiniMap::RenderTargetArrows(ID2D1DeviceContext* context, const std::vector<GameObject*>& objects)
+{
+	if (context == nullptr)
+		return;
+
+	if (m_player == nullptr)
+		return;
+
+
+	Transform* playerTransform =m_player->GetTransform();
+
+	if (playerTransform == nullptr)
+		return;
+
+
+	MathEngine::Vector2 playerPos = playerTransform->GetPostion();
+	GameObject* nearestWorkTable = nullptr;
+	float nearestWorkTableDistance =FLT_MAX;
+	GameObject* nearestCampFire = nullptr;
+	float nearestCampFireDistance =FLT_MAX;
+
+	for (GameObject* obj : objects)
+	{
+		if (obj == nullptr)
+			continue;
+
+		if (!obj->GetActive())
+			continue;
+
+
+		Interactable* interactable =static_cast<Interactable*>(obj->GetElement(ElementType::Interactable));
+
+		if (interactable == nullptr)
+			continue;
+
+		Transform* transform =static_cast<Transform*>(obj->GetElement(ElementType::Transform));
+		if (transform == nullptr)
+			continue;
+
+		MathEngine::Vector2 targetPos =transform->GetPostion();
+
+		float dx =targetPos.x - playerPos.x;
+		float dy = targetPos.y - playerPos.y;
+		float distance =std::sqrt(dx * dx +dy * dy);
+
+		InteractType type =interactable->GetInteractType();
+
+		if (type == InteractType::WorkTable)
+		{
+			if (distance < nearestWorkTableDistance)
+			{
+				nearestWorkTableDistance = distance;
+				nearestWorkTable =obj;
+			}
+		}
+
+		else if (type == InteractType::CampFire)
+		{
+			if (distance < nearestCampFireDistance)
+			{
+				nearestCampFireDistance = distance;
+				nearestCampFire =obj;
+			}
+		}
+	}
+
+	if (nearestWorkTable != nullptr)
+	{
+		Transform* targetTransform =static_cast<Transform*>(nearestWorkTable->GetElement(ElementType::Transform));
+		if (targetTransform != nullptr)
+		{
+			MathEngine::Vector2 targetPos =targetTransform->GetPostion();
+			MathEngine::Vector2 direction =
+			{
+				targetPos.x - playerPos.x,
+				targetPos.y - playerPos.y
+			};
+
+			float mapX =direction.x * m_tileWidth;
+			float mapY =direction.y * m_tileHeight;
+
+
+			bool outside =
+				(
+					std::fabs(mapX) / (m_width * 0.5f) +
+					std::fabs(mapY) / (m_height * 0.5f)
+					>= 1.0f
+					);
+			RenderTargetArrow(context,direction,D2D1::ColorF(0xFFD900,1.0f),outside);
+		}
+	}
+
+
+	if (nearestCampFire != nullptr)
+	{
+		Transform* targetTransform =static_cast<Transform*>(nearestCampFire->GetElement(ElementType::Transform));
+
+		if (targetTransform != nullptr)
+		{
+			MathEngine::Vector2 targetPos =targetTransform->GetPostion();
+
+			MathEngine::Vector2 direction =
+			{
+				targetPos.x - playerPos.x,
+				targetPos.y - playerPos.y
+			};
+
+			float mapX =direction.x * m_tileWidth;
+			float mapY =direction.y * m_tileHeight;
+
+			bool outside =
+				(
+					std::fabs(mapX) / (m_width * 0.5f) +
+					std::fabs(mapY) / (m_height * 0.5f)
+					>= 1.0f
+					);
+			RenderTargetArrow(
+				context,
+				direction,
+				D2D1::ColorF(
+					0xFF6A00,
+					1.0f),
+				outside);
+		}
+	}
+}
+
+void MiniMap::RenderTargetArrow(ID2D1DeviceContext* context, const MathEngine::Vector2& direction, const D2D1::ColorF& color, bool outside)
+{
+	if (context == nullptr)
+		return;
+
+
+	float dx = direction.x;
+	float dy = direction.y;
+
+
+	float length =sqrt(dx * dx +dy * dy);
+
+	if (length < 0.001f)
+		return;
+	// 정규화
+	dx /= length;
+	dy /= length;
+
+	MathEngine::Vector2 center;
+
+	if (outside)
+	{
+		center =GetDiamondEdgePosition(direction);
+	}
+	else
+	{
+		float distance = 24.0f;
+
+		center =
+		{
+			m_centerX + dx * distance,
+			m_centerY + dy * distance
+		};
+	}
+
+	float arrowLength = 16.0f;
+	float arrowWidth = 7.0f;
+
+
+	// 화살표 끝
+	MathEngine::Vector2 tip =
+	{
+		center.x + dx * arrowLength,
+		center.y + dy * arrowLength
+	};
+
+	float px = -dy;
+	float py = dx;
+
+	MathEngine::Vector2 left =
+	{
+		center.x
+			- dx * arrowLength * 0.45f
+			+ px * arrowWidth,
+
+		center.y
+			- dy * arrowLength * 0.45f
+			+ py * arrowWidth
+	};
+
+	MathEngine::Vector2 right =
+	{
+		center.x
+			- dx * arrowLength * 0.45f
+			- px * arrowWidth,
+
+		center.y
+			- dy * arrowLength * 0.45f
+			- py * arrowWidth
+	};
+
+	ID2D1SolidColorBrush* outlineBrush = nullptr;
+
+	context->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black,1.0f),&outlineBrush);
+	ID2D1SolidColorBrush* arrowBrush = nullptr;
+	context->CreateSolidColorBrush(color,&arrowBrush);
+
+	if (arrowBrush == nullptr)
+	{
+		if (outlineBrush != nullptr)
+			outlineBrush->Release();
+
+		return;
+	}
+
+	if (outlineBrush != nullptr)
+	{
+		context->DrawLine(
+			D2D1::Point2F(
+				tip.x,
+				tip.y),
+			D2D1::Point2F(
+				left.x,
+				left.y),
+			outlineBrush,
+			5.0f);
+
+		context->DrawLine(
+			D2D1::Point2F(
+				left.x,
+				left.y),
+			D2D1::Point2F(
+				right.x,
+				right.y),
+			outlineBrush,
+			5.0f);
+
+		context->DrawLine(
+			D2D1::Point2F(
+				right.x,
+				right.y),
+			D2D1::Point2F(
+				tip.x,
+				tip.y),
+			outlineBrush,
+			5.0f);
+	}
+	context->DrawLine(
+		D2D1::Point2F(
+			tip.x,
+			tip.y),
+		D2D1::Point2F(
+			left.x,
+			left.y),
+		arrowBrush,
+		3.0f);
+
+	context->DrawLine(
+		D2D1::Point2F(
+			left.x,
+			left.y),
+		D2D1::Point2F(
+			right.x,
+			right.y),
+		arrowBrush,
+		3.0f);
+
+	context->DrawLine(
+		D2D1::Point2F(
+			right.x,
+			right.y),
+		D2D1::Point2F(
+			tip.x,
+			tip.y),
+		arrowBrush,
+		3.0f);
+	arrowBrush->Release();
+
+	if (outlineBrush != nullptr)
+		outlineBrush->Release();
+}
+
+MathEngine::Vector2 MiniMap::GetDiamondEdgePosition(const MathEngine::Vector2& direction) const
+{
+	float dx = direction.x;
+	float dy = direction.y;
+
+	float halfWidth = m_width * 0.5f;
+	float halfHeight = m_height * 0.5f;
+
+	float absX = std::fabs(dx);
+	float absY = std::fabs(dy);
+
+	if (absX < 0.0001f &&
+		absY < 0.0001f)
+	{
+		return {m_centerX,m_centerY};
+	}
+
+	float scale =1.0f /(absX / halfWidth +absY / halfHeight);
+	float edgeX = dx * scale;
+	float edgeY = dy * scale;
+
+	float inset = 10.0f;
+
+	float length =sqrt(edgeX * edgeX +edgeY * edgeY);
+
+	if (length > 0.0001f)
+	{
+		edgeX -= (edgeX / length) * inset;
+		edgeY -=(edgeY / length) * inset;
+	}
+	return
+	{
+		m_centerX + edgeX,
+		m_centerY + edgeY
+	};
+}
+
 void MiniMap::Render(ID2D1DeviceContext* context, const std::vector<GameObject*>& objects)
 {
 	if (context == nullptr)
@@ -346,6 +662,10 @@ void MiniMap::Render(ID2D1DeviceContext* context, const std::vector<GameObject*>
 	}
 
 	RenderObjects(context, objects);
+
+	// 작업대 / 모닥불 방향 화살표
+	RenderTargetArrows(context, objects);
+
 
 	// 플레이어 위치 (항상 미니맵 중앙)
 	MathEngine::Vector2 playerMiniPos = TileToMiniMap(playerPos.x, playerPos.y);

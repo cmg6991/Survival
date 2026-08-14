@@ -66,6 +66,8 @@ public:
 	bool IsDead() const { return m_currentHealth <= 0;}
 	void TakeDamage(int rawDamage);
 
+	void Heal(int amount);
+
 	//void SetPhysicsWorld(PhysicsEngine::PhysicsWorld* world) { m_physicsWorld = world; }
 	//void SetSelfPhysicsObject(PhysicsEngine::Object* obj) { m_selfPhysicsObject = obj; }
 

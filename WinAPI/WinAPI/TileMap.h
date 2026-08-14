@@ -27,6 +27,7 @@ struct AutotileConfig
     int bitE = 2;
     int bitS = 4;
     int bitW = 8;
+    bool useDiagonalNeighbors = false;
 };
 
 class TileMap
@@ -39,7 +40,7 @@ public:
     void LoadFromMapData(const vector<string>& mapData);
     void Render(ID2D1DeviceContext* context, ResourceManager* resourceManager);
 
-
+    bool IsRoad(int x, int y) const;
     bool IsType(int x, int y, TileType type) const;
     TileType GetTile(int x, int y) const;
     void SetTile(int x, int y, TileType type);

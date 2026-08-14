@@ -27,9 +27,12 @@ void ObjectSpawner::Init(MainScene* scene, ResourceManager* resourceManager, Til
     m_tileMap = tileMap;
 }
 
-void ObjectSpawner::SpawnChunk(int startX,int startY,int chunkWidth,int chunkHeight)
+void ObjectSpawner::SpawnChunk(int chunkX,int chunkY,int chunkWidth,int chunkHeight)
 {
-    OutputDebugStringA("=== ObjectSpawner::SpawnChunk ===\n");
+    int startX = chunkX * chunkWidth;
+    int startY = chunkY * chunkHeight;
+
+    ChunkType chunkType = GetChunkType(chunkX, chunkY);
     uniform_real_distribution<float> chance(0.0f, 1.0f);
 
     for (int y = startY;y < startY + chunkHeight;y++)
@@ -51,24 +54,43 @@ void ObjectSpawner::SpawnChunk(int startX,int startY,int chunkWidth,int chunkHei
 
             float value = chance(m_random);
 
-            if (value < 0.05f)
+            switch (chunkType)
             {
-                SpawnObject(SpawnObjectType::Tree,x,y);
-            }
-            else if (value < 0.08f)
+            case ChunkType::GrassLand:
             {
-                SpawnObject(SpawnObjectType::Rock,x,y);
+                if (value < 0.04f)
+                {
+                    SpawnObject(SpawnObjectType::Tree, x, y);
+                }
+                else if (value < 0.02f)
+                {
+                    SpawnObject(SpawnObjectType::Rock, x, y);
+                }
+                else if (value < 0.13f)
+                {
+                    SpawnObject(SpawnObjectType::Grass, x, y);
+                }
+                break;
             }
-            else if (value < 0.13f)
-            {
-                SpawnObject(SpawnObjectType::Grass,x,y);
             }
+           
 
             m_spawnedPositions.insert(key);
         }
     }
+}
 
+ChunkType ObjectSpawner::GetChunkType(int chunkX, int chunkY) const
+{
+    unsigned int seed =
+        static_cast<unsigned int>(
+            chunkX * 73856093 ^
+            chunkY * 19349663
+            );
 
+    seed ^= 123456789u;
+
+    return static_cast<ChunkType>(seed % 3);
 }
 
 bool ObjectSpawner::CanSpawnAt(int x, int y) const
@@ -76,7 +98,19 @@ bool ObjectSpawner::CanSpawnAt(int x, int y) const
     if (m_tileMap == nullptr)
         return false;
 
+        //if (m_tileMap->IsRoad(x, y))
+        //return false;
+
     TileType tile =m_tileMap->GetTile(x, y);
+
+    for (int dy = -1; dy <= 1; dy++)
+    {
+        for (int dx = -1; dx <= 1; dx++)
+        {
+            if (m_tileMap->IsRoad(x + dx, y + dy))
+                return false;
+        }
+    }
 
     // 도로에는 생성하지 않음
     if (tile == TileType::ROAD)
@@ -126,12 +160,14 @@ void ObjectSpawner::SpawnTree(int x, int y)
     sprite->SetResourceManager(m_resourceManager);
  ///*   sprite->SetPivot(64,120 );
 
- //   sprite->SetScale(0.5f);*/
+    //sprite->SetScale(0.5f);
 
     Interactable* interact =new Interactable(InteractType::Tree);
 
     ResourceNode* resource =new ResourceNode("Item_Wood",1,3);
 
+    resource->AddBonusDrop("Item_Apple", 0.15f, 1, 2);
+    resource->AddBonusDrop("Item_Banana", 0.10f, 1, 2);
 
     obj->SetElement(tr,ElementType::Transform);
 
@@ -157,10 +193,12 @@ void ObjectSpawner::SpawnRock(int x, int y)
 
     //sprite->SetPivot(32,32);
 
-    //sprite->SetScale(0.5f);
+    sprite->SetScale(1.5f);
 
     Interactable* interact =new Interactable(InteractType::Rock);
     ResourceNode* resource =new ResourceNode("Item_Stone",1,2);
+
+    resource->AddBonusDrop("Item_Mushroom", 0.15f, 1, 2);
 
     obj->SetElement(tr,ElementType::Transform);
     obj->SetElement(sprite,ElementType::SpriteRenderer);
@@ -180,162 +218,10 @@ void ObjectSpawner::SpawnGrass(int x, int y)
     SpriteRenderer* sprite =new SpriteRenderer("Grass");
 
     sprite->SetResourceManager(m_resourceManager);
+    sprite->SetScale(2.f);
     //sprite->SetPivot(16,32);
     //sprite->SetScale(0.5f);
     obj->SetElement(tr,ElementType::Transform);
     obj->SetElement(sprite, ElementType::SpriteRenderer);
     obj->Init();
 }
-
-
-//#include "ObjectSpawner.h"
-//
-//#include "MainScene.h"
-//#include "TileMap.h"
-//#include "ResourceManager.h"
-//#include "CollisionManager.h"
-//
-//#include "GameObject.h"
-//#include "Transform.h"
-//#include "SpriteRenderer.h"
-//
-//ObjectSpawner::ObjectSpawner()
-//    : m_scene(nullptr)
-//    , m_tileMap(nullptr)
-//    , m_resourceManager(nullptr)
-//    , m_collisionManager(nullptr)
-//{
-//    random_device rd;
-//    m_rng.seed(rd());
-//}
-//
-//ObjectSpawner::~ObjectSpawner()
-//{
-//}
-//
-//void ObjectSpawner::Init(
-//    MainScene* scene,
-//    TileMap* tileMap,
-//    ResourceManager* resourceManager,
-//    CollisionManager* collisionManager)
-//{
-//    m_scene = scene;
-//    m_tileMap = tileMap;
-//    m_resourceManager = resourceManager;
-//    m_collisionManager = collisionManager;
-//}
-//void ObjectSpawner::SpawnTree(float x, float y)
-//{
-//    if (m_scene == nullptr)
-//        return;
-//
-//    GameObject* obj =
-//        m_scene->CreateObject("Tree");
-//
-//    Transform* tr = new Transform();
-//    tr->SetPosition({ x, y });
-//
-//    SpriteRenderer* sprite =
-//        new SpriteRenderer("Item_Wood");
-//
-//    sprite->SetResourceManager(
-//        m_resourceManager
-//    );
-//
-//    obj->SetElement(
-//        tr,
-//        ElementType::Transform
-//    );
-//
-//    obj->SetElement(
-//        sprite,
-//        ElementType::SpriteRenderer
-//    );
-//
-//    obj->Init();
-//}
-//void ObjectSpawner::SpawnRock(float x, float y)
-//{
-//    if (m_scene == nullptr)
-//        return;
-//
-//    GameObject* obj =
-//        m_scene->CreateObject("Rock");
-//
-//    Transform* tr = new Transform();
-//    tr->SetPosition({ x, y });
-//
-//    SpriteRenderer* sprite =
-//        new SpriteRenderer("Item_Stone");
-//
-//    sprite->SetResourceManager(
-//        m_resourceManager
-//    );
-//
-//    obj->SetElement(
-//        tr,
-//        ElementType::Transform
-//    );
-//
-//    obj->SetElement(
-//        sprite,
-//        ElementType::SpriteRenderer
-//    );
-//
-//    obj->Init();
-//}
-//void ObjectSpawner::SpawnChunk(
-//    int chunkX,
-//    int chunkY)
-//{
-//    string chunkId =
-//        to_string(chunkX) +
-//        "_" +
-//        to_string(chunkY);
-//
-//    // 이미 생성한 청크면 다시 생성하지 않음
-//    if (m_spawnedChunks.find(chunkId)
-//        != m_spawnedChunks.end())
-//    {
-//        return;
-//    }
-//
-//    m_spawnedChunks.insert(chunkId);
-//
-//    const int CHUNK_SIZE = 16;
-//
-//    int startX =
-//        chunkX * CHUNK_SIZE;
-//
-//    int startY =
-//        chunkY * CHUNK_SIZE;
-//
-//    // =====================================
-//    // 테스트용
-//    // =====================================
-//
-//    SpawnTree(
-//        startX + 3.0f,
-//        startY + 3.0f
-//    );
-//
-//    SpawnTree(
-//        startX + 7.0f,
-//        startY + 5.0f
-//    );
-//
-//    SpawnTree(
-//        startX + 12.0f,
-//        startY + 8.0f
-//    );
-//
-//    SpawnRock(
-//        startX + 5.0f,
-//        startY + 10.0f
-//    );
-//
-//    SpawnRock(
-//        startX + 10.0f,
-//        startY + 12.0f
-//    );
-//}

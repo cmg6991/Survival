@@ -46,6 +46,8 @@ public:
 	void SetOnShieldEquip(function<void(const string&)> callback) { m_onShieldEquip = callback; }
 	void SetOnShieldUnequip(function<void()> callback) { m_onShieldUnequip = callback; }
 
+	void SetOnItemUse(function<void(const string&)> callback) { m_onItemUse = callback; }
+
 	void ScrollCraftingRecipe(int direction);
 
 private:
@@ -80,6 +82,9 @@ private:
 	//방패
 	function<void(const string&)> m_onShieldEquip;
 	function<void()> m_onShieldUnequip;
+
+	//음식
+	function<void(const string&)> m_onItemUse;
 
 	float m_equipShieldSlotX = 750.0f;
 	float m_equipShieldSlotY=120.f;

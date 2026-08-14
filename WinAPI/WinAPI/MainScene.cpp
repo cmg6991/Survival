@@ -183,6 +183,10 @@ void MainScene::Init()
 		{
 			UnequipShieldFromPlayer();
 		});
+	UIManager::GetInstance().SetOnItemUse([this](const string& itemId)
+		{
+			UseItem(itemId);
+		});
 	m_flowField.Init(m_collisionManager, 100, 100);
 	m_monsterSpawner->Init(m_collisionManager, 100, 100);
 	//m_monsterSpawner->SetOnSpawnRequest([this](float x, float y)
@@ -457,8 +461,8 @@ void MainScene::Render(ID2D1DeviceContext* context)
 		RenderAimLine(context);
 	}
 
-	UIManager::GetInstance().Render(context);
 	EnvironmentManager::GetInstance().Render(context);
+	UIManager::GetInstance().Render(context);
 	if (m_miniMap)
 		m_miniMap->Render(context,m_objects);
 }
@@ -582,7 +586,7 @@ void MainScene::CreateInteractableWorkTable(float x, float y, InteractType type,
 	obj->SetElement(collider, ElementType::Collider);
 	obj->Init();
 
-	auto rectCollider = std::make_unique<PhysicsEngine::RectangleCollider>(0.f, 0.f, 2.f,2.f);
+	auto rectCollider = std::make_unique<PhysicsEngine::RectangleCollider>(0.f, 0.f, 1.5f,1.f);
 	collider->SetCollider(std::move(rectCollider), 1.0f, true);
 }
 
@@ -971,7 +975,7 @@ Interactable* MainScene::FindNearByInteractable()
 		if (interact == nullptr) continue;
 
 		Transform* tr = static_cast<Transform*>(obj->GetElement(ElementType::Transform));
-		if ((tr->GetPostion() - playerPos).Magnitude() < 1.5f)
+		if ((tr->GetPostion() - playerPos).Magnitude() < 1.3f)
 			return interact;
 	}
 	return nullptr;
@@ -1027,28 +1031,32 @@ void MainScene::HarvestResource(ResourceNode* resource)
 	if (obj == nullptr)
 		return;
 
-	// 랜덤 수량 뽑기 (min ~ max)
+	Transform* tr = static_cast<Transform*>(obj->GetElement(ElementType::Transform));
+	MathEngine::Vector2 pos = tr->GetPostion();
+
 	static mt19937 rng(random_device{}());
-	uniform_int_distribution<int> dist(resource->GetMinCount(), resource->GetMaxCount());
-	int count = dist(rng);
 
-	// 인벤토리에 바로 자동 획득
-	int added = m_player->GetInventory()->AddItem(resource->GetItemId(), count);
-
-	if (added > 0)
+	// 기본 아이템 드롭 (나무/돌 등)
+	if (!resource->GetItemId().empty())
 	{
-		wchar_t buf[128];
-		swprintf_s(buf, L"%s 획득 (%d개)", UTF8ToWString(resource->GetItemId()).c_str(), added);
-		UIManager::GetInstance().ShowMessage(buf);
-	}
-	else
-	{
-		UIManager::GetInstance().ShowMessage(L"인벤토리가 가득 찼습니다");
-		return; // 인벤토리 꽉 찼으면 나무/돌 그대로 남겨둠 (선택사항)
+		uniform_int_distribution<int> dist(resource->GetMinCount(), resource->GetMaxCount());
+		int count = dist(rng);
+		SpawnItemDrop(pos, resource->GetItemId(), count);   // ★ 바로 인벤토리 대신 드롭
 	}
 
-	// 오브젝트(나무/돌) 제거
-	DeletePObject(obj);
+	// 보너스 드롭 (사과/바나나/버섯 등)
+	uniform_real_distribution<float> chanceDist(0.0f, 1.0f);
+	for (const ResourceDrop& drop : resource->GetBonusDrops())
+	{
+		if (chanceDist(rng) > drop.chance)
+			continue;
+
+		uniform_int_distribution<int> bonusCountDist(drop.minCount, drop.maxCount);
+		int bonusCount = bonusCountDist(rng);
+		SpawnItemDrop(pos, drop.itemId, bonusCount);   // ★ 드롭
+	}
+
+	DeletePObject(obj);   // 나무/바위 자체는 그대로 사라짐
 }
 
 GameObject* MainScene::AcquireBullet()
@@ -1582,6 +1590,58 @@ void MainScene::UpdateMonsterSeparation()
 
 		monster->SetSeparation(separation);
 	}
+}
+
+void MainScene::UseItem(const string& itemId)
+{
+	const ItemData* itemData = DataManager::GetInstance().FindItem(itemId);
+	if (itemData == nullptr) return;
+
+	// 회복 아이템이 아니면 무시
+	if (itemData->healAmount <= 0) return;
+
+	if (!m_player->GetInventory()->HasEnough(itemId, 1))
+		return;
+
+	m_player->GetInventory()->RemoveItem(itemId, 1);
+	m_player->Heal(itemData->healAmount);
+
+	wchar_t buf[128];
+	swprintf_s(buf, L"%s 사용! 체력 +%d", UTF8ToWString(itemData->name).c_str(), itemData->healAmount);
+	UIManager::GetInstance().ShowMessage(buf);
+}
+
+void MainScene::SpawnItemDrop(const MathEngine::Vector2& centerPos, const string& itemId, int count)
+{
+	const ItemData* itemData = DataManager::GetInstance().FindItem(itemId);
+	if (itemData == nullptr) return;
+
+	// 드롭 위치를 살짝 랜덤으로 흩뿌려서 여러 개가 겹쳐 보이지 않게
+	static mt19937 rng(random_device{}());
+	uniform_real_distribution<float> offsetDist(-0.3f, 0.3f);
+
+	MathEngine::Vector2 dropPos =
+	{
+		centerPos.x + offsetDist(rng),
+		centerPos.y + offsetDist(rng)
+	};
+
+	GameObject* obj = CreateObject("ItemDrop");
+
+	Transform* tr = new Transform();
+	tr->SetPosition(dropPos);
+
+	SpriteRenderer* sprite = new SpriteRenderer(itemData->image);
+	sprite->SetResourceManager(m_resourceManager);
+	sprite->SetScale(0.4f);   // 채집물이니 살짝 작게 (원하는 크기로 조정)
+
+	ItemPickUp* pickup = new ItemPickUp(itemId, count);
+	// ★ posId를 굳이 세이브 추적용으로 안 씀 (임시 드롭이므로)
+
+	obj->SetElement(tr, ElementType::Transform);
+	obj->SetElement(sprite, ElementType::SpriteRenderer);
+	obj->SetElement(pickup, ElementType::ItemPickUp);
+	obj->Init();
 }
 
 

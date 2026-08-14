@@ -63,22 +63,23 @@ void TileMap::Init()
     waterConfig.bitE = 2;
     waterConfig.bitS = 4;
     waterConfig.bitW = 8;
-    waterConfig.bitmaskMap[0] = { 0, 1 };  // 0000: 고립
-    waterConfig.bitmaskMap[1] = { 2, 1 };  // 0001: N만 -> 원본에 없어 사방연결로 대체
-    waterConfig.bitmaskMap[2] = { 3, 0 };  // 0010: E만
-    waterConfig.bitmaskMap[3] = { 1, 0 };  // 0011: NE
-    waterConfig.bitmaskMap[4] = { 2, 1 };  // 0100: S만 -> 원본에 없어 사방연결로 대체
-    waterConfig.bitmaskMap[5] = { 2, 1 };  // 0101: NS직선 -> 원본에 없어 사방연결로 대체
-    waterConfig.bitmaskMap[6] = { 0, 0 };  // 0110: SE
+    waterConfig.useDiagonalNeighbors = true;
+    waterConfig.bitmaskMap[0] = { 3, 0 };  // 0000: 고립 (원본에 없어 N만 조각으로 대체)
+    waterConfig.bitmaskMap[1] = { 2, 0 };  // 0001: N만
+    waterConfig.bitmaskMap[2] = { 3, 1 };  // 0010: E만
+    waterConfig.bitmaskMap[3] = { 0, 1 };  // 0011: NE
+    waterConfig.bitmaskMap[4] = { 0, 0 };  // 0100: S만
+    waterConfig.bitmaskMap[5] = { 3, 2 };  // 0101: NS직선
+    waterConfig.bitmaskMap[6] = { 0, 3 };  // 0110: SE
     waterConfig.bitmaskMap[7] = { 1, 1 };  // 0111: NES(T)
-    waterConfig.bitmaskMap[8] = { 2, 1 };  // 1000: W만 -> 원본에 없어 사방연결로 대체
-    waterConfig.bitmaskMap[9] = { 0, 2 };  // 1001: NW
-    waterConfig.bitmaskMap[10] = { 2, 1 };  // 1010: EW직선 -> 원본에 없어 사방연결로 대체
-    waterConfig.bitmaskMap[11] = { 2, 1 };  // 1011: NEW(T) -> 원본에 없어 사방연결로 대체
-    waterConfig.bitmaskMap[12] = { 3, 3 };  // 1100: SW
-    waterConfig.bitmaskMap[13] = { 1, 2 };  // 1101: NSW(T)
-    waterConfig.bitmaskMap[14] = { 2, 0 };  // 1110: ESW(T)
-    waterConfig.bitmaskMap[15] = { 2, 1 };  // 1111: 사방연결
+    waterConfig.bitmaskMap[8] = { 3, 3 };  // 1000: W만
+    waterConfig.bitmaskMap[9] = { 2, 1 };  // 1001: NW
+    waterConfig.bitmaskMap[10] = { 1, 0 };  // 1010: EW직선
+    waterConfig.bitmaskMap[11] = { 2, 2 };  // 1011: NEW(T)
+    waterConfig.bitmaskMap[12] = { 2, 3 };  // 1100: SW
+    waterConfig.bitmaskMap[13] = { 1, 3 };  // 1101: NSW(T)
+    waterConfig.bitmaskMap[14] = { 0, 2 };  // 1110: ESW(T)
+    waterConfig.bitmaskMap[15] = { 1, 2 };  // 1111: 사방연결
     m_autotiles[TileType::WATER] = waterConfig;
 }
 
@@ -347,6 +348,23 @@ void TileMap::Render(ID2D1DeviceContext* context,ResourceManager* resourceManage
     }
 }
 
+bool TileMap::IsRoad(int x, int y) const
+{
+    // 맵 데이터에 있는 실제 ROAD
+    if (x >= 0 && x < m_width &&
+        y >= 0 && y < m_height)
+    {
+        if (m_tiles[y][x] == TileType::ROAD)
+            return true;
+    }
+
+    // 절차적으로 생성되는 ROAD
+    if (IsProceduralRoad(x, y))
+        return true;
+
+    return false;
+}
+
 bool TileMap::IsType(int x, int y, TileType type) const
 {
     return GetTile(x, y) == type;
@@ -354,7 +372,56 @@ bool TileMap::IsType(int x, int y, TileType type) const
 
 TileType TileMap::GetTile(int x, int y) const
 {
-    if (x >= 0 &&x < m_width &&y >= 0 &&y < m_height)
+    if (x >= 0 && x < m_width &&
+        y >= 0 && y < m_height)
+    {
+        TileType mapTile = m_tiles[y][x];
+
+        // 맵에 직접 지정된 ROAD
+        if (mapTile == TileType::ROAD)
+            return TileType::ROAD;
+
+        // 맵에 직접 지정된 WATER
+        if (mapTile == TileType::WATER)
+            return TileType::WATER;
+
+        // 기존 맵 영역에서도 절차적 도로를 적용
+        if (IsProceduralRoad(x, y))
+            return TileType::ROAD;
+
+        return mapTile;
+    }
+
+    // ==========================================
+    // 2. 청크 영역
+    // ==========================================
+    int chunkX = WorldToChunk(x);
+    int chunkY = WorldToChunk(y);
+
+    if (!IsChunkGenerated(chunkX, chunkY))
+    {
+        const_cast<TileMap*>(this)->EnsureChunk(chunkX, chunkY);
+    }
+
+    // ==========================================
+    // 3. 이미 생성된 청크의 실제 타일
+    // ==========================================
+    auto it = m_proceduralTiles.find(MakeTileKey(x, y));
+
+    if (it != m_proceduralTiles.end())
+    {
+        return it->second;
+    }
+
+    // ==========================================
+    // 4. 혹시 데이터가 없으면 절차적 도로 검사
+    // ==========================================
+    if (IsProceduralRoad(x, y))
+        return TileType::ROAD;
+
+    return TileType::FLOOR;
+    
+    /*if (x >= 0 &&x < m_width &&y >= 0 &&y < m_height)
     {
         return m_tiles[y][x];
     }
@@ -372,7 +439,7 @@ TileType TileMap::GetTile(int x, int y) const
     {
         return it->second;
     }
-    return TileType::FLOOR;
+    return TileType::FLOOR;*/
 
 }
 
@@ -392,7 +459,7 @@ void TileMap::SetTile(int x, int y, TileType type)
 
 int TileMap::GetPathBitmask(int x, int y,TileType type) const
 {
-    auto it = m_autotiles.find(type);
+    /*auto it = m_autotiles.find(type);
     if (it == m_autotiles.end()) return 0;
 
     const AutotileConfig& cfg = it->second;
@@ -402,6 +469,29 @@ int TileMap::GetPathBitmask(int x, int y,TileType type) const
     if (IsType(x + 1, y, type)) mask |= cfg.bitE;
     if (IsType(x, y + 1, type)) mask |= cfg.bitS;
     if (IsType(x - 1, y, type)) mask |= cfg.bitW;
+    return mask;*/
+    auto it = m_autotiles.find(type);
+    if (it == m_autotiles.end()) return 0;
+
+    const AutotileConfig& cfg = it->second;
+    int mask = 0;
+
+    if (cfg.useDiagonalNeighbors)
+    {
+        // 대각선 이웃 검사 (물처럼 꼭짓점 노치로 연결을 표현하는 타일용)
+        if (IsType(x - 1, y - 1, type)) mask |= cfg.bitN;   // 북서 -> 위쪽 꼭짓점
+        if (IsType(x + 1, y - 1, type)) mask |= cfg.bitE;   // 북동 -> 오른쪽 꼭짓점
+        if (IsType(x + 1, y + 1, type)) mask |= cfg.bitS;   // 남동 -> 아래쪽 꼭짓점
+        if (IsType(x - 1, y + 1, type)) mask |= cfg.bitW;   // 남서 -> 왼쪽 꼭짓점
+    }
+    else
+    {
+        // 기존 상하좌우 이웃 검사 (도로처럼 변으로 연결을 표현하는 타일용)
+        if (IsType(x, y - 1, type)) mask |= cfg.bitN;
+        if (IsType(x + 1, y, type)) mask |= cfg.bitE;
+        if (IsType(x, y + 1, type)) mask |= cfg.bitS;
+        if (IsType(x - 1, y, type)) mask |= cfg.bitW;
+    }
     return mask;
 }
 
@@ -432,6 +522,13 @@ void TileMap::GenerateChunk(int chunkX, int chunkY)
         {
             int worldX =chunkX * CHUNK_SIZE+ localX;
             int worldY =chunkY * CHUNK_SIZE+ localY;
+
+            if (worldX >= 0 && worldX < m_width &&
+                worldY >= 0 && worldY < m_height)
+            {
+                continue;
+            }
+
             TileType type =GenerateProceduralTile(worldX,worldY,chunkX,chunkY);
 
             m_proceduralTiles[MakeTileKey(worldX,worldY)] = type;
@@ -439,7 +536,7 @@ void TileMap::GenerateChunk(int chunkX, int chunkY)
     }
     if (m_objectSpawner != nullptr)
     {
-        m_objectSpawner->SpawnChunk(startX, startY, CHUNK_SIZE, CHUNK_SIZE);
+        m_objectSpawner->SpawnChunk(chunkX, chunkY, CHUNK_SIZE, CHUNK_SIZE);
     }
 }
 

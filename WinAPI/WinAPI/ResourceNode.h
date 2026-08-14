@@ -2,6 +2,14 @@
 #include "pch.h"
 #include "ElementBase.h"
 
+struct ResourceDrop
+{
+	string itemId;
+	float chance;      // 0.0 ~ 1.0
+	int minCount;
+	int maxCount;
+};
+
 class ResourceNode :public ElementBase
 {
 public:
@@ -11,28 +19,37 @@ public:
 	virtual void Init() override {}
 
 	virtual void FixedUpdate() override {}
-	virtual void Update(float deltaTime) override{}
-	virtual void LateUpdate() override{}
+	virtual void Update(float deltaTime) override {}
+	virtual void LateUpdate() override {}
 
-	virtual void PreRender() override{}
-	virtual void Render(ID2D1DeviceContext* context) override{}
-	virtual void PostRender(ID2D1DeviceContext* context) override{}
+	virtual void PreRender() override {}
+	virtual void Render(ID2D1DeviceContext* context) override {}
+	virtual void PostRender(ID2D1DeviceContext* context) override {}
 
-	virtual void Release() override{}
+	virtual void Release() override {}
 
 	virtual ElementType GetElementType() const override { return ElementType::ResourceNode; }
 
 	virtual GameObject* GetGameObject() const override { return m_gameObject; }
 	virtual void SetGameObject(GameObject* gameObject) override { m_gameObject = gameObject; }
 
-	const string& GetItemId() const { return m_itemId;}
+	const string& GetItemId() const { return m_itemId; }
 
-	int GetMinCount() const { return m_minCount;}
+	int GetMinCount() const { return m_minCount; }
 	int GetMaxCount() const { return m_maxCount; }
+
+
+	void AddBonusDrop(const string& itemId, float chance, int minCount, int maxCount)
+	{
+		m_bonusDrops.push_back({ itemId, chance, minCount, maxCount });
+	}
+	const vector<ResourceDrop>& GetBonusDrops() const { return m_bonusDrops; }
+
 
 private:
 	string m_itemId;
 	int m_minCount;
 	int m_maxCount;
+	vector<ResourceDrop> m_bonusDrops;
 };
 

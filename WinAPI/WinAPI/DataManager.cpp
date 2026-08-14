@@ -118,6 +118,11 @@ ImageKey DataManager::StringToImageKey(const string& str) const
 	if (str == "Item_Sword")  return ImageKey::Item_Sword;
 	if (str == "Item_Gun")  return ImageKey::Item_Gun;
 	if (str == "Item_Shield")  return ImageKey::Item_Shield;
+	if (str == "Item_Apple")  return ImageKey::Item_Apple;
+	if (str == "Item_Banana")  return ImageKey::Item_Banana;
+	if (str == "Item_Grape")  return ImageKey::Item_Grape;
+	if (str == "Item_Mushroom")  return ImageKey::Item_Mushroom;
+	if (str == "Item_Mushroom_Baked")  return ImageKey::Item_Mushroom_Baked;
 	if (str == "Bullet")  return ImageKey::Bullet;
 	if (str == "Monster")  return ImageKey::Monster;
 	if (str == "Monster2")  return ImageKey::Monster2;
@@ -152,6 +157,7 @@ void DataManager::LoadItemData(const string& filePath)
 		data.damage = item.value("damage", 0);
 		data.range = item.value("range", 0.f);
 		data.speed = item.value("speed", 0.f);
+		data.healAmount = item.value("healAmount", 0);
 		m_items.push_back(data);
 	}
 }

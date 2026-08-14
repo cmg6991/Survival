@@ -14,6 +14,8 @@ struct ItemData
 	int damage;
 	float range;
 	float speed;
+
+	int healAmount;
 };
 
 struct Ingredient

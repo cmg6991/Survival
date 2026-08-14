@@ -126,5 +126,25 @@
 	{
 		"key": "Grass",
 		"path": "Resource/grass_detail(6).png"
+	},
+	{
+		"key": "Item_Apple",
+		"path": "Resource/Food/Apple_Icon.png"
+	},
+	{
+		"key": "Item_Banana",
+		"path": "Resource/Food/Banana_Icon.png"
+	},
+	{
+		"key": "Item_Grape",
+		"path": "Resource/Food/Grape_Icon.png"
+	},
+	{
+		"key": "Item_Mushroom",
+		"path": "Resource/Food/Mushroom_Icon copy.png"
+	},
+	{
+		"key": "Item_Mushroom_Baked",
+		"path": "Resource/Food/bakedmushroom.png"
 	}
 ]

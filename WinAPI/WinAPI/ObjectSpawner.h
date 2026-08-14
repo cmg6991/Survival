@@ -5,6 +5,13 @@ class TileMap;
 class MainScene;
 class ResourceManager;
 
+enum class ChunkType
+{
+    GrassLand,
+    Lake,
+    Snow
+};
+
 enum class SpawnObjectType
 {
 	Tree,
@@ -19,7 +26,9 @@ public:
     ~ObjectSpawner();
 
     void Init(MainScene* scene, ResourceManager* resourceManager, TileMap* tileMap);
-    void SpawnChunk(int startX, int startY, int chunkWidth, int chunkHeight);
+    void SpawnChunk(int chunkX, int chunkY, int chunkWidth, int chunkHeight);
+
+    ChunkType GetChunkType(int chunkX, int chunkY) const;
 
 private:
     bool CanSpawnAt(int x,int y) const;

@@ -81,6 +81,9 @@ private:
 	void RenderAimLine(ID2D1DeviceContext* context);
 	void UpdateMonsterSeparation();
 
+	void UseItem(const string& itemId);
+	void SpawnItemDrop(const MathEngine::Vector2& centerPos, const string& itemId, int count);
+
 private:
 	string InteractTypeToStationString(InteractType type);
 	bool IsWall(const vector<string>& mapData, int x, int y);

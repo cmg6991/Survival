@@ -158,6 +158,11 @@ void UIManager::HandleInventoryClick(float mouseX, float mouseY)
 			{
 				EquipShield(itemId);
 			}
+			else if (item->type == "Food")
+			{
+				if (m_onItemUse)
+					m_onItemUse(itemId);
+			}
 
 			return;
 		}

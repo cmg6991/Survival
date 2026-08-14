@@ -350,6 +350,18 @@ void Player::TakeDamage(int rawDamage)
     OutputDebugStringW(buffer);
 }
 
+void Player::Heal(int amount)
+{
+    if (IsDead()) return;
+    m_currentHealth += amount;
+    if (m_currentHealth > m_maxHealth)
+        m_currentHealth = m_maxHealth;
+
+    wchar_t buffer[128];
+    swprintf_s(buffer, L"Player Health: %d\n", m_currentHealth);
+    OutputDebugStringW(buffer);
+}
+
 void Player::UpdateSpriteState()
 {
     if (m_sprite == nullptr) return;

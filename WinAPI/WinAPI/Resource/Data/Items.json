@@ -12,6 +12,41 @@
     "type": "Material"
   },
   {
+    "id" : "Item_Apple",
+    "name": "사과",
+    "image": "Item_Apple",
+    "type": "Food",
+    "healAmount" : 3
+  },
+  {
+    "id" : "Item_Banana",
+    "name": "바나나",
+    "image": "Item_Banana",
+    "type": "Food",
+    "healAmount" : 5
+  },
+  {
+    "id" : "Item_Grape",
+    "name": "포도",
+    "image": "Item_Grape",
+    "type": "Food",
+    "healAmount" :4 
+  },
+  {
+    "id" : "Item_Mushroom",
+    "name": "버섯",
+    "image": "Item_Mushroom",
+    "type": "Food",
+    "healAmount" :1
+  },
+  {
+    "id" : "Item_Mushroom_Baked",
+    "name": "구운 버섯",
+    "image": "Item_Mushroom_Baked",
+    "type": "Food",
+    "healAmount" :5
+  },
+  {
     "id": "Item_Sword",
     "name": "검",
     "image": "Item_Sword",

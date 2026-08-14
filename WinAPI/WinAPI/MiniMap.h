@@ -23,6 +23,11 @@ private:
 	MathEngine::Vector2 TileToMiniMap(float tileX,float tileY) const;
 	void CreateDiamondGeometry(ID2D1Factory* factory, ID2D1PathGeometry** geometry);
 	void RenderObjects(ID2D1DeviceContext* context, const std::vector<GameObject*>& objects);
+
+	void RenderTargetArrows(ID2D1DeviceContext* context,const std::vector<GameObject*>& objects);
+	void RenderTargetArrow(ID2D1DeviceContext* context,const MathEngine::Vector2& direction,const D2D1::ColorF& color,bool outside);
+
+	MathEngine::Vector2 GetDiamondEdgePosition(const MathEngine::Vector2& direction) const;
 private:
 	float m_centerX;
 	float m_centerY;

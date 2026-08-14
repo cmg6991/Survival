@@ -1,14 +1,14 @@
 [
   {
-    "id": "Recipe_CookedMeat",
-    "result": "CookedMeat",
+    "id": "Recipe_BakedMushroom",
+    "result": "Item_Mushroom_Baked",
     "resultCount": 1,
     "station": "CampFire",
     "isWeaponUpgrade": false,
     "successRate": 1,
     "ingredients": [
       {
-        "id": "Meat",
+        "id": "Item_Mushroom",
         "count": 1
       }
     ]
