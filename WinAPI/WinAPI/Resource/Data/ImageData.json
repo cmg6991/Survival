@@ -85,7 +85,7 @@
 	},
 	{
 		"key": "Item_Gun",
-		"path": "Resource/7Pistol07.png"
+		"path": "Resource/gun2.png"
 	},
 	{
 		"key": "Item_Shield",
@@ -148,7 +148,23 @@
 		"path": "Resource/Food/bakedmushroom.png"
 	},
 	{
-		"key" : "CrossHair",
-		"path" : "Resource/crosshair086.png"
+		"key": "CrossHair",
+		"path": "Resource/crosshair086.png"
+	},
+	{
+		"key": "bubbleText",
+		"path": "Resource/bubbleText.png"
+	},
+	{
+		"key": "Text",
+		"path": "Resource/text.png"
+	},
+	{
+		"key": "Night",
+		"path": "Resource/NightUI.png"
+	},
+	{
+		"key": "Day",
+		"path": "Resource/DayUI.png"
 	}
 ]

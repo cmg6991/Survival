@@ -288,7 +288,7 @@ void UIManager::ScrollCraftingRecipe(int direction)
 
 void UIManager::RenderTime(ID2D1DeviceContext* context)
 {
-	int day = TimeManager::GetInstance().GetDay();
+	/*int day = TimeManager::GetInstance().GetDay();
 	int hour = TimeManager::GetInstance().GetHour();
 	int minute = TimeManager::GetInstance().GetMinute();
 
@@ -301,7 +301,72 @@ void UIManager::RenderTime(ID2D1DeviceContext* context)
 		minute,
 		TimeManager::GetInstance().GetPhaseString()
 	);
-	GRAPHICS.DrawString(text, 20, 20);
+	GRAPHICS.DrawString(text, 20, 20);*/
+	float x = 1050.0f;
+	float y = 10.0f;
+
+	// 현재 시간대
+	const wchar_t* phase =
+		TimeManager::GetInstance().GetPhaseString();
+
+	ID2D1Bitmap* timeUI = nullptr;
+
+	// 밤이면 밤 이미지
+	if (wcscmp(phase, L"저녁") == 0)
+	{
+		timeUI = m_resourceManager->GetImage("Night");
+	}
+	else if (wcscmp(phase, L"밤") == 0)
+	{
+		timeUI = m_resourceManager->GetImage("Night");
+	}
+	else
+	{
+		// 나머지는 낮 이미지
+		timeUI = m_resourceManager->GetImage("Day");
+	}
+
+	// 배경 이미지
+	if (timeUI != nullptr)
+	{
+		GRAPHICS.DrawBitmapUI(
+			timeUI,
+			x,
+			y,
+			200.0f,
+			70.0f
+		);
+	}
+
+	// 시간 정보
+	int day = TimeManager::GetInstance().GetDay();
+	int hour = TimeManager::GetInstance().GetHour();
+	int minute = TimeManager::GetInstance().GetMinute();
+
+	wchar_t text[100];
+
+	swprintf_s(
+		text,
+		L"DAY %d \n\n%02d : %02d",
+		day,
+		hour,
+		minute
+	);
+
+	GRAPHICS.DrawString(
+		text,
+		x + 100.0f,
+		y+15.f,
+		D2D1::ColorF(D2D1::ColorF::Black),
+		30.f
+	);
+
+	//// 시간대
+	//GRAPHICS.DrawString(
+	//	phase,
+	//	x + 60.0f,
+	//	y + 60.0f
+	//);
 }
 
 void UIManager::RenderInventory(ID2D1DeviceContext* context)
@@ -369,6 +434,7 @@ void UIManager::RenderInventory(ID2D1DeviceContext* context)
 			count,
 			slotX + 35,
 			slotY[i] + 30,
+			D2D1::ColorF(D2D1::ColorF::White),
 			15.f);
 	}
 }
@@ -378,7 +444,31 @@ void UIManager::RenderInteractionHint(ID2D1DeviceContext* context)
 	if (m_isCraftingOpen) return;
 	if (m_interactionHint.empty()) return;
 
-	GRAPHICS.DrawString(m_interactionHint.c_str(), 700, 450);
+	//GRAPHICS.DrawString(m_interactionHint.c_str(), 700, 450);
+	ID2D1Bitmap* bubble =
+		m_resourceManager->GetImage("Text");
+
+	float x = 500.0f;
+	float y = 150.0f;
+
+	float width = 300.0f;
+	float height = 80.0f;
+
+	// 말풍선 배경
+	if (bubble != nullptr)
+	{
+		GRAPHICS.DrawBitmapUI(
+			bubble,
+			x,
+			y,
+			width,
+			height
+		);
+	}
+
+	// 말풍선 텍스트
+	GRAPHICS.DrawString(m_interactionHint.c_str(), x + 20.0f, y + 22.0f, D2D1::ColorF(D2D1::ColorF::Black), 22.f);
+
 }
 
 void UIManager::RenderCrafting(ID2D1DeviceContext* context)
@@ -401,8 +491,29 @@ void UIManager::RenderCrafting(ID2D1DeviceContext* context)
 void UIManager::RenderMessage(ID2D1DeviceContext* context)
 {
 	if (m_message.empty()) return;
-	GRAPHICS.DrawString(m_message.c_str(), 700, 500);
+	//GRAPHICS.DrawString(m_message.c_str(), 700, 500);
+	ID2D1Bitmap* bubble = m_resourceManager->GetImage("bubbleText");
 
+	float x = 550.0f;
+	float y = 230.0f;
+
+	float width = 200.0f;
+	float height = 80.0f;
+
+	// 1. 말풍선 배경
+	if (bubble != nullptr)
+	{
+		GRAPHICS.DrawBitmapUI(
+			bubble,
+			x,
+			y,
+			width,
+			height
+		);
+	}
+
+	// 2. 말풍선 안의 글자
+	GRAPHICS.DrawString(m_message.c_str(),x + 10.0f,y + 25.0f, D2D1::ColorF(D2D1::ColorF::Black), 20.f);
 }
 
 void UIManager::RenderInventoryWindow(ID2D1DeviceContext* context)
@@ -473,7 +584,7 @@ void UIManager::RenderInventoryWindow(ID2D1DeviceContext* context)
 
 	GRAPHICS.FillRect(m_equipSlotX, m_equipWeaponSlotY+20, m_slotSize, m_slotSize, D2D1::ColorF(0.25f, 0.2f, 0.1f, 1.0f));
 	GRAPHICS.DrawRect(m_equipSlotX, m_equipWeaponSlotY+20, m_slotSize, m_slotSize, D2D1::ColorF::Gold, 2.0f);
-	GRAPHICS.DrawString(L"무기", m_equipSlotX, m_equipWeaponSlotY - 10, 14.f);
+	GRAPHICS.DrawString(L"무기", m_equipSlotX, m_equipWeaponSlotY - 10, D2D1::ColorF(D2D1::ColorF::White), 14.f);
 
 	Weapon* equippedWeapon = (m_player != nullptr) ? m_player->GetWeapon() : nullptr;
 	if (equippedWeapon != nullptr)
@@ -494,7 +605,7 @@ void UIManager::RenderInventoryWindow(ID2D1DeviceContext* context)
 
 	GRAPHICS.FillRect(m_equipShieldSlotX, m_equipShieldSlotY + 20, m_slotSize, m_slotSize, D2D1::ColorF(0.1f, 0.15f, 0.25f, 1.0f));
 	GRAPHICS.DrawRect(m_equipShieldSlotX, m_equipShieldSlotY + 20, m_slotSize, m_slotSize, D2D1::ColorF::SteelBlue, 2.0f);
-	GRAPHICS.DrawString(L"방패", m_equipShieldSlotX, m_equipShieldSlotY - 10, 14.f);
+	GRAPHICS.DrawString(L"방패", m_equipShieldSlotX, m_equipShieldSlotY - 10, D2D1::ColorF(D2D1::ColorF::White), 14.f);
 
 	string equippedShieldId = (m_player != nullptr) ? m_player->GetEquippedShieldId() : "";
 	if (!equippedShieldId.empty())
@@ -542,7 +653,7 @@ void UIManager::RenderCraftingInventorySlots(ID2D1DeviceContext* context)
 
 		wchar_t countText[10];
 		swprintf_s(countText, L"%d", itemList[i].second);
-		GRAPHICS.DrawString(countText, slotX + m_slotSize - 25, slotY + m_slotSize - 22, 15.f);
+		GRAPHICS.DrawString(countText, slotX + m_slotSize - 25, slotY + m_slotSize - 22, D2D1::ColorF(D2D1::ColorF::White),15.f);
 	}
 }
 
@@ -719,7 +830,7 @@ void UIManager::RenderHP(ID2D1DeviceContext* context)
 	// -----------------------------------------
 
 	float x = 25.0f;
-	float y = 55.0f;
+	float y = 20.0f;
 
 	float barWidth = 220.0f;
 	float barHeight = 22.0f;

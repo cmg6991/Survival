@@ -242,7 +242,7 @@ void Graphics::DrawString(const wchar_t* text, float x, float y)
 	);
 }
 
-void Graphics::DrawString(const wchar_t* text, float x, float y, float fontSize)
+void Graphics::DrawString(const wchar_t* text, float x, float y, D2D1::ColorF color, float fontSize)
 {
 	IDWriteTextFormat* format = nullptr;
 
@@ -256,12 +256,34 @@ void Graphics::DrawString(const wchar_t* text, float x, float y, float fontSize)
 		L"ko-KR",
 		&format);
 
+	if (format == nullptr)
+		return;
+
+	ID2D1SolidColorBrush* textBrush = nullptr;
+
+	m_deviceContext->CreateSolidColorBrush(color,&textBrush);
+
+	if (textBrush == nullptr)
+	{
+		format->Release();
+		return;
+	}
+
 	m_deviceContext->DrawTextW(
 		text,
 		(UINT32)wcslen(text),
 		format,
-		D2D1::RectF(x, y, x + 500, y + 100),
-		m_brush);
+		D2D1::RectF(
+			x,
+			y,
+			x + 500,
+			y + 100
+		),
+		textBrush
+	);
+
+	textBrush->Release();
+	format->Release();
 }
 
 void Graphics::DrawRect(float x, float y, float width, float height, D2D1::ColorF color, float thickness)

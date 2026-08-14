@@ -99,9 +99,7 @@ void MainScene::Init()
 		m_resourceManager,
 		m_tileMap
 	);
-	m_tileMap->SetObjectSpawner(
-		m_objectSpawner
-	);
+	m_tileMap->SetObjectSpawner(m_objectSpawner);
 
 
 	GameObject* playerObj = new GameObject("Player");
@@ -134,10 +132,6 @@ void MainScene::Init()
 		std::make_unique<PhysicsEngine::CircleCollider>(0.f, 0.f, 0.5f);
 
 	collider->SetCollider(std::move(circleCollider), 1.0f, false);
-
-	//player->SetPhysicsWorld(m_physicsWorld);
-	//player->SetSelfPhysicsObject(collider->GetPhysicsObject());
-
 	SaveData data;
 	bool hasSave = SaveManager::HasSaveFile();
 	if (hasSave)
@@ -283,7 +277,7 @@ void MainScene::Update(float deltaTime)
 						EquipWeaponToPlayer(recipe.resultId, true);
 					}
 
-					UIManager::GetInstance().ShowMessage(L"제작 성공: " + UTF8ToWString(recipe.resultId));
+					UIManager::GetInstance().ShowMessage(L"       제작 성공: " + UTF8ToWString(recipe.resultId));
 					break;
 				}
 				case CraftResult::Failed:
@@ -299,13 +293,13 @@ void MainScene::Update(float deltaTime)
 						}
 					}
 
-					UIManager::GetInstance().ShowMessage(L"제작 실패...");
+					UIManager::GetInstance().ShowMessage(L"         제작 실패...");
 					break;
 				}
 
 				case CraftResult::None:
 				{
-					UIManager::GetInstance().ShowMessage(L"재료 부족");
+					UIManager::GetInstance().ShowMessage(L"        재료 부족");
 					break;
 				}
 				}
@@ -403,17 +397,17 @@ void MainScene::Update(float deltaTime)
 			}
 			else
 			{
-				UIManager::GetInstance().SetInteractionHint(L"[E] 나무를 넣어 불 붙이기");
+				UIManager::GetInstance().SetInteractionHint(L"   [E] 나무를 넣어 불 붙이기");
 			}
 		}
 		else if (nearby->GetInteractType() == InteractType::Tree ||
 			nearby->GetInteractType() == InteractType::Rock)
 		{
-			UIManager::GetInstance().SetInteractionHint(L"[E] 채집하기");
+			UIManager::GetInstance().SetInteractionHint(L"         [E] 채집하기");
 		}
 		else
 		{
-			UIManager::GetInstance().SetInteractionHint(L"[E] 상호작용");
+			UIManager::GetInstance().SetInteractionHint(L"         [E] 상호작용");
 		}
 	}
 	else
@@ -872,8 +866,8 @@ void MainScene::EquipWeaponToPlayer(const string& weaponId, bool returnInven)
 			});
 		weaponSprite = new SpriteRenderer(weaponId);
 		weaponSprite->SetResourceManager(m_resourceManager);
-		weaponSprite->SetScale(3.0f);
-		weaponSprite->SetPivot(10.0f, 5.5f);
+		weaponSprite->SetScale(1.f);
+		weaponSprite->SetPivot(18.0f, 32.f);
 	}
 	else
 	{
@@ -986,7 +980,7 @@ Interactable* MainScene::FindNearByInteractable()
 		if (interact == nullptr) continue;
 
 		Transform* tr = static_cast<Transform*>(obj->GetElement(ElementType::Transform));
-		if ((tr->GetPostion() - playerPos).Magnitude() < 1.3f)
+		if ((tr->GetPostion() - playerPos).Magnitude() < 1.5f)
 			return interact;
 	}
 	return nullptr;
@@ -1006,7 +1000,7 @@ void MainScene::OnInteract(Interactable* target)
 
 			if (woodCount <= 0)
 			{
-				UIManager::GetInstance().ShowMessage(L"나무가 없습니다");
+				UIManager::GetInstance().ShowMessage(L"      나무가 없습니다");
 				return;
 			}
 

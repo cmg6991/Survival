@@ -133,6 +133,10 @@ ImageKey DataManager::StringToImageKey(const string& str) const
 	if (str == "WaterTile")  return ImageKey::WaterTile;
 	if (str == "Grass")  return ImageKey::Grass;
 	if (str == "CrossHair")  return ImageKey::CrossHair;
+	if (str == "bubbleText")  return ImageKey::BubbleText;
+	if (str == "Text")  return ImageKey::Text;
+	if (str == "Night")  return ImageKey::NightUI;
+	if (str == "Day")  return ImageKey::DayUI;
 
 	return ImageKey::Count;
 }

@@ -43,6 +43,10 @@ enum class ImageKey
 	WaterTile,
 	Grass,
 	CrossHair,
+	BubbleText,
+	Text,
+	NightUI,
+	DayUI,
 	Count
 };
 

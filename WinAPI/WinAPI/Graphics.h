@@ -36,7 +36,7 @@ public:
 	}
 
 	void DrawString(const wchar_t* text, float x, float y);
-	void DrawString(const wchar_t* text, float x, float y, float fontSize);
+	void DrawString(const wchar_t* text, float x, float y, D2D1::ColorF color, float fontSize);
 
 	void DrawRect(float x, float y, float width, float height, D2D1::ColorF color, float thickness = 2.0f);
 	void FillRect(float x, float y, float width, float height, D2D1::ColorF color);
