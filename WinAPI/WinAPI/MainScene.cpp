@@ -790,6 +790,16 @@ void MainScene::CreateMonster(const string& monsterId, float x, float y)
 	//collider->SetOnCollisionStay(contactDamage);
 	const MonsterData* data = DataManager::GetInstance().FindMonster(monsterId);
 	if (data == nullptr) return;
+	// 몬스터가 생성될 타일
+	int tileX = (int)round(x);
+	int tileY = (int)round(y);
+
+	// 물이면 스폰하지 않음
+	if (m_tileMap != nullptr &&
+		m_tileMap->IsWater(tileX, tileY))
+	{
+		return;
+	}
 
 	GameObject* obj = AcquireMonster(monsterId);
 
@@ -806,6 +816,7 @@ void MainScene::CreateMonster(const string& monsterId, float x, float y)
 	monster->Reset(data->health, data->cellWidth, data->cellHeight, data->animColumn);
 	monster->SetStats(data->moveSpeed, data->contactDamage);
 	monster->SetTarget(m_player->GetTransform());
+	monster->SetTileMap(m_tileMap);
 	ColliderComponent* collider = static_cast<ColliderComponent*>(obj->GetElement(ElementType::Collider));
 	if (collider != nullptr)
 	{
@@ -1503,33 +1514,133 @@ void MainScene::RenderAimLine(ID2D1DeviceContext* context)
 	Weapon* weapon = m_player->GetWeapon();
 	bool isFlashing = (weapon != nullptr && weapon->IsMuzzleFlashActive());
 
-	// ★ 발사 순간엔 굵고 밝게, 평소엔 얇고 은은하게
-	float lineWidth = isFlashing ? 4.0f : 2.0f;
-	D2D1_COLOR_F lineColor = isFlashing
-		? D2D1::ColorF(1.0f, 0.9f, 0.4f, 1.0f)   // 밝은 노란빛
-		: D2D1::ColorF(1.0f, 0.15f, 0.1f, 0.8f); // 평소 빨간 조준선
 
+	static float glowTime = 0.0f;
+	glowTime += 0.016f;
+	// 0 ~ 1 사이로 부드럽게 반복
+	float pulse =
+		(sinf(glowTime * 8.0f) + 1.0f) * 0.5f;
 
-	ID2D1SolidColorBrush* aimBrush = nullptr;
-	context->CreateSolidColorBrush(D2D1::ColorF(1.0f, 0.15f, 0.1f, 0.8f), &aimBrush);
-	if (aimBrush == nullptr) return;
+	D2D1_COLOR_F glowColor =
+		D2D1::ColorF(
+			1.0f,
+			0.05f,
+			0.1f,
+			0.15f + pulse * 0.15f
+		);
 
-	// 조준선 (플레이어 -> 마우스)
-	context->DrawLine(
-		D2D1::Point2F(startX, startY),
-		D2D1::Point2F(mouseScreen.x, mouseScreen.y),
-		aimBrush,
-		2.0f
-	);
-	aimBrush->Release();
+	D2D1_COLOR_F midColor =
+		D2D1::ColorF(
+			1.0f,
+			0.1f,
+			0.15f,
+			0.35f + pulse * 0.2f
+		);
+
+	D2D1_COLOR_F coreColor =
+		D2D1::ColorF(
+			1.0f,
+			0.35f,
+			0.35f,
+			0.8f + pulse * 0.2f
+		);
 
 	if (isFlashing)
 	{
-		GRAPHICS.DrawCircle(startX, startY, 12.0f, D2D1::ColorF(1.0f, 0.9f, 0.3f, 1.0f));
+		glowColor = D2D1::ColorF(
+			1.0f,
+			0.05f,
+			0.1f,
+			0.35f
+		);
+
+		midColor = D2D1::ColorF(
+			1.0f,
+			0.1f,
+			0.15f,
+			0.75f
+		);
+
+		coreColor = D2D1::ColorF(
+			1.0f,
+			0.4f,
+			0.4f,
+			1.0f
+		);
 	}
 
-	// 크로스헤어 (마우스 위치)
-	GRAPHICS.DrawCircle(mouseScreen.x, mouseScreen.y, 15.0f, D2D1::ColorF::White);
+	ID2D1SolidColorBrush* brush = nullptr;
+
+	context->CreateSolidColorBrush(glowColor,&brush);
+
+	if (brush != nullptr)
+	{
+		context->DrawLine(
+			D2D1::Point2F(startX, startY),
+			D2D1::Point2F(
+				mouseScreen.x,
+				mouseScreen.y
+			),
+			brush,
+			10.0f + pulse * 4.0f
+		);
+
+		brush->Release();
+	}
+	context->CreateSolidColorBrush(midColor,&brush);
+
+	if (brush != nullptr)
+	{
+		context->DrawLine(
+			D2D1::Point2F(startX, startY),
+			D2D1::Point2F(
+				mouseScreen.x,
+				mouseScreen.y
+			),
+			brush,
+			5.0f + pulse * 2.0f
+		);
+
+		brush->Release();
+	}
+
+
+	context->CreateSolidColorBrush(coreColor,&brush);
+
+	if (brush != nullptr)
+	{
+		context->DrawLine(
+			D2D1::Point2F(startX, startY),
+			D2D1::Point2F(
+				mouseScreen.x,
+				mouseScreen.y
+			),
+			brush,
+			1.5f
+		);
+
+		brush->Release();
+	}
+
+	ID2D1Bitmap* crosshair = m_resourceManager->GetImage("CrossHair");
+
+	if (crosshair != nullptr)
+	{
+		const float size = 32.0f;
+
+		D2D1_RECT_F destRect =
+		{
+			mouseScreen.x - size*2.f,
+			mouseScreen.y - size*2.f,
+			mouseScreen.x + size*2.f,
+			mouseScreen.y + size*2.f
+		};
+
+		D2D1_SIZE_F bitmapSize = crosshair->GetSize();
+		D2D1_RECT_F srcRect ={0.0f,0.0f,bitmapSize.width,bitmapSize.height};
+
+		DrawBitmap(context,crosshair,destRect,srcRect,false);
+	}
 }
 
 void MainScene::UpdateMonsterSeparation()

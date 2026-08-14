@@ -312,36 +312,122 @@ void TileMap::Render(ID2D1DeviceContext* context,ResourceManager* resourceManage
             );
             //DrawBitmap(context, bitmap, destRect, srcRect, false);
             TileType type = GetTile(x, y);
-
-            //// 3-1. 바닥은 항상 먼저 깔아줌 (ROAD여도 그 밑에 잔디는 깔려있어야 자연스러움)
-            //DrawBitmap(context, floorBitmap, destRect, srcRect, false);
-
-            //// 3-2. 도로면 그 위에 오토타일 조각을 덧그림
-            //if (type == TileType::ROAD && pathBitmap != nullptr)
-            //{
-            //    int bitmask = GetPathBitmask(x, y);
-            //    D2D1_RECT_F pathSrcRect = GetPathSrcRec(bitmask);
-            //    DrawBitmap(context, pathBitmap, destRect, pathSrcRect, false);
-            //}
-            auto baseIt = baseCache.find(type);
-            ID2D1Bitmap* baseBitmap = (baseIt != baseCache.end()) ? baseIt->second : baseCache[TileType::FLOOR];
-            if (baseBitmap != nullptr)
-            {
-                D2D1_SIZE_F size = baseBitmap->GetSize();
-                D2D1_RECT_F srcRect = D2D1::RectF(0, 0, size.width, size.height);
-                DrawBitmap(context, baseBitmap, destRect, srcRect, false);
-            }
-
-            // 2. 이 타입이 오토타일 레이어로 등록돼 있으면 이웃 검사해서 조각 덧그림
+            // -----------------------------------------
+            // 오토타일 설정 확인
+            // -----------------------------------------
             auto autoIt = m_autotiles.find(type);
+
+            int bitmask = 0;
+
             if (autoIt != m_autotiles.end())
             {
-                ID2D1Bitmap* overlayBitmap = autotileCache[type];
+                bitmask = GetPathBitmask(x, y, type);
+            }
+
+
+            // -----------------------------------------
+            // 기본 바닥
+            //
+            // 일반 타일:
+            //     항상 그림
+            //
+            // WATER:
+            //     mask == 15  → 물 중앙 → 안 그림
+            //     mask != 15  → 물 경계 → FLOOR 그림
+            // -----------------------------------------
+            bool drawBase = true;
+
+            if (type == TileType::WATER)
+            {
+                drawBase = (bitmask != 15);
+            }
+
+            if (drawBase)
+            {
+                ID2D1Bitmap* baseBitmap =
+                    baseCache[TileType::FLOOR];
+
+                if (baseBitmap != nullptr)
+                {
+                    D2D1_SIZE_F size = baseBitmap->GetSize();
+
+                    D2D1_RECT_F srcRect =
+                        D2D1::RectF(
+                            0,
+                            0,
+                            size.width,
+                            size.height
+                        );
+
+                    DrawBitmap(
+                        context,
+                        baseBitmap,
+                        destRect,
+                        srcRect,
+                        false
+                    );
+                }
+            }
+
+
+            // -----------------------------------------
+            // 오토타일
+            // -----------------------------------------
+            /*if (autoIt != m_autotiles.end())
+            {
+                ID2D1Bitmap* overlayBitmap =
+                    autotileCache[type];
+
                 if (overlayBitmap != nullptr)
                 {
-                    int bitmask = GetPathBitmask(x, y, type);
-                    D2D1_RECT_F overlaySrcRect = GetSrcRect(autoIt->second, bitmask);
-                    DrawBitmap(context, overlayBitmap, destRect, overlaySrcRect, false);
+                    D2D1_RECT_F overlaySrcRect =
+                        GetSrcRect(
+                            autoIt->second,
+                            bitmask
+                        );
+
+                    DrawBitmap(
+                        context,
+                        overlayBitmap,
+                        destRect,
+                        overlaySrcRect,
+                        false
+                    );
+                }
+            }*/
+            if (autoIt != m_autotiles.end())
+            {
+                ID2D1Bitmap* overlayBitmap =
+                    autotileCache[type];
+
+                if (overlayBitmap != nullptr)
+                {
+                    D2D1_RECT_F overlaySrcRect =
+                        GetSrcRect(
+                            autoIt->second,
+                            bitmask
+                        );
+
+                    // 오토타일끼리 생기는 검은 틈 방지
+                    D2D1_RECT_F overlayDestRect = destRect;
+
+                    if (type == TileType::WATER)
+                    {
+                        const float overlap = 4.0f;
+
+                        overlayDestRect.left -= overlap;
+                        overlayDestRect.top -= overlap;
+                        overlayDestRect.right += overlap;
+                        overlayDestRect.bottom += overlap;
+                    }
+
+                    DrawBitmap(
+                        context,
+                        overlayBitmap,
+                        overlayDestRect,
+                        overlaySrcRect,
+                        false
+                    );
                 }
             }
         }
@@ -391,10 +477,6 @@ TileType TileMap::GetTile(int x, int y) const
 
         return mapTile;
     }
-
-    // ==========================================
-    // 2. 청크 영역
-    // ==========================================
     int chunkX = WorldToChunk(x);
     int chunkY = WorldToChunk(y);
 
@@ -403,9 +485,6 @@ TileType TileMap::GetTile(int x, int y) const
         const_cast<TileMap*>(this)->EnsureChunk(chunkX, chunkY);
     }
 
-    // ==========================================
-    // 3. 이미 생성된 청크의 실제 타일
-    // ==========================================
     auto it = m_proceduralTiles.find(MakeTileKey(x, y));
 
     if (it != m_proceduralTiles.end())
@@ -413,33 +492,10 @@ TileType TileMap::GetTile(int x, int y) const
         return it->second;
     }
 
-    // ==========================================
-    // 4. 혹시 데이터가 없으면 절차적 도로 검사
-    // ==========================================
     if (IsProceduralRoad(x, y))
         return TileType::ROAD;
 
     return TileType::FLOOR;
-    
-    /*if (x >= 0 &&x < m_width &&y >= 0 &&y < m_height)
-    {
-        return m_tiles[y][x];
-    }
-
-    int chunkX =WorldToChunk(x);
-    int chunkY =WorldToChunk(y);
-
-    if (!IsChunkGenerated(chunkX,chunkY))
-    {
-        const_cast<TileMap*>(this)->EnsureChunk(chunkX,chunkY);
-    }
-
-    auto it =m_proceduralTiles.find(MakeTileKey(x,y));
-    if (it != m_proceduralTiles.end())
-    {
-        return it->second;
-    }
-    return TileType::FLOOR;*/
 
 }
 
@@ -567,6 +623,10 @@ TileType TileMap::GenerateProceduralTile(int worldX, int worldY, int chunkX, int
     {
         return TileType::ROAD;
     }
+    if (IsProceduralWater(worldX, worldY))
+    {
+        return TileType::WATER;
+    }
     return TileType::FLOOR;
 }
 
@@ -612,6 +672,67 @@ bool TileMap::IsRoadConnectionFromMap(int worldX, int worldY) const
                     return true;
                 }
             }
+        }
+    }
+    return false;
+}
+
+unsigned int TileMap::HashCoords(int x, int y, unsigned int seed) const
+{
+    unsigned int h = (unsigned int)(x * 374761393 + y * 668265263 + (int)seed * 2246822519u);
+    h = (h ^ (h >> 13)) * 1274126177u;
+    h = h ^ (h >> 16);
+    return h;
+}
+
+float TileMap::HashFloat01(int x, int y, unsigned int seed) const
+{
+    return (HashCoords(x, y, seed) % 10000) / 10000.0f;
+}
+
+bool TileMap::GetLakeInfoForRegion(int regionX, int regionY, MathEngine::Vector2& outCenter, float& outRadius) const
+{
+    float chanceRoll = HashFloat01(regionX, regionY, 999);
+    if (chanceRoll >= LAKE_CHANCE)
+        return false;   // 이 지역엔 호수 없음
+
+    // 지역 안 랜덤한 위치에 중심점 배치
+    float offsetX = HashFloat01(regionX, regionY, 111) * LAKE_REGION_SIZE;
+    float offsetY = HashFloat01(regionX, regionY, 222) * LAKE_REGION_SIZE;
+
+    outCenter.x = regionX * LAKE_REGION_SIZE + offsetX;
+    outCenter.y = regionY * LAKE_REGION_SIZE + offsetY;
+
+    outRadius = LAKE_MIN_RADIUS + HashFloat01(regionX, regionY, 333) * (LAKE_MAX_RADIUS - LAKE_MIN_RADIUS);
+    return true;
+}
+
+bool TileMap::IsProceduralWater(int worldX, int worldY) const
+{
+    int regionX = (worldX >= 0) ? worldX / LAKE_REGION_SIZE : (worldX - LAKE_REGION_SIZE + 1) / LAKE_REGION_SIZE;
+    int regionY = (worldY >= 0) ? worldY / LAKE_REGION_SIZE : (worldY - LAKE_REGION_SIZE + 1) / LAKE_REGION_SIZE;
+
+    for (int dy = -1; dy <= 1; dy++)
+    {
+        for (int dx = -1; dx <= 1; dx++)
+        {
+            MathEngine::Vector2 center;
+            float radius = 0.0f;
+            if (!GetLakeInfoForRegion(regionX + dx, regionY + dy, center, radius))
+                continue;
+
+            float distX = worldX - center.x;
+            float distY = worldY - center.y;
+            float dist = sqrtf(distX * distX + distY * distY);
+
+            // ★ 각도에 따라 반지름을 살짝 흔들어서 울퉁불퉁한 자연스러운 해안선 만들기
+            float angle = atan2f(distY, distX);
+            float wobble = 1.0f + 0.15f * sinf(angle * 5.0f + center.x * 0.7f)
+                + 0.10f * sinf(angle * 9.0f + center.y * 0.5f);
+            float effectiveRadius = radius * wobble;
+
+            if (dist < effectiveRadius)
+                return true;
         }
     }
     return false;

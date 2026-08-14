@@ -62,6 +62,9 @@ private:
 	void RenderCraftingRecipeList(ID2D1DeviceContext* context);     // 우측 레시피 목록
 	void RenderCraftingIngredients(ID2D1DeviceContext* context);
 	void RenderRecipeScrollbar(ID2D1DeviceContext* context, int totalCount, int visibleCount, int scrollOffset);
+
+	void RenderHP(ID2D1DeviceContext* context);
+
 private:
 	Inventory* m_inventory = nullptr;
 	ResourceManager* m_resourceManager = nullptr;

@@ -38,6 +38,7 @@ void UIManager::Render(ID2D1DeviceContext* context)
 	RenderInventory(context);
 	RenderInteractionHint(context);
 	RenderMessage(context);
+	RenderHP(context);
 
 	if (m_isCraftingOpen)
 	{
@@ -693,4 +694,140 @@ void UIManager::RenderRecipeScrollbar(ID2D1DeviceContext* context, int totalCoun
 
 	// 썸(실제 스크롤 위치 표시)
 	GRAPHICS.FillRect(trackX, thumbY, trackWidth, thumbHeight, D2D1::ColorF(0.8f, 0.8f, 0.8f, 0.9f));
+}
+
+void UIManager::RenderHP(ID2D1DeviceContext* context)
+{
+
+	if (m_player == nullptr)
+		return;
+
+	int currentHP = m_player->GetHealth();
+	int maxHP = m_player->GetMaxHealth();
+
+	if (maxHP <= 0)
+		return;
+
+	float hpRatio =
+		static_cast<float>(currentHP) /
+		static_cast<float>(maxHP);
+
+	hpRatio = max(0.0f, min(1.0f, hpRatio));
+
+	// -----------------------------------------
+	// HP 위치 / 크기
+	// -----------------------------------------
+
+	float x = 25.0f;
+	float y = 55.0f;
+
+	float barWidth = 220.0f;
+	float barHeight = 22.0f;
+
+	float border = 2.0f;
+
+	float innerWidth = barWidth - border * 2.0f;
+	float innerHeight = barHeight - border * 2.0f;
+
+	// -----------------------------------------
+	// 1. 검은색 전체 배경
+	// -----------------------------------------
+
+	GRAPHICS.DrawRect(
+		x,
+		y,
+		barWidth,
+		barHeight,
+		D2D1::ColorF(
+			0.02f,
+			0.02f,
+			0.02f,
+			1.0f
+		)
+	);
+
+	// -----------------------------------------
+	// 2. 글씨를 먼저 그린다
+	// -----------------------------------------
+
+	wchar_t hpText[64];
+
+	swprintf_s(
+		hpText,
+		L"HP %d / %d",
+		currentHP,
+		maxHP
+	);
+
+	GRAPHICS.DrawString(
+		hpText,
+		x + barWidth +10.f,
+		y + 1.0f
+	);
+
+	// -----------------------------------------
+	// 3. 빨간색 HP 영역
+	//
+	// HP 100% -> 전체를 덮음
+	// HP 50%  -> 절반만 덮음
+	// HP 0%   -> 아무것도 덮지 않음
+	// -----------------------------------------
+
+	float fillWidth = innerWidth * hpRatio;
+
+	if (fillWidth > 0.0f)
+	{
+		GRAPHICS.FillRect(
+			x + border,
+			y + border,
+			fillWidth,
+			innerHeight,
+			D2D1::ColorF(
+				0.9f,
+				0.03f,
+				0.06f,
+				1.0f
+			)
+		);
+	}
+
+	// -----------------------------------------
+	// 4. 테두리
+	// -----------------------------------------
+
+	// 위
+	GRAPHICS.DrawRect(
+		x,
+		y,
+		barWidth,
+		border,
+		D2D1::ColorF::White
+	);
+
+	// 아래
+	GRAPHICS.DrawRect(
+		x,
+		y + barHeight - border,
+		barWidth,
+		border,
+		D2D1::ColorF::White
+	);
+
+	// 왼쪽
+	GRAPHICS.DrawRect(
+		x,
+		y,
+		border,
+		barHeight,
+		D2D1::ColorF::White
+	);
+
+	// 오른쪽
+	GRAPHICS.DrawRect(
+		x + barWidth - border,
+		y,
+		border,
+		barHeight,
+		D2D1::ColorF::White
+	);
 }

@@ -45,7 +45,7 @@ private:
     float m_spawnTimer = 0.0f;
     float m_nightElapsedTime = 0.0f;
     int m_currentDay = 1;
-    float m_spawnRadius = 15.0f;
+    float m_spawnRadius = 10.0f;
 
     std::function<void(const string&, float, float)> m_onSpawnRequest;
     std::vector<string> m_spawnPoolIds;

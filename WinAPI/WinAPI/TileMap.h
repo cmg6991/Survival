@@ -2,6 +2,7 @@
 #include <windows.h>
 #include "Graphics.h"
 #include "pch.h"
+#include "../MathEngine/Vector2.h"
 
 class ResourceManager;
 class ObjectSpawner;
@@ -41,6 +42,7 @@ public:
     void Render(ID2D1DeviceContext* context, ResourceManager* resourceManager);
 
     bool IsRoad(int x, int y) const;
+    bool IsWater(int x, int y) const { return GetTile(x, y) == TileType::WATER; }
     bool IsType(int x, int y, TileType type) const;
     TileType GetTile(int x, int y) const;
     void SetTile(int x, int y, TileType type);
@@ -62,6 +64,17 @@ private:
     bool IsProceduralRoad(int worldX,int worldY) const;
     bool IsRoadConnectionFromMap(int worldX,int worldY) const;
 
+private:
+    //물
+    static const int LAKE_REGION_SIZE = 32;
+    static constexpr float LAKE_CHANCE = 0.8f;      // 지역당 호수가 생길 확률
+    static constexpr float LAKE_MIN_RADIUS = 4.0f;
+    static constexpr float LAKE_MAX_RADIUS = 9.0f;
+
+    unsigned int HashCoords(int x, int y, unsigned int seed) const;
+    float HashFloat01(int x, int y, unsigned int seed) const;
+    bool GetLakeInfoForRegion(int regionX, int regionY, MathEngine::Vector2& outCenter, float& outRadius) const;
+    bool IsProceduralWater(int worldX, int worldY) const;
 private:
     vector<vector<TileType>> m_tiles;
 

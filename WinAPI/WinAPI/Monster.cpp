@@ -4,6 +4,7 @@
 #include "Animator.h"
 #include "CollisionManager.h"
 #include "FlowFieldManager.h"
+#include "TileMap.h"
 //#include "../PhysicsEngine/PhysicsWorld.h"
 //#include "../PhysicsEngine/CircleCollider.h"
 #include "ColliderComponent.h"
@@ -94,6 +95,7 @@ void Monster::Update(float deltaTime)
       int nextTileY = (int)round(nextPos.y);
 
       bool blockedByTile = (m_collisionManager != nullptr && m_collisionManager->IsBlocked(nextTileX, nextTileY));
+      bool blockedByWater =(m_tileMap != nullptr &&m_tileMap->IsWater(nextTileX, nextTileY));
 
       bool blockedByPhysics = false;
       //if (!blockedByTile && m_physicsWorld != nullptr)
@@ -103,21 +105,27 @@ void Monster::Update(float deltaTime)
       //    blockedByPhysics = m_physicsWorld->IsColliderBlocked(testCollider, m_targetPhysicsObject,true);
       //    m_physicsWorld->PushDynamicObjects(testCollider, current, 0.4f, m_targetPhysicsObject);
       //}
-      if (!blockedByTile && m_collider != nullptr)
+      if (!blockedByTile && !blockedByWater && m_collider != nullptr)
       {
           blockedByPhysics = m_collider->IsPositionBlocked(nextPos, 0.4f, m_targetCollider, true);
           m_collider->PushNearbyDynamics(nextPos, 0.4f, current, m_targetCollider);
       }
 
-      if (!blockedByTile && !blockedByPhysics)
+      if (!blockedByTile && !blockedByWater && !blockedByPhysics)
       {
           m_transform->SetPosition(nextPos);
           return;
       }
+
+      if (blockedByWater)
+      {
+          return;
+      }
+
       const float tryAngles[] = { 30.0f, -30.0f, 60.0f, -60.0f, 90.0f, -90.0f };
       for (float angleDeg : tryAngles)
       {
-          float rad = angleDeg * 3.14159265f / 180.0f;
+          float rad = angleDeg * 3.14159265f / 180.0f; 
           float cosA = cosf(rad);
           float sinA = sinf(rad);
 
@@ -130,7 +138,7 @@ void Monster::Update(float deltaTime)
           int altTileX = (int)round(altPos.x);
           int altTileY = (int)round(altPos.y);
           bool altBlockedByTile = (m_collisionManager != nullptr && m_collisionManager->IsBlocked(altTileX, altTileY));
-
+          bool altBlockedByWater =(m_tileMap != nullptr &&m_tileMap->IsWater(altTileX,altTileY));
           bool altBlockedByPhysics = false;
           //if (!altBlockedByTile && m_physicsWorld != nullptr)
           //{
@@ -139,13 +147,13 @@ void Monster::Update(float deltaTime)
           //    altBlockedByPhysics = m_physicsWorld->IsColliderBlocked(testCollider2,m_targetPhysicsObject,true);
           //    m_physicsWorld->PushDynamicObjects(testCollider2, current, 0.4f, m_targetPhysicsObject);
           //}
-          if (!altBlockedByTile && m_collider != nullptr)
+          if (!altBlockedByTile && !altBlockedByWater && m_collider != nullptr)
           {
               altBlockedByPhysics = m_collider->IsPositionBlocked(altPos, 0.4f, m_targetCollider, true);
               m_collider->PushNearbyDynamics(altPos, 0.4f, current, m_targetCollider);
           }
 
-          if (!altBlockedByTile && !altBlockedByPhysics)
+          if (!altBlockedByTile && !altBlockedByWater && !altBlockedByPhysics)
           {
               m_transform->SetPosition(altPos);
               return;

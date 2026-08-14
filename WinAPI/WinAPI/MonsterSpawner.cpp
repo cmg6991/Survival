@@ -74,7 +74,7 @@ int MonsterSpawner::GetNightHourIndex() const
 
 MathEngine::Vector2 MonsterSpawner::GetRandomSpawnPositionOffscreen(const MathEngine::Vector2& playerPos) const
 {
-    float angle = ((float)rand() / RAND_MAX) * 2.0f * 3.14159265f;
+    /*float angle = ((float)rand() / RAND_MAX) * 2.0f * 3.14159265f;
 
     MathEngine::Vector2 offset;
     offset.x = cosf(angle) * m_spawnRadius;
@@ -84,6 +84,19 @@ MathEngine::Vector2 MonsterSpawner::GetRandomSpawnPositionOffscreen(const MathEn
 
     spawnPos.x = max(1.0f, min(spawnPos.x, (float)(m_mapWidth - 2)));
     spawnPos.y = max(1.0f, min(spawnPos.y, (float)(m_mapHeight - 2)));
+
+    return spawnPos;*/
+    float angle =
+        ((float)rand() / RAND_MAX) *
+        2.0f * 3.14159265f;
+
+    MathEngine::Vector2 offset;
+
+    offset.x = cosf(angle) * m_spawnRadius;
+    offset.y = sinf(angle) * m_spawnRadius;
+
+    MathEngine::Vector2 spawnPos =
+        playerPos + offset;
 
     return spawnPos;
 }

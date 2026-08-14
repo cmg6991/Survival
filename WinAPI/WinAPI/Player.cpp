@@ -101,7 +101,7 @@ void Player::Update(float deltaTime)
         int tileX = (int)round(tile.x);
         int tileY = (int)round(tile.y);
 
-        if (!m_collisionManager->IsBlocked((int)tileX,(int)tileY))
+        if (!m_collisionManager->IsBlocked((int)tileX,(int)tileY)&& (m_tileMap == nullptr || !m_tileMap->IsWater(tileX, tileY)))
         {
             m_targetPos.x = tileX;
             m_targetPos.y = tileY;
@@ -202,7 +202,7 @@ void Player::Update(float deltaTime)
         int tileY = (int)round(nextPos.y);
 
         bool blockedByTile = m_collisionManager->IsBlocked(tileX, tileY);
-
+        bool blockedByWater =(m_tileMap != nullptr &&m_tileMap->IsWater(tileX, tileY));
         bool blockedByPhysics = false;
         /*if (!blockedByTile && m_physicsWorld != nullptr)
         {
@@ -210,12 +210,12 @@ void Player::Update(float deltaTime)
             testCollider.center = nextPos;
             blockedByPhysics = m_physicsWorld->IsColliderBlocked(testCollider, m_selfPhysicsObject);
         }*/
-        if (!blockedByTile && m_collider != nullptr)
+        if (!blockedByTile && !blockedByWater && m_collider != nullptr)
         {
             blockedByPhysics = m_collider->IsPositionBlocked(nextPos, 0.5f, nullptr, true); // static¸¸ Â÷´Ü
         }
 
-        if (!blockedByTile && !blockedByPhysics)
+        if (!blockedByTile && !blockedByPhysics&& !blockedByWater)
         {
             current = nextPos;
             m_transform->SetPosition(current);

@@ -121,7 +121,7 @@
 	},
 	{
 		"key": "WaterTile",
-		"path": "Resource/Tile_WaterAuto_matched.png"
+		"path": "Resource/Tile_WaterAuto_deep.png"
 	},
 	{
 		"key": "Grass",
@@ -146,5 +146,9 @@
 	{
 		"key": "Item_Mushroom_Baked",
 		"path": "Resource/Food/bakedmushroom.png"
+	},
+	{
+		"key" : "CrossHair",
+		"path" : "Resource/crosshair086.png"
 	}
 ]

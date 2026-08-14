@@ -42,6 +42,7 @@ enum class ImageKey
 	GrassRoad,
 	WaterTile,
 	Grass,
+	CrossHair,
 	Count
 };
 

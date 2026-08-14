@@ -62,11 +62,19 @@ void ObjectSpawner::SpawnChunk(int chunkX,int chunkY,int chunkWidth,int chunkHei
                 {
                     SpawnObject(SpawnObjectType::Tree, x, y);
                 }
-                else if (value < 0.02f)
+                else if (value < 0.06f)
                 {
                     SpawnObject(SpawnObjectType::Rock, x, y);
                 }
                 else if (value < 0.13f)
+                {
+                    SpawnObject(SpawnObjectType::Grass, x, y);
+                }
+                break;
+            }
+            case ChunkType::Lake:
+            {
+                if (value < 0.2f)
                 {
                     SpawnObject(SpawnObjectType::Grass, x, y);
                 }

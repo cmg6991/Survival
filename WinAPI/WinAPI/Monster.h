@@ -8,6 +8,7 @@ class Animator;
 class CollisionManager;
 class FlowFieldManager;
 class ColliderComponent;
+class TileMap;
 //namespace PhysicsEngine
 //{
 //    class PhysicsWorld;
@@ -42,6 +43,7 @@ public:
     //void SetPhysicsWorld(PhysicsEngine::PhysicsWorld* world) { m_physicsWorld = world; }
     void SetFlowField(FlowFieldManager* flowField) { m_flowField = flowField; }
     void SetStats(float moveSpeed, int contactDamage) { m_moveSpeed = moveSpeed; m_contactDamage = contactDamage; }
+    void SetTileMap(TileMap* tileMap) { m_tileMap = tileMap; }
 
     int GetContactDamage() const { return m_contactDamage; }
     bool CanDealDamage() const { return m_damageCooldownTimer <= 0.0f; }
@@ -66,6 +68,7 @@ private:
     FlowFieldManager* m_flowField = nullptr;
     ColliderComponent* m_collider = nullptr;
     ColliderComponent* m_targetCollider = nullptr;
+    TileMap* m_tileMap = nullptr;
 
     int m_health;
     float m_moveSpeed = 1.5f;
