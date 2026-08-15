@@ -13,8 +13,6 @@
 #include "Animator.h"
 #include "SpriteRenderer.h"
 #include "Weapon.h"
-//#include "../PhysicsEngine/PhysicsWorld.h"
-//#include "../PhysicsEngine/CircleCollider.h"
 #include "ColliderComponent.h"
 
 using namespace std;
