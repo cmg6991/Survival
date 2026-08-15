@@ -63,17 +63,29 @@ void Player::Update(float deltaTime)
 
     MathEngine::Vector2 freeDir = { 0,0 };
 
-    if (InputManager::GetInstance().IsGetKey('A'))
-        freeDir.x--;
-
-    if (InputManager::GetInstance().IsGetKey('D'))
-        freeDir.x++;
-
     if (InputManager::GetInstance().IsGetKey('W'))
-        freeDir.y--;
+    {
+        freeDir.x -= 1;
+        freeDir.y -= 1;
+    }
 
     if (InputManager::GetInstance().IsGetKey('S'))
-        freeDir.y++;
+    {
+        freeDir.x += 1;
+        freeDir.y += 1;
+    }
+
+    if (InputManager::GetInstance().IsGetKey('A'))
+    {
+        freeDir.x -= 1;
+        freeDir.y += 1;
+    }
+
+    if (InputManager::GetInstance().IsGetKey('D'))
+    {
+        freeDir.x += 1;
+        freeDir.y -= 1;
+    }
 
     bool isKeyMoving = (freeDir.Magnitude() > 0.001f);
 
@@ -406,25 +418,64 @@ void Player::ApplyFacing(const MathEngine::Vector2& faceDir)
     if (faceDir.Magnitude() < 0.001f)
         return;
 
+    // 월드 방향을 아이소메트릭 화면 방향으로 변환
+    MathEngine::Vector2 screenDir =
+    {
+        faceDir.x - faceDir.y,
+        faceDir.x + faceDir.y
+    };
+
     const float PI = 3.14159265f;
-    float angle = atan2(faceDir.y, faceDir.x); // -PI ~ PI
+
+    float angle = atan2(screenDir.y, screenDir.x);
 
     int octant = (int)std::round(angle / (PI / 4.0f));
-    octant = ((octant % 8) + 8) % 8; // 0~7로 정규화
+    octant = ((octant % 8) + 8) % 8;
 
     int row = -1;
     bool flip = false;
 
     switch (octant)
     {
-    case 0: row = 2; flip = true;  break; // 오른쪽
-    case 1: row = 1; flip = true;  break; // 오른쪽-아래
-    case 2: row = 0; flip = false; break; // 아래
-    case 3: row = 1; flip = false; break; // 왼쪽-아래
-    case 4: row = 2; flip = false; break; // 왼쪽
-    case 5: row = 3; flip = false; break; // 왼쪽-위
-    case 6: row = 4; flip = false; break; // 위
-    case 7: row = 3; flip = true;  break; // 오른쪽-위
+    case 0:
+        row = 2;
+        flip = true;
+        break;  // 화면 오른쪽
+
+    case 1:
+        row = 1;
+        flip = true;
+        break;  // 화면 오른쪽-아래
+
+    case 2:
+        row = 0;
+        flip = false;
+        break;  // 화면 아래
+
+    case 3:
+        row = 1;
+        flip = false;
+        break;  // 화면 왼쪽-아래
+
+    case 4:
+        row = 2;
+        flip = false;
+        break;  // 화면 왼쪽
+
+    case 5:
+        row = 3;
+        flip = false;
+        break;  // 화면 왼쪽-위
+
+    case 6:
+        row = 4;
+        flip = false;
+        break;  // 화면 위
+
+    case 7:
+        row = 3;
+        flip = true;
+        break;  // 화면 오른쪽-위
     }
 
     m_animator->SetAnimation(6, row, 0.1f);
