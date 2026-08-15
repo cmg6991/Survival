@@ -277,7 +277,7 @@ void MainScene::Update(float deltaTime)
 						EquipWeaponToPlayer(recipe.resultId, true);
 					}
 
-					UIManager::GetInstance().ShowMessage(L"力累 己傍: " + UTF8ToWString(recipe.resultId));
+					UIManager::GetInstance().ShowMessage(L"力累 己傍: " + UTF8ToWString(resultItem->name));
 					break;
 				}
 				case CraftResult::Failed:
@@ -948,7 +948,7 @@ void MainScene::CheckItemPickUps()
 		Transform* itemTr = static_cast<Transform*>(obj->GetElement(ElementType::Transform));
 		MathEngine::Vector2 diff = itemTr->GetPostion() - playerPos;
 
-		if (diff.Magnitude() < 0.6f)
+		if (diff.Magnitude() < 1.0f)
 		{
 			int added = m_player->GetInventory()->AddItem(pickup->GetItemId(), pickup->GetCount());
 			if (added > 0)

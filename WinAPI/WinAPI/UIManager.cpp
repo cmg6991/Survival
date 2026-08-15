@@ -1587,15 +1587,22 @@ void UIManager::RenderHP(ID2D1DeviceContext* context)
 		);
 	}
 
-	float fillWidth = barWidth * hpRatio;
+	float hpX = x + 35.0f;
+	float hpY = y + 19.0f;
+
+	float hpWidth = 175.0f;
+	float hpHeight = 20.0f;
+
+	float fillWidth = hpWidth * hpRatio;
 
 	if (fillWidth > 0.0f)
 	{
-		GRAPHICS.FillRect(
-			x+38,
-			y+20,
-			fillWidth - 50,
-			barHeight - 80,
+		GRAPHICS.FillRoundedRect(
+			hpX,
+			hpY,
+			fillWidth,
+			hpHeight,
+			6.0f,     // µÕ±Ù Á¤µµ
 			D2D1::ColorF(
 				0.9f,
 				0.03f,
@@ -1604,7 +1611,6 @@ void UIManager::RenderHP(ID2D1DeviceContext* context)
 			)
 		);
 	}
-
 	wchar_t hpText[64];
 
 	swprintf_s(
