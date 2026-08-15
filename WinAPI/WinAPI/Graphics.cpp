@@ -190,7 +190,7 @@ if(FAILED(hr))\
 	hr = m_writeFactory->CreateTextFormat(
 		L"온글잎 도람체",
 		nullptr,
-		DWRITE_FONT_WEIGHT_NORMAL,
+		DWRITE_FONT_WEIGHT_BOLD,
 		DWRITE_FONT_STYLE_NORMAL,
 		DWRITE_FONT_STRETCH_NORMAL,
 		24.0f,
@@ -249,7 +249,7 @@ void Graphics::DrawString(const wchar_t* text, float x, float y, D2D1::ColorF co
 	m_writeFactory->CreateTextFormat(
 		L"온글잎 도람체",
 		nullptr,
-		DWRITE_FONT_WEIGHT_NORMAL,
+		DWRITE_FONT_WEIGHT_BOLD,
 		DWRITE_FONT_STYLE_NORMAL,
 		DWRITE_FONT_STRETCH_NORMAL,
 		fontSize,
