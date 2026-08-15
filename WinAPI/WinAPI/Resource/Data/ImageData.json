@@ -157,18 +157,26 @@
 	},
 	{
 		"key": "bubbleText",
-		"path": "Resource/bubbleText.png"
+		"path": "Resource/UI/BubbleText.png"
 	},
 	{
 		"key": "Text",
-		"path": "Resource/text.png"
+		"path": "Resource/UI/BubbleInteract.png"
 	},
 	{
 		"key": "Night",
-		"path": "Resource/NightUI.png"
+		"path": "Resource/UI/NightUI.png"
 	},
 	{
 		"key": "Day",
-		"path": "Resource/DayUI.png"
+		"path": "Resource/UI/DayUI.png"
+	},
+	{
+		"key": "MiniMapFrame",
+		"path": "Resource/UI/MinimapFrame.png"
+	},
+	{
+		"key": "HPUI",
+		"path": "Resource/UI/HP.png"
 	}
 ]

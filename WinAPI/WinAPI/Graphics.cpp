@@ -295,7 +295,7 @@ void Graphics::DrawRect(float x, float y, float width, float height, D2D1::Color
 	D2D1_RECT_F rect = D2D1::RectF(x, y, x + width, y + height);
 	m_deviceContext->DrawRectangle(rect, brush, thickness);
 
-	//brush->Release();
+	brush->Release();
 }
 
 void Graphics::FillRect(float x, float y, float width, float height, D2D1::ColorF color)
@@ -307,7 +307,7 @@ void Graphics::FillRect(float x, float y, float width, float height, D2D1::Color
 	D2D1_RECT_F rect = D2D1::RectF(x, y, x + width, y + height);
 	m_deviceContext->FillRectangle(rect, brush);
 
-	//brush->Release();
+	brush->Release();
 }
 
 void Graphics::DrawBitmapUI(ID2D1Bitmap* bitmap, float x, float y, float width, float height)
@@ -336,7 +336,96 @@ void Graphics::DrawCircle(float centerX, float centerY, float radius, D2D1::Colo
 	D2D1_ELLIPSE ellipse = D2D1::Ellipse(D2D1::Point2F(centerX, centerY), radius, radius);
 	m_deviceContext->DrawEllipse(ellipse, brush, thickness);
 
-	//brush->Release();
+	brush->Release();
+}
+
+void Graphics::FillRoundedRect(float x, float y, float width, float height, float radius, D2D1::ColorF color)
+{
+	ID2D1SolidColorBrush* brush = nullptr;
+
+	m_deviceContext->CreateSolidColorBrush(color,&brush);
+
+	if (brush == nullptr)
+		return;
+
+	D2D1_ROUNDED_RECT rect;
+
+	rect.rect =D2D1::RectF(x,y,x + width,y + height);
+
+	rect.radiusX = radius;
+	rect.radiusY = radius;
+
+	m_deviceContext->FillRoundedRectangle(&rect,brush);
+
+	brush->Release();
+}
+
+void Graphics::DrawRoundedRect(float x, float y, float width, float height, float radius, D2D1::ColorF color, float thickness)
+{
+	ID2D1SolidColorBrush* brush = nullptr;
+
+	m_deviceContext->CreateSolidColorBrush(color,&brush);
+
+	if (brush == nullptr)
+		return;
+
+	D2D1_ROUNDED_RECT rect;
+
+	rect.rect =D2D1::RectF(x,y,x + width,y + height);
+
+	rect.radiusX = radius;
+	rect.radiusY = radius;
+
+	m_deviceContext->DrawRoundedRectangle(&rect,brush,thickness);
+
+	brush->Release();
+}
+
+float Graphics::MeasureTextWidth(const wchar_t* text, float fontSize)
+{
+	if (text == nullptr || *text == L'\0')
+		return 0.0f;
+
+	IDWriteTextFormat* format = nullptr;
+
+	HRESULT hr = m_writeFactory->CreateTextFormat(
+		L"온글잎 도람체",
+		nullptr,
+		DWRITE_FONT_WEIGHT_BOLD,
+		DWRITE_FONT_STYLE_NORMAL,
+		DWRITE_FONT_STRETCH_NORMAL,
+		fontSize,
+		L"ko-KR",
+		&format
+	);
+
+	if (FAILED(hr) || format == nullptr)
+		return 0.0f;
+
+	IDWriteTextLayout* layout = nullptr;
+
+	hr = m_writeFactory->CreateTextLayout(
+		text,
+		static_cast<UINT32>(wcslen(text)),
+		format,
+		2000.0f,  // 충분히 넓은 영역
+		200.0f,   // 충분히 높은 영역
+		&layout
+	);
+
+	format->Release();
+
+	if (FAILED(hr) || layout == nullptr)
+		return 0.0f;
+
+	DWRITE_TEXT_METRICS metrics{};
+	layout->GetMetrics(&metrics);
+
+	float width = metrics.width;
+
+	layout->Release();
+
+	return width;
 }
 
 

@@ -42,6 +42,10 @@ public:
 	void FillRect(float x, float y, float width, float height, D2D1::ColorF color);
 	void DrawBitmapUI(ID2D1Bitmap* bitmap, float x, float y, float width, float height);
 	void DrawCircle(float centerX, float centerY, float radius, D2D1::ColorF color, float thickness = 2.0f);
+	void FillRoundedRect(float x,float y,float width,float height,float radius,D2D1::ColorF color);
+	void DrawRoundedRect(float x,float y,float width,float height,float radius,D2D1::ColorF color,float thickness = 1.0f);
+
+	float MeasureTextWidth(const wchar_t* text, float fontSize);
 
 private:
 	Graphics();

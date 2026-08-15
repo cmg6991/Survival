@@ -277,7 +277,7 @@ void MainScene::Update(float deltaTime)
 						EquipWeaponToPlayer(recipe.resultId, true);
 					}
 
-					UIManager::GetInstance().ShowMessage(L"       제작 성공: " + UTF8ToWString(recipe.resultId));
+					UIManager::GetInstance().ShowMessage(L"제작 성공: " + UTF8ToWString(recipe.resultId));
 					break;
 				}
 				case CraftResult::Failed:
@@ -293,13 +293,13 @@ void MainScene::Update(float deltaTime)
 						}
 					}
 
-					UIManager::GetInstance().ShowMessage(L"         제작 실패...");
+					UIManager::GetInstance().ShowMessage(L"제작 실패...");
 					break;
 				}
 
 				case CraftResult::None:
 				{
-					UIManager::GetInstance().ShowMessage(L"        재료 부족");
+					UIManager::GetInstance().ShowMessage(L"재료 부족");
 					break;
 				}
 				}
@@ -392,22 +392,22 @@ void MainScene::Update(float deltaTime)
 			if (campFire->IsLit())
 			{
 				wchar_t buf[100];
-				swprintf_s(buf, L"[E] 요리하기 (남은 시간: %d초)", (int)campFire->GetRemainingTime());
+				swprintf_s(buf, L"요리하기 (남은 시간: %d초)", (int)campFire->GetRemainingTime());
 				UIManager::GetInstance().SetInteractionHint(buf);
 			}
 			else
 			{
-				UIManager::GetInstance().SetInteractionHint(L"   [E] 나무를 넣어 불 붙이기");
+				UIManager::GetInstance().SetInteractionHint(L"나무를 넣어 불 붙이기");
 			}
 		}
 		else if (nearby->GetInteractType() == InteractType::Tree ||
 			nearby->GetInteractType() == InteractType::Rock)
 		{
-			UIManager::GetInstance().SetInteractionHint(L"         [E] 채집하기");
+			UIManager::GetInstance().SetInteractionHint(L"채집하기");
 		}
 		else
 		{
-			UIManager::GetInstance().SetInteractionHint(L"         [E] 상호작용");
+			UIManager::GetInstance().SetInteractionHint(L"상호작용");
 		}
 	}
 	else
@@ -1000,7 +1000,7 @@ void MainScene::OnInteract(Interactable* target)
 
 			if (woodCount <= 0)
 			{
-				UIManager::GetInstance().ShowMessage(L"      나무가 없습니다");
+				UIManager::GetInstance().ShowMessage(L"나무가 없습니다");
 				return;
 			}
 

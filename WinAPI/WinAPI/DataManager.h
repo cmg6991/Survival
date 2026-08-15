@@ -48,6 +48,8 @@ enum class ImageKey
 	Text,
 	NightUI,
 	DayUI,
+	MiniMapFrame,
+	HPUI,
 	Count
 };
 

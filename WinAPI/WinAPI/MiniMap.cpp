@@ -10,7 +10,7 @@
 #include "Monster.h"
 
 MiniMap::MiniMap() 
-	:m_player(nullptr), m_resourceManager(nullptr), m_centerX(1100.0f),m_centerY(550.0f), m_width(360.f),m_height(220.0f),m_tileWidth(12.0f), m_tileHeight(6.0f)
+	:m_player(nullptr), m_resourceManager(nullptr), m_centerX(1100.0f),m_centerY(550.0f), m_width(300.f),m_height(180.0f),m_tileWidth(10.0f), m_tileHeight(5.0f)
 {
 }
 
@@ -689,7 +689,7 @@ void MiniMap::Render(ID2D1DeviceContext* context, const std::vector<GameObject*>
 	context->PopLayer();
 
 	// Å×µÎ¸®
-	ID2D1SolidColorBrush* borderBrush = nullptr;
+	/*ID2D1SolidColorBrush* borderBrush = nullptr;
 	context->CreateSolidColorBrush(
 		D2D1::ColorF(D2D1::ColorF::White),
 		&borderBrush);
@@ -698,6 +698,19 @@ void MiniMap::Render(ID2D1DeviceContext* context, const std::vector<GameObject*>
 	{
 		context->DrawGeometry(diamond, borderBrush, 2.0f);
 		borderBrush->Release();
+	}*/
+	ID2D1Bitmap* frameBitmap = m_resourceManager->GetImage("MiniMapFrame");
+	if (frameBitmap != nullptr)
+	{
+
+		D2D1_SIZE_F frameSize = frameBitmap->GetSize();
+		D2D1_RECT_F frameSrcRect = D2D1::RectF(0, 0, frameSize.width, frameSize.height);
+		D2D1_RECT_F frameDestRect = D2D1::RectF(
+			m_centerX - m_frameWidth * 0.5f,
+			m_centerY - m_frameHeight * 0.5f,
+			m_centerX + m_frameWidth * 0.5f,
+			m_centerY + m_frameHeight * 0.5f);
+		DrawBitmap(context, frameBitmap, frameDestRect, frameSrcRect, false);
 	}
 
 	layer->Release();

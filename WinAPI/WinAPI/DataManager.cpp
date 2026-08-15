@@ -138,6 +138,8 @@ ImageKey DataManager::StringToImageKey(const string& str) const
 	if (str == "Text")  return ImageKey::Text;
 	if (str == "Night")  return ImageKey::NightUI;
 	if (str == "Day")  return ImageKey::DayUI;
+	if (str == "MiniMapFrame")  return ImageKey::MiniMapFrame;
+	if (str == "HPUI")  return ImageKey::HPUI;
 
 	return ImageKey::Count;
 }

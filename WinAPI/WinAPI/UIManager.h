@@ -118,7 +118,7 @@ private:
 	float m_equipWeaponSlotY = 120.f;
 
 	int m_craftRecipeScrollOffset = 0;   // 몇 번째 레시피부터 보여줄지
-	int m_craftRecipeVisibleCount = 4;   // 한 화면에 보여줄 레시피 개수 (아이템당 75px면 영역 높이/75로 계산해도 됨)
+	int m_craftRecipeVisibleCount = 3;   // 한 화면에 보여줄 레시피 개수 (아이템당 75px면 영역 높이/75로 계산해도 됨)
 	float m_craftRecipeAreaHeight = 330.f; // 재료 슬롯 침범하지 않는 리스트 영역 높이
 
 private:

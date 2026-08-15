@@ -37,5 +37,8 @@ private:
 
 	float m_tileWidth;
 	float m_tileHeight;
+
+	float m_frameWidth = 350.0f;
+	float m_frameHeight = 200.f;
 };
 
