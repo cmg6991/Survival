@@ -13,6 +13,7 @@ enum class TileType
     ROAD,
     GRASS,
     WATER,
+    SNOW,
     END
 };
 
@@ -75,6 +76,7 @@ private:
     float HashFloat01(int x, int y, unsigned int seed) const;
     bool GetLakeInfoForRegion(int regionX, int regionY, MathEngine::Vector2& outCenter, float& outRadius) const;
     bool IsProceduralWater(int worldX, int worldY) const;
+    bool IsProceduralSnow(int worldX, int worldY) const;
 private:
     vector<vector<TileType>> m_tiles;
 

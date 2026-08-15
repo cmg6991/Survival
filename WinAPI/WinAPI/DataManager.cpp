@@ -133,6 +133,7 @@ ImageKey DataManager::StringToImageKey(const string& str) const
 	if (str == "GrassRoad")  return ImageKey::GrassRoad;
 	if (str == "WaterTile")  return ImageKey::WaterTile;
 	if (str == "Grass")  return ImageKey::Grass;
+	if (str == "Snow")  return ImageKey::Snow;
 	if (str == "CrossHair")  return ImageKey::CrossHair;
 	if (str == "bubbleText")  return ImageKey::BubbleText;
 	if (str == "Text")  return ImageKey::Text;

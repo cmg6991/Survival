@@ -28,6 +28,7 @@ void TileMap::Init()
     m_tileImageKeys[TileType::GRASS] = "Tile_W";
     m_tileImageKeys[TileType::ROAD] = "Tile_W";
     m_tileImageKeys[TileType::WATER] = "Tile_W";
+    m_tileImageKeys[TileType::SNOW] = "Snow";
 
     AutotileConfig roadConfig;
     roadConfig.imageKey = "GrassRoad";
@@ -81,6 +82,7 @@ void TileMap::Init()
     waterConfig.bitmaskMap[14] = { 0, 2 };  // 1110: ESW(T)
     waterConfig.bitmaskMap[15] = { 1, 2 };  // 1111: 사방연결
     m_autotiles[TileType::WATER] = waterConfig;
+
 }
 
 void TileMap::LoadFromMapData(const vector<string>& mapData)
@@ -345,7 +347,7 @@ void TileMap::Render(ID2D1DeviceContext* context,ResourceManager* resourceManage
             if (drawBase)
             {
                 ID2D1Bitmap* baseBitmap =
-                    baseCache[TileType::FLOOR];
+                    baseCache[type];
 
                 if (baseBitmap != nullptr)
                 {
@@ -470,6 +472,9 @@ TileType TileMap::GetTile(int x, int y) const
         // 맵에 직접 지정된 WATER
         if (mapTile == TileType::WATER)
             return TileType::WATER;
+
+        if (IsProceduralSnow(x, y))
+            return TileType::SNOW;
 
         // 기존 맵 영역에서도 절차적 도로를 적용
         if (IsProceduralRoad(x, y))
@@ -627,6 +632,10 @@ TileType TileMap::GenerateProceduralTile(int worldX, int worldY, int chunkX, int
     {
         return TileType::WATER;
     }
+    if (IsProceduralSnow(worldX, worldY))
+    {
+        return TileType::SNOW;
+    }
     return TileType::FLOOR;
 }
 
@@ -738,11 +747,14 @@ bool TileMap::IsProceduralWater(int worldX, int worldY) const
     return false;
 }
 
+bool TileMap::IsProceduralSnow(int worldX, int worldY) const
+{
+    int chunkX = WorldToChunk(worldX);
+    int chunkY = WorldToChunk(worldY);
 
-//D2D1_RECT_F TileMap::GetPathSrcRec(int bitmask) const
-//{
-//    const TileCoord& coord = m_pathTileMap[bitmask];
-//    float left = (float)(coord.col * PATH_TILE_W);
-//    float top = (float)(coord.row * PATH_TILE_H);
-//    return D2D1::RectF(left, top, left + PATH_TILE_W, top + PATH_TILE_H);
-//}
+    // 예: 특정 청크부터 눈 지역
+    if (chunkX >= 5)
+        return true;
+
+    return false;
+}

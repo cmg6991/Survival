@@ -24,9 +24,6 @@ void Monster::Init()
      m_collider = static_cast<ColliderComponent*>(m_gameObject->GetElement(ElementType::Collider));
 	if (m_animator != nullptr)
 	{
-		// 방향 구분 없이 제자리 애니메이션 하나만 반복 재생
-		// (column: 프레임 개수, row: 몇 번째 줄, frameTime: 프레임당 시간)
-		// 실제 몬스터 스프라이트시트 프레임 수/줄 번호에 맞게 조정해주세요
 		m_animator->SetCellSize(46, 33);
 		m_animator->SetAnimation(6, 0, 0.15f);
 	}
@@ -38,127 +35,126 @@ void Monster::FixedUpdate()
 
 void Monster::Update(float deltaTime)
 {
-    if (IsDead()) return;
+    //if (IsDead()) return;
 
-    if (m_damageCooldownTimer > 0.0f)
-        m_damageCooldownTimer -= deltaTime;
+    //if (m_damageCooldownTimer > 0.0f)
+    //    m_damageCooldownTimer -= deltaTime;
 
-    if (m_target == nullptr || m_transform == nullptr)
-        return;
+    //if (m_target == nullptr || m_transform == nullptr)
+    //    return;
 
-    MathEngine::Vector2 current = m_transform->GetPostion();
-    MathEngine::Vector2 targetPos = m_target->GetPostion();
-    float distToPlayer = (targetPos - current).Magnitude();
+    //MathEngine::Vector2 current = m_transform->GetPostion();
+    //MathEngine::Vector2 targetPos = m_target->GetPostion();
+    //float distToPlayer = (targetPos - current).Magnitude();
 
-    if (distToPlayer <= 0.1f)
-        return;
+    //if (distToPlayer <= 0.1f)
+    //    return;
 
-      MathEngine::Vector2 dir;
+    //  MathEngine::Vector2 dir;
 
-      if (m_flowField != nullptr)
-      {
-          int tileX = (int)round(current.x);
-          int tileY = (int)round(current.y);
-          dir = m_flowField->GetDirection(tileX, tileY);
-      }
+    //  if (m_flowField != nullptr)
+    //  {
+    //      int tileX = (int)round(current.x);
+    //      int tileY = (int)round(current.y);
+    //      dir = m_flowField->GetDirection(tileX, tileY);
+    //  }
 
-      if (dir.Magnitude() < 0.01f)
-      {
-          dir = (targetPos - current).Normalize();
-      }
-      else
-      {
-          dir = dir.Normalize();
-      }
+    //  if (dir.Magnitude() < 0.01f)
+    //  {
+    //      dir = (targetPos - current).Normalize();
+    //  }
+    //  else
+    //  {
+    //      dir = dir.Normalize();
+    //  }
 
-      dir += m_separation * 1.5f;
+    //  dir += m_separation * 1.5f;
 
-      MathEngine::Vector2 obstacleAvoid(0.0f, 0.0f);
-      //if (m_physicsWorld != nullptr)
-      //{
-      //    obstacleAvoid = m_physicsWorld->GetPushAwayVector(current, 0.4f, 0.9f, m_targetPhysicsObject);
-      //    // 0.9f = 이 반경 안에 있는 장애물이면 밀어냄 (몬스터 반지름 + 여유폭)
-      //}
-      if (m_collider != nullptr)
-      {
-          obstacleAvoid = m_collider->GetAvoidVector(current, 0.9f, m_targetCollider);
-      }
-      dir += obstacleAvoid * 1.5f;
-      if (dir.Magnitude() > 0.01f)
-      {
-          dir = dir.Normalize();
-      }
+    //  MathEngine::Vector2 obstacleAvoid(0.0f, 0.0f);
 
-      MathEngine::Vector2 nextPos = current + dir * m_moveSpeed * deltaTime;
+    //  if (m_collider != nullptr)
+    //  {
+    //      obstacleAvoid = m_collider->GetAvoidVector(current, 0.9f, m_targetCollider);
+    //  }
+    //  dir += obstacleAvoid * 1.5f;
+    //  if (dir.Magnitude() > 0.01f)
+    //  {
+    //      dir = dir.Normalize();
+    //  }
 
-      int nextTileX = (int)round(nextPos.x);
-      int nextTileY = (int)round(nextPos.y);
+    //  MathEngine::Vector2 nextPos = current + dir * m_moveSpeed * deltaTime;
 
-      bool blockedByTile = (m_collisionManager != nullptr && m_collisionManager->IsBlocked(nextTileX, nextTileY));
-      bool blockedByWater =(m_tileMap != nullptr &&m_tileMap->IsWater(nextTileX, nextTileY));
+    //  int nextTileX = (int)round(nextPos.x);
+    //  int nextTileY = (int)round(nextPos.y);
 
-      bool blockedByPhysics = false;
-      //if (!blockedByTile && m_physicsWorld != nullptr)
-      //{
-      //    PhysicsEngine::CircleCollider testCollider(0.f, 0.f, 0.4f);
-      //    testCollider.center = nextPos;
-      //    blockedByPhysics = m_physicsWorld->IsColliderBlocked(testCollider, m_targetPhysicsObject,true);
-      //    m_physicsWorld->PushDynamicObjects(testCollider, current, 0.4f, m_targetPhysicsObject);
-      //}
-      if (!blockedByTile && !blockedByWater && m_collider != nullptr)
-      {
-          blockedByPhysics = m_collider->IsPositionBlocked(nextPos, 0.4f, m_targetCollider, true);
-          m_collider->PushNearbyDynamics(nextPos, 0.4f, current, m_targetCollider);
-      }
+    //  bool blockedByTile = (m_collisionManager != nullptr && m_collisionManager->IsBlocked(nextTileX, nextTileY));
+    //  bool blockedByWater =(m_tileMap != nullptr &&m_tileMap->IsWater(nextTileX, nextTileY));
 
-      if (!blockedByTile && !blockedByWater && !blockedByPhysics)
-      {
-          m_transform->SetPosition(nextPos);
-          return;
-      }
+    //  bool blockedByPhysics = false;
+    //  //if (!blockedByTile && m_physicsWorld != nullptr)
+    //  //{
+    //  //    PhysicsEngine::CircleCollider testCollider(0.f, 0.f, 0.4f);
+    //  //    testCollider.center = nextPos;
+    //  //    blockedByPhysics = m_physicsWorld->IsColliderBlocked(testCollider, m_targetPhysicsObject,true);
+    //  //    m_physicsWorld->PushDynamicObjects(testCollider, current, 0.4f, m_targetPhysicsObject);
+    //  //}
+    //  if (!blockedByTile && !blockedByWater && m_collider != nullptr)
+    //  {
+    //      blockedByPhysics = m_collider->IsPositionBlocked(nextPos, 0.4f, m_targetCollider, true);
+    //      m_collider->PushNearbyDynamics(nextPos, 0.4f, current, m_targetCollider);
+    //  }
 
-      if (blockedByWater)
-      {
-          return;
-      }
+    //  if (!blockedByTile && !blockedByWater && !blockedByPhysics)
+    //  {
+    //      m_transform->SetPosition(nextPos);
+    //      return;
+    //  }
 
-      const float tryAngles[] = { 30.0f, -30.0f, 60.0f, -60.0f, 90.0f, -90.0f };
-      for (float angleDeg : tryAngles)
-      {
-          float rad = angleDeg * 3.14159265f / 180.0f; 
-          float cosA = cosf(rad);
-          float sinA = sinf(rad);
+    //  if (blockedByWater)
+    //  {
+    //      return;
+    //  }
 
-          MathEngine::Vector2 altDir;
-          altDir.x = dir.x * cosA - dir.y * sinA;
-          altDir.y = dir.x * sinA + dir.y * cosA;
+    //  const float tryAngles[] = { 30.0f, -30.0f, 60.0f, -60.0f, 90.0f, -90.0f };
+    //  for (float angleDeg : tryAngles)
+    //  {
+    //      float rad = angleDeg * 3.14159265f / 180.0f; 
+    //      float cosA = cosf(rad);
+    //      float sinA = sinf(rad);
 
-          MathEngine::Vector2 altPos = current + altDir * m_moveSpeed * deltaTime;
+    //      MathEngine::Vector2 altDir;
+    //      altDir.x = dir.x * cosA - dir.y * sinA;
+    //      altDir.y = dir.x * sinA + dir.y * cosA;
 
-          int altTileX = (int)round(altPos.x);
-          int altTileY = (int)round(altPos.y);
-          bool altBlockedByTile = (m_collisionManager != nullptr && m_collisionManager->IsBlocked(altTileX, altTileY));
-          bool altBlockedByWater =(m_tileMap != nullptr &&m_tileMap->IsWater(altTileX,altTileY));
-          bool altBlockedByPhysics = false;
-          //if (!altBlockedByTile && m_physicsWorld != nullptr)
-          //{
-          //    PhysicsEngine::CircleCollider testCollider2(0.f, 0.f, 0.4f);
-          //    testCollider2.center = altPos;
-          //    altBlockedByPhysics = m_physicsWorld->IsColliderBlocked(testCollider2,m_targetPhysicsObject,true);
-          //    m_physicsWorld->PushDynamicObjects(testCollider2, current, 0.4f, m_targetPhysicsObject);
-          //}
-          if (!altBlockedByTile && !altBlockedByWater && m_collider != nullptr)
-          {
-              altBlockedByPhysics = m_collider->IsPositionBlocked(altPos, 0.4f, m_targetCollider, true);
-              m_collider->PushNearbyDynamics(altPos, 0.4f, current, m_targetCollider);
-          }
+    //      MathEngine::Vector2 altPos = current + altDir * m_moveSpeed * deltaTime;
 
-          if (!altBlockedByTile && !altBlockedByWater && !altBlockedByPhysics)
-          {
-              m_transform->SetPosition(altPos);
-              return;
-          }
-      }
+    //      int altTileX = (int)round(altPos.x);
+    //      int altTileY = (int)round(altPos.y);
+    //      bool altBlockedByTile = (m_collisionManager != nullptr && m_collisionManager->IsBlocked(altTileX, altTileY));
+    //      bool altBlockedByWater =(m_tileMap != nullptr &&m_tileMap->IsWater(altTileX,altTileY));
+    //      bool altBlockedByPhysics = false;
+    //      //if (!altBlockedByTile && m_physicsWorld != nullptr)
+    //      //{
+    //      //    PhysicsEngine::CircleCollider testCollider2(0.f, 0.f, 0.4f);
+    //      //    testCollider2.center = altPos;
+    //      //    altBlockedByPhysics = m_physicsWorld->IsColliderBlocked(testCollider2,m_targetPhysicsObject,true);
+    //      //    m_physicsWorld->PushDynamicObjects(testCollider2, current, 0.4f, m_targetPhysicsObject);
+    //      //}
+    //      if (!altBlockedByTile && !altBlockedByWater && m_collider != nullptr)
+    //      {
+    //          altBlockedByPhysics = m_collider->IsPositionBlocked(altPos, 0.4f, m_targetCollider, true);
+    //          m_collider->PushNearbyDynamics(altPos, 0.4f, current, m_targetCollider);
+    //      }
+
+    //      if (!altBlockedByTile && !altBlockedByWater && !altBlockedByPhysics)
+    //      {
+    //          m_transform->SetPosition(altPos);
+    //          return;
+    //      }
+    //  }
+    // 
+    // 
+
     //MathEngine::Vector2 flowDir(0.0f, 0.0f);
 
     //if (m_flowField != nullptr)
@@ -274,6 +270,115 @@ void Monster::Update(float deltaTime)
     //        return;
     //    }
     //}
+if (IsDead()) return;
+
+    if (m_damageCooldownTimer > 0.0f)
+        m_damageCooldownTimer -= deltaTime;
+
+    if (m_target == nullptr || m_transform == nullptr)
+        return;
+
+    MathEngine::Vector2 current = m_transform->GetPostion();
+    MathEngine::Vector2 targetPos = m_target->GetPostion();
+    float distToPlayer = (targetPos - current).Magnitude();
+
+    if (distToPlayer <= 0.1f)
+        return;
+
+    MathEngine::Vector2 dir;
+
+    if (m_flowField != nullptr)
+    {
+        int tileX = (int)round(current.x);
+        int tileY = (int)round(current.y);
+        dir = m_flowField->GetDirection(tileX, tileY);
+    }
+
+    if (dir.Magnitude() < 0.01f)
+        dir = (targetPos - current).Normalize();
+    else
+        dir = dir.Normalize();
+
+    dir += m_separation * 1.5f;
+
+    MathEngine::Vector2 obstacleAvoid(0.0f, 0.0f);
+    if (m_collider != nullptr)
+    {
+        obstacleAvoid = m_collider->GetAvoidVector(current, 0.9f, m_targetCollider);
+    }
+    dir += obstacleAvoid * 1.5f;
+
+    // ★ 회피 중이면, 방금 찾은 우회 방향을 잠깐 동안 계속 섞어줌 (부드러운 곡선)
+    if (m_avoidTimer > 0.0f)
+    {
+        m_avoidTimer -= deltaTime;
+        dir += m_avoidDirection * 0.8f;
+    }
+
+    if (dir.Magnitude() > 0.01f)
+        dir = dir.Normalize();
+
+    MathEngine::Vector2 nextPos = current + dir * m_moveSpeed * deltaTime;
+
+    int nextTileX = (int)round(nextPos.x);
+    int nextTileY = (int)round(nextPos.y);
+
+    bool blockedByTile = (m_collisionManager != nullptr && m_collisionManager->IsBlocked(nextTileX, nextTileY));
+    bool blockedByWater = (m_tileMap != nullptr && m_tileMap->IsWater(nextTileX, nextTileY));
+
+    bool blockedByPhysics = false;
+    if (!blockedByTile && !blockedByWater && m_collider != nullptr)
+    {
+        blockedByPhysics = m_collider->IsPositionBlocked(nextPos, 0.4f, m_targetCollider, true);
+        m_collider->PushNearbyDynamics(nextPos, 0.4f, current, m_targetCollider);
+    }
+
+    if (!blockedByTile && !blockedByWater && !blockedByPhysics)
+    {
+        m_transform->SetPosition(nextPos);
+        return;
+    }
+
+    // ★ 물도 이제 그냥 멈추지 않고, 아래 tryAngles 우회 루프를 그대로 탐 (return 제거)
+
+    const float tryAngles[] = { 30.0f, -30.0f, 60.0f, -60.0f, 90.0f, -90.0f, 120.0f, -120.0f, 150.0f, -150.0f };
+    for (float angleDeg : tryAngles)
+    {
+        float rad = angleDeg * 3.14159265f / 180.0f;
+        float cosA = cosf(rad);
+        float sinA = sinf(rad);
+
+        MathEngine::Vector2 altDir;
+        altDir.x = dir.x * cosA - dir.y * sinA;
+        altDir.y = dir.x * sinA + dir.y * cosA;
+
+        if (altDir.Magnitude() > 0.01f)
+            altDir = altDir.Normalize();
+
+        MathEngine::Vector2 altPos = current + altDir * m_moveSpeed * deltaTime;
+
+        int altTileX = (int)round(altPos.x);
+        int altTileY = (int)round(altPos.y);
+        bool altBlockedByTile = (m_collisionManager != nullptr && m_collisionManager->IsBlocked(altTileX, altTileY));
+        bool altBlockedByWater = (m_tileMap != nullptr && m_tileMap->IsWater(altTileX, altTileY));
+        bool altBlockedByPhysics = false;
+        if (!altBlockedByTile && !altBlockedByWater && m_collider != nullptr)
+        {
+            altBlockedByPhysics = m_collider->IsPositionBlocked(altPos, 0.4f, m_targetCollider, true);
+            m_collider->PushNearbyDynamics(altPos, 0.4f, current, m_targetCollider);
+        }
+
+        if (!altBlockedByTile && !altBlockedByWater && !altBlockedByPhysics)
+        {
+            // ★ 이 방향을 잠깐 동안 기억해서, 다음 몇 프레임도 부드럽게 이 방향을 유지
+            m_avoidDirection = altDir;
+            m_avoidTimer = 0.25f;
+
+            m_transform->SetPosition(altPos);
+            return;
+        }
+    }
+
 }
 
 void Monster::LateUpdate()

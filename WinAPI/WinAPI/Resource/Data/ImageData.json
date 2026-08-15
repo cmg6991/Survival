@@ -178,5 +178,9 @@
 	{
 		"key": "HPUI",
 		"path": "Resource/UI/HP.png"
+	},
+	{
+		"key": "Snow",
+		"path": "Resource/snowTile.png"
 	}
 ]

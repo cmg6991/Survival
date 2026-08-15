@@ -43,6 +43,7 @@ enum class ImageKey
 	GrassRoad,
 	WaterTile,
 	Grass,
+	Snow,
 	CrossHair,
 	BubbleText,
 	Text,
