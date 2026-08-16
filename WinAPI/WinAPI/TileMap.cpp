@@ -29,7 +29,7 @@ void TileMap::Init()
     m_tileImageKeys[TileType::ROAD] = "Tile_W";
     m_tileImageKeys[TileType::WATER] = "Tile_W";
     m_tileImageKeys[TileType::SNOW] = "Snow";
-    m_tileImageKeys[TileType::Stone] = "StoneTile";
+    m_tileImageKeys[TileType::STONE] = "StoneTile";
 
     AutotileConfig roadConfig;
     roadConfig.imageKey = "GrassRoad";
@@ -659,7 +659,7 @@ TileType TileMap::GenerateProceduralTile(int worldX, int worldY, int chunkX, int
         return TileType::SNOW;
 
     if (IsProceduralStone(worldX, worldY))
-        return TileType::Stone;
+        return TileType::STONE;
 
     return TileType::FLOOR;
 }

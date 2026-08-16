@@ -1014,7 +1014,8 @@ void MainScene::OnInteract(Interactable* target)
 		return;
 	}
 	if (target->GetInteractType() == InteractType::Tree ||
-		target->GetInteractType() == InteractType::Rock)
+		target->GetInteractType() == InteractType::Rock||
+		target->GetInteractType() == InteractType::Iron)
 	{
 		GameObject* obj = target->GetGameObject();
 		ResourceNode* resource =
@@ -1290,7 +1291,7 @@ void MainScene::ClearAllMonsters()
 		Monster* monster = static_cast<Monster*>(obj->GetElement(ElementType::Monster));
 		if (monster != nullptr)
 		{
-			ReleaseMonster(obj, monster->GetMonsterId());   // 죽은 게 아니어도 강제로 풀에 반납
+			monster->ForceStartFadeOut();
 		}
 	}
 }
@@ -1469,7 +1470,7 @@ void MainScene::CheckMonsters()
 	{
 		if (!obj->GetActive()) continue;
 		Monster* monster = static_cast<Monster*>(obj->GetElement(ElementType::Monster));
-		if (monster != nullptr && monster->IsDead())
+		if (monster != nullptr && monster->IsReadyToRemove())
 		{
 			toRelease.push_back({ obj, monster->GetMonsterId() });
 		}
@@ -1738,7 +1739,7 @@ void MainScene::SpawnItemDrop(const MathEngine::Vector2& centerPos, const string
 
 	SpriteRenderer* sprite = new SpriteRenderer(itemData->image);
 	sprite->SetResourceManager(m_resourceManager);
-	sprite->SetScale(0.4f);   // 채집물이니 살짝 작게 (원하는 크기로 조정)
+	sprite->SetScale(1.f);   // 채집물이니 살짝 작게 (원하는 크기로 조정)
 
 	ItemPickUp* pickup = new ItemPickUp(itemId, count);
 	// ★ posId를 굳이 세이브 추적용으로 안 씀 (임시 드롭이므로)

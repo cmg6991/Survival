@@ -10,7 +10,8 @@ enum class SpawnObjectType
 {
 	Tree,
 	Rock,
-	Grass
+	Grass,
+    Iron
 };
 
 class ObjectSpawner
@@ -50,6 +51,7 @@ private:
 
     unordered_map<ChunkType, vector<string>> m_treePoolByChunk;
     unordered_map<ChunkType, vector<string>> m_rockPoolByChunk;
+    unordered_map<ChunkType, vector<string>> m_IronPoolByChunk;
 
     // 청크 타입별 등장 가능한 잔디 이미지+스케일 목록
     unordered_map<ChunkType, vector<pair<string, float>>> m_grassImagePoolByChunk;

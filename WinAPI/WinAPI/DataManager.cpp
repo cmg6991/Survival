@@ -117,7 +117,9 @@ ImageKey DataManager::StringToImageKey(const string& str) const
 	if (str == "WorkTable")  return ImageKey::WorkTable;
 	if (str == "Item_Wood")  return ImageKey::Item_Wood;
 	if (str == "Item_Stone")  return ImageKey::Item_Stone;
-	if (str == "Item_Sword")  return ImageKey::Item_Sword;
+	if (str == "Item_Stone")  return ImageKey::Item_Stone;
+	if (str == "Item_Iron")  return ImageKey::Item_Iron;
+	if (str == "Item_Sword_Refined")  return ImageKey::Item_Sword_Refined;
 	if (str == "Item_Gun")  return ImageKey::Item_Gun;
 	if (str == "Item_Shield")  return ImageKey::Item_Shield;
 	if (str == "Item_Apple")  return ImageKey::Item_Apple;
@@ -146,6 +148,8 @@ ImageKey DataManager::StringToImageKey(const string& str) const
 	if (str == "HPUI")  return ImageKey::HPUI;
 	if (str == "Item_WinterTree")  return ImageKey::Item_WinterTree;
 	if (str == "Item_WinterGrass")  return ImageKey::Item_WinterGrass;
+	if (str == "Item_NormalTree")  return ImageKey::Item_NormalTree;
+	if (str == "IronBox")  return ImageKey::IronBox;
 
 	return ImageKey::Count;
 }

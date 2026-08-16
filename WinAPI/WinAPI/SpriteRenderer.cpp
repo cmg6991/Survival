@@ -188,7 +188,7 @@ void SpriteRenderer::Render(ID2D1DeviceContext* context)
     context->DrawBitmap(
         bitmap,
         destRect,
-        1.0f,
+        m_alpha,
         D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR,
         srcRect
     );

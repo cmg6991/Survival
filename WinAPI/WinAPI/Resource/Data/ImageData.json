@@ -77,15 +77,23 @@
 	},
 	{
 		"key": "Item_Wood",
-		"path": "Resource/tree_single_S.png"
+		"path": "Resource/wood.png"
 	},
 	{
 		"key": "Item_Stone",
 		"path": "Resource/stone(4).png"
 	},
 	{
+		"key": "Item_Iron",
+		"path": "Resource/Iron.png"
+	},
+	{
 		"key": "Item_Sword",
 		"path": "Resource/Sword.png"
+	},
+	{
+		"key": "Item_Sword_Refined",
+		"path": "Resource/UpgradeSword.png"
 	},
 	{
 		"key": "Item_Gun",
@@ -188,6 +196,10 @@
 		"path": "Resource/Winter/tree(3).png"
 	},
 	{
+		"key": "Item_NormalTree",
+		"path": "Resource/tree_single_S.png"
+	},
+	{
 		"key": "Item_WinterGrass",
 		"path": "Resource/Winter/snow_detail(4).png"
 	},
@@ -198,5 +210,9 @@
 	{
 		"key": "StoneTile",
 		"path": "Resource/StoneTile.png"
+	},
+	{
+		"key": "IronBox",
+		"path": "Resource/IronBox.png"
 	}
 ]

@@ -9,6 +9,7 @@ class CollisionManager;
 class FlowFieldManager;
 class ColliderComponent;
 class TileMap;
+class SpriteRenderer;
 //namespace PhysicsEngine
 //{
 //    class PhysicsWorld;
@@ -38,8 +39,6 @@ public:
     bool IsDead() const { return m_health <= 0; }
     Transform* GetTransform() const { return m_transform; }
 
-    MathEngine::Vector2 GetWaterAvoidVector(const MathEngine::Vector2& pos, float checkRadius) const;
-
     void SetTarget(Transform* target) { m_target = target; }
     void SetCollisionManager(CollisionManager* cm) { m_collisionManager = cm; }
     //void SetPhysicsWorld(PhysicsEngine::PhysicsWorld* world) { m_physicsWorld = world; }
@@ -56,12 +55,14 @@ public:
    //void SetTargetPhysicsObject(PhysicsEngine::Object* obj) { m_targetPhysicsObject = obj; }
 
     void Reset(int maxHealth);
-    void SetDead(bool dead) { m_isDeadOverride = dead; }
 
     void SetMonsterId(const string& id) { m_monsterId = id; }
     const string& GetMonsterId() const { return m_monsterId; }
     void Reset(int maxHealth, int cellWidth, int cellHeight, int animColumn);
 
+    bool IsReadyToRemove() const { return m_isDying && m_deathTimer <= 0.0f; }
+
+    void ForceStartFadeOut();
 private:
     Transform* m_transform = nullptr;
     Animator* m_animator = nullptr;
@@ -71,6 +72,7 @@ private:
     ColliderComponent* m_collider = nullptr;
     ColliderComponent* m_targetCollider = nullptr;
     TileMap* m_tileMap = nullptr;
+    SpriteRenderer* m_sprite = nullptr;
 
     int m_health;
     float m_moveSpeed = 1.5f;
@@ -84,10 +86,10 @@ private:
     MathEngine::Vector2 m_avoidDirection = { 0.0f, 0.0f };
     float m_avoidTimer = 0.0f;
 
-    bool m_isDeadOverride = false;
-
     string m_monsterId;
-    //PhysicsEngine::Object* m_targetPhysicsObject = nullptr;
-    //PhysicsEngine::PhysicsWorld* m_physicsWorld = nullptr;
+
+    bool m_isDying = false;
+    float m_deathTimer = 0.0f;
+    const float m_deathDuration = 0.6f;
 };
 

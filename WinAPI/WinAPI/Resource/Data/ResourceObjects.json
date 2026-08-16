@@ -2,7 +2,7 @@
   {
     "id": "Tree_Normal",
     "name": "나무",
-    "image": "Item_Wood",
+    "image": "Item_NormalTree",
     "interactType": "Tree",
     "scale": 1.0,
     "baseItemId": "Item_Wood",
@@ -58,5 +58,15 @@
         "maxCount": 2
       }
     ]
-  }
+  },
+  {
+    "id": "IronBox",
+    "name": "철광석",
+    "image": "IronBox",
+    "interactType": "Iron",
+    "scale": 1,
+    "baseItemId": "Item_Iron",
+    "baseMinCount": 1,
+    "baseMaxCount": 2
+  } 
 ]

@@ -5,8 +5,7 @@
 #include "CollisionManager.h"
 #include "FlowFieldManager.h"
 #include "TileMap.h"
-//#include "../PhysicsEngine/PhysicsWorld.h"
-//#include "../PhysicsEngine/CircleCollider.h"
+#include "SpriteRenderer.h"
 #include "ColliderComponent.h"
 
 Monster::Monster(int maxHealth) :m_health(maxHealth)
@@ -21,8 +20,9 @@ void Monster::Init()
 {
 	m_transform = static_cast<Transform*>(m_gameObject->GetElement(ElementType::Transform));
 	m_animator = static_cast<Animator*>(m_gameObject->GetElement(ElementType::Animator));
-     m_collider = static_cast<ColliderComponent*>(m_gameObject->GetElement(ElementType::Collider));
-	if (m_animator != nullptr)
+    m_collider = static_cast<ColliderComponent*>(m_gameObject->GetElement(ElementType::Collider));
+    m_sprite = static_cast<SpriteRenderer*>(m_gameObject->GetElement(ElementType::SpriteRenderer));
+    if (m_animator != nullptr)
 	{
 		m_animator->SetCellSize(46, 33);
 		m_animator->SetAnimation(6, 0, 0.15f);
@@ -35,6 +35,25 @@ void Monster::FixedUpdate()
 
 void Monster::Update(float deltaTime)
 {
+    if (m_isDying)
+    {
+        m_deathTimer -= deltaTime;
+
+        // ★ 남은 시간 비율에 따라 알파를 1.0 -> 0.0으로 선형 보간
+        float t = m_deathTimer / m_deathDuration;
+        if (t < 0.0f) t = 0.0f;
+
+        if (m_sprite != nullptr)
+            m_sprite->SetAlpha(t);
+
+        return;
+    }
+
+    if (IsDead()) return;
+
+    if (m_damageCooldownTimer > 0.0f)
+        m_damageCooldownTimer -= deltaTime;
+
     //if (IsDead()) return;
 
     //if (m_damageCooldownTimer > 0.0f)
@@ -418,8 +437,15 @@ void Monster::SetGameObject(GameObject* gameObject)
 
 void Monster::TakeDamage(int amount)
 {
-	m_health -= amount;
-	if (m_health < 0) m_health = 0;
+    if (m_isDying) return;
+
+    m_health -= amount;
+    if (m_health < 0) m_health = 0;
+
+    if (m_health <= 0 && !m_isDying)
+    {
+        ForceStartFadeOut();
+    }
 }
 
 void Monster::Reset(int maxHealth)
@@ -448,9 +474,29 @@ void Monster::Reset(int maxHealth, int cellWidth, int cellHeight, int animColumn
     m_target = nullptr;
     m_targetCollider = nullptr;
 
+    m_isDying = false;
+    m_deathTimer = 0.0f;
+
+    if (m_sprite != nullptr)
+        m_sprite->SetAlpha(1.0f);
+
+    if (m_collider != nullptr)
+        m_collider->SetEnabled(true);
+
     if (m_animator != nullptr)
     {
         m_animator->SetCellSize(cellWidth, cellHeight);
         m_animator->SetAnimation(animColumn, 0, 0.15f);
     }
+}
+
+void Monster::ForceStartFadeOut()
+{
+    if (m_isDying) return;
+
+    m_isDying = true;
+    m_deathTimer = m_deathDuration;
+
+    if (m_collider != nullptr)
+        m_collider->SetEnabled(false);
 }

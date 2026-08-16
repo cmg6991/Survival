@@ -49,6 +49,9 @@ public:
 	//Bitmap* CreateFlip(Bitmap* src);
 	void SetVisible(bool isVisible) { m_isVisible = isVisible; }
 
+	void SetAlpha(float alpha) { m_alpha = alpha; }
+	float GetAlpha() const { return m_alpha; }
+
 private:
 	string m_imageName;
 	Transform* m_transform;
@@ -68,4 +71,5 @@ private:
 	float m_scale = 1.0f;
 	float m_rotDeg = 0.0f;
 	bool m_isVisible = true;
+	float m_alpha = 1.0f;
 };

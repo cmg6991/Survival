@@ -4,5 +4,6 @@ enum class InteractType
 	CampFire,
 	WorkTable,
 	Tree,
-	Rock
+	Rock,
+	Iron
 };

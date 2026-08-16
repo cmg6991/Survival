@@ -15,7 +15,7 @@ enum class TileType
     GRASS,
     WATER,
     SNOW,
-    Stone,
+    STONE,
     END
 };
 

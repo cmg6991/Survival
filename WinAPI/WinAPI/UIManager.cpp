@@ -499,15 +499,13 @@ void UIManager::RenderInventory(ID2D1DeviceContext* context)
 
 		if (i >= static_cast<int>(items.size()))
 			continue;
-		const ItemData* item =
-			DataManager::GetInstance()
-			.FindItem(items[i].first);
+		const ItemData* item =DataManager::GetInstance().FindItem(items[i].first);
 
 		if (item == nullptr)
 			continue;
 		ID2D1Bitmap* icon =m_resourceManager->GetImage(item->image);
 
-		if (icon != nullptr)
+		/*if (icon != nullptr)
 		{
 			GRAPHICS.DrawBitmapUI(
 				icon,
@@ -516,7 +514,38 @@ void UIManager::RenderInventory(ID2D1DeviceContext* context)
 				slotSize,
 				slotSize
 			);
-		}
+		}*/
+		D2D1_SIZE_F imageSize = icon->GetSize();
+
+		// 슬롯보다 살짝 작게
+		float maxSize = slotSize - 6.0f;
+
+		float imageWidth = imageSize.width;
+		float imageHeight = imageSize.height;
+
+		float scaleX = maxSize / imageWidth;
+		float scaleY = maxSize / imageHeight;
+
+		// 더 작은 쪽을 기준으로 맞춤
+		float scale = min(scaleX, scaleY);
+
+		float drawWidth = imageWidth * scale;
+		float drawHeight = imageHeight * scale;
+
+		// 슬롯 중앙 정렬
+		float drawX =
+			slotX + (slotSize - drawWidth) * 0.5f;
+
+		float drawY =
+			slotY[i] + (slotSize - drawHeight) * 0.5f;
+
+		GRAPHICS.DrawBitmapUI(
+			icon,
+			drawX,
+			drawY,
+			drawWidth,
+			drawHeight
+		);
 
 		wchar_t count[10];
 
@@ -524,10 +553,10 @@ void UIManager::RenderInventory(ID2D1DeviceContext* context)
 
 		GRAPHICS.DrawString(
 			count,
-			slotX + 34.0f,
-			slotY[i] + 29.0f,
+			slotX + 45.0f,
+			slotY[i] + 33.0f,
 			D2D1::ColorF::Black,
-			15.0f
+			20.0f
 		);
 	}
 }

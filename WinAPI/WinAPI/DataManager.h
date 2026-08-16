@@ -26,7 +26,9 @@ enum class ImageKey
 	WorkTable,
 	Item_Wood,
 	Item_Stone,
+	Item_Iron,
 	Item_Sword,
+	Item_Sword_Refined,
 	Item_Gun,
 	Item_Shield,
 	Item_Apple,
@@ -55,6 +57,8 @@ enum class ImageKey
 	HPUI,
 	Item_WinterTree,
 	Item_WinterGrass,
+	Item_NormalTree,
+	IronBox,
 	Count
 };
 
