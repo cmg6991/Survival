@@ -1,14 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "ElementBase.h"
-
-struct ResourceDrop
-{
-	string itemId;
-	float chance;      // 0.0 ~ 1.0
-	int minCount;
-	int maxCount;
-};
+#include "CraftData.h"
 
 class ResourceNode :public ElementBase
 {

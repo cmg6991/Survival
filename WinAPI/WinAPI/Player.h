@@ -77,7 +77,7 @@ private:
 	void UpdateSpriteState();
 	void ApplyFacing(const MathEngine::Vector2& faceDir);
 	bool m_isMoving = false;
-
+	bool m_facingRight = true;
 private:
 	Transform* m_transform;
 	float m_moveSpeed;

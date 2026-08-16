@@ -79,49 +79,109 @@ void UIManager::ToggleInventoryWindow()
 	m_isInventoryOpen = !m_isInventoryOpen;
 }
 
-void UIManager::HandleCraftingInventoryClick(float mouseX, float mouseY)
+bool UIManager::HandleCraftingInventoryClick(float mouseX, float mouseY)
 {
-	OutputDebugStringA(("클릭 좌표: " + std::to_string(mouseX) + ", " + std::to_string(mouseY) + "\n").c_str());
-	if (m_inventory == nullptr) return;
-	
-	vector<pair<string, int>> itemList(m_inventory->GetAllItems().begin(), m_inventory->GetAllItems().end());
+	//OutputDebugStringA(("클릭 좌표: " + std::to_string(mouseX) + ", " + std::to_string(mouseY) + "\n").c_str());
+	//if (m_inventory == nullptr) return;
+	//
+	//vector<pair<string, int>> itemList(m_inventory->GetAllItems().begin(), m_inventory->GetAllItems().end());
 
-	for (int i = 0; i < (int)itemList.size(); i++)
+	//for (int i = 0; i < (int)itemList.size(); i++)
+	//{
+	//	int row = i / m_slotsPerRow;
+	//	int col = i % m_slotsPerRow;
+
+	//	float slotX = m_craftInvStartX + col * (m_slotSize + m_slotPadding);
+	//	float slotY = m_craftInvStartY  + 70.f + row * (m_slotSize + m_slotPadding);
+
+	//	if (mouseX >= slotX && mouseX <= slotX + m_slotSize &&
+	//		mouseY >= slotY && mouseY <= slotY + m_slotSize)
+	//	{
+	//		OutputDebugStringA(("슬롯 " + std::to_string(i) + " 클릭 감지! 아이템: " + itemList[i].first + "\n").c_str());
+
+	//		// 클릭한 아이템이 재료로 쓰이는 첫 번째 레시피를 찾아서 자동 선택
+	//		string station;
+	//		switch (m_craftingStation)
+	//		{
+	//		case InteractType::CampFire:  station = "CampFire"; break;
+	//		case InteractType::WorkTable: station = "WorkTable"; break;
+	//		}
+
+	//		vector<RecipeData> recipes = DataManager::GetInstance().GetRecipesByStation(station);
+	//		for (int r = 0; r < (int)recipes.size(); r++)
+	//		{
+	//			for (const Ingredient& ing : recipes[r].ingredients)
+	//			{
+	//				if (ing.ingredientId == itemList[i].first)
+	//				{
+	//					m_selectedRecipeIndex = r;
+	//					return;
+	//				}
+	//			}
+	//		}
+	//		return;
+	//	}
+	//}
+	string station;
+
+	switch (m_craftingStation)
 	{
-		int row = i / m_slotsPerRow;
-		int col = i % m_slotsPerRow;
+	case InteractType::CampFire:
+		station = "CampFire";
+		break;
 
-		float slotX = m_craftInvStartX + col * (m_slotSize + m_slotPadding);
-		float slotY = m_craftInvStartY + row * (m_slotSize + m_slotPadding);
+	case InteractType::WorkTable:
+		station = "WorkTable";
+		break;
 
-		if (mouseX >= slotX && mouseX <= slotX + m_slotSize &&
-			mouseY >= slotY && mouseY <= slotY + m_slotSize)
-		{
-			OutputDebugStringA(("슬롯 " + std::to_string(i) + " 클릭 감지! 아이템: " + itemList[i].first + "\n").c_str());
-
-			// 클릭한 아이템이 재료로 쓰이는 첫 번째 레시피를 찾아서 자동 선택
-			string station;
-			switch (m_craftingStation)
-			{
-			case InteractType::CampFire:  station = "CampFire"; break;
-			case InteractType::WorkTable: station = "WorkTable"; break;
-			}
-
-			vector<RecipeData> recipes = DataManager::GetInstance().GetRecipesByStation(station);
-			for (int r = 0; r < (int)recipes.size(); r++)
-			{
-				for (const Ingredient& ing : recipes[r].ingredients)
-				{
-					if (ing.ingredientId == itemList[i].first)
-					{
-						m_selectedRecipeIndex = r;
-						return;
-					}
-				}
-			}
-			return;
-		}
+	default:
+		return false;
 	}
+
+	vector<RecipeData> recipes =
+		DataManager::GetInstance().GetRecipesByStation(station);
+
+	if (recipes.empty())
+		return false;
+
+	// RenderCraftingRecipeList()와 동일하게 맞춤
+	const float recipeOffsetY = 30.0f;
+
+	float y = m_craftRecipeStartY + recipeOffsetY;
+
+	int endIndex = min(
+		(int)recipes.size(),
+		m_craftRecipeScrollOffset + m_craftRecipeVisibleCount
+	);
+
+	for (int i = m_craftRecipeScrollOffset; i < endIndex; i++)
+	{
+		// 실제 렌더링과 동일
+		float cardX = m_craftRecipeStartX;
+		float cardWidth = 380.0f;
+		float cardHeight = 70.0f;
+
+		// 실제 카드 영역만 클릭
+		if (mouseX >= cardX &&
+			mouseX <= cardX + cardWidth &&
+			mouseY >= y &&
+			mouseY <= y + cardHeight)
+		{
+			m_selectedRecipeIndex = i;
+
+			OutputDebugStringA(
+				("선택 레시피 : " +
+					recipes[i].id + "\n").c_str()
+			);
+
+			return true;
+		}
+
+		// RenderCraftingRecipeList와 동일하게 80px
+		y += cardHeight + 10.0f;
+	}
+
+	return false;
 }
 
 void UIManager::HandleInventoryClick(float mouseX, float mouseY)
@@ -208,31 +268,23 @@ bool UIManager::HandleCraftingRecipeClick(float mouseX, float mouseY)
 	if (recipes.empty())
 		return false;
 
-	float y = m_craftRecipeStartY;
+	const float recipeOffsetY = 30.0f;
+	float y = m_craftRecipeStartY + recipeOffsetY; // 수정
 
-	int endIndex = min(
-		(int)recipes.size(),
-		m_craftRecipeScrollOffset + m_craftRecipeVisibleCount
-	);
+	int endIndex = min((int)recipes.size(), m_craftRecipeScrollOffset + m_craftRecipeVisibleCount);
 
 	for (int i = m_craftRecipeScrollOffset; i < endIndex; i++)
 	{
-		// 레시피 한 칸 영역
 		if (mouseX >= m_craftRecipeStartX &&
-			mouseX <= m_craftRecipeStartX + 400 &&
+			mouseX <= m_craftRecipeStartX + 380 && // 400 -> 380
 			mouseY >= y &&
 			mouseY <= y + 70)
 		{
 			m_selectedRecipeIndex = i;
-
-			OutputDebugStringA(
-				("선택 레시피 : " + recipes[i].id + "\n").c_str()
-			);
-
 			return true;
 		}
 
-		y += 75;
+		y += 80; // 75 -> 80
 	}
 
 	return false;
@@ -1209,6 +1261,7 @@ void UIManager::RenderCraftingRecipeList(ID2D1DeviceContext* context)
 		D2D1::ColorF::Black,
 		20.0f
 	);
+
 
 	int maxOffset =max(0,(int)recipes.size() -m_craftRecipeVisibleCount);
 

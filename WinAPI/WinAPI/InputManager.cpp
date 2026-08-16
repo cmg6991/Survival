@@ -1,5 +1,5 @@
 #include "InputManager.h"
-
+#include <stdio.h>
 void InputManager::Init(HWND hwnd)
 {
 	m_hwnd = hwnd;
@@ -54,5 +54,15 @@ MathEngine::Vector2 InputManager::GetMousePosition()
 	GetCursorPos(&mousePos);
 	ScreenToClient(m_hwnd, &mousePos);
 
+
+	POINT screenPos = mousePos;
+
 	return { (float)mousePos.x, (float)mousePos.y };
+	//return m_mousePosition;
+}
+
+void InputManager::SetMousePosition(float x, float y)
+{
+	m_mousePosition.x = x;
+	m_mousePosition.y = y;
 }

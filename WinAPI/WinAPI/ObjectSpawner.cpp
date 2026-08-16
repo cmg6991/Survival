@@ -8,12 +8,26 @@
 #include "SpriteRenderer.h"
 #include "Interactable.h"
 #include "ResourceNode.h"
+#include "DataManager.h"
 #include "pch.h"
 
 ObjectSpawner::ObjectSpawner() : m_scene(nullptr), m_resourceManager(nullptr), m_tileMap(nullptr)
 {
     random_device rd;
     m_random.seed(rd());
+
+    m_treePoolByChunk[ChunkType::GrassLand] = { "Tree_Normal" };
+    m_treePoolByChunk[ChunkType::Lake] = { "Tree_Normal" };
+    m_treePoolByChunk[ChunkType::Snow] = { "Tree_Winter" };
+
+    m_rockPoolByChunk[ChunkType::GrassLand] = { "Rock_Normal" };
+    m_rockPoolByChunk[ChunkType::Lake] = { "Rock_Normal" };
+    //m_rockPoolByChunk[ChunkType::Snow] = { "Rock_Normal" };
+
+    // ── 청크 타입별 잔디(장식) 풀 ──
+    m_grassImagePoolByChunk[ChunkType::GrassLand] = { { "Grass", 2.0f } };
+    m_grassImagePoolByChunk[ChunkType::Lake] = { { "Grass", 1.5f } };
+    m_grassImagePoolByChunk[ChunkType::Snow] = { { "Grass", 1.5f } };
 }
 
 ObjectSpawner::~ObjectSpawner()
@@ -59,30 +73,28 @@ void ObjectSpawner::SpawnChunk(int chunkX,int chunkY,int chunkWidth,int chunkHei
             case ChunkType::GrassLand:
             {
                 if (value < 0.04f)
-                {
-                    SpawnObject(SpawnObjectType::Tree, x, y);
-                }
+                    SpawnObject(SpawnObjectType::Tree, x, y, chunkType);
                 else if (value < 0.06f)
-                {
-                    SpawnObject(SpawnObjectType::Rock, x, y);
-                }
+                    SpawnObject(SpawnObjectType::Rock, x, y, chunkType);
                 else if (value < 0.13f)
-                {
-                    SpawnObject(SpawnObjectType::Grass, x, y);
-                }
+                    SpawnObject(SpawnObjectType::Grass, x, y, chunkType);
                 break;
             }
             case ChunkType::Lake:
             {
                 if (value < 0.2f)
-                {
-                    SpawnObject(SpawnObjectType::Grass, x, y);
-                }
+                    SpawnObject(SpawnObjectType::Grass, x, y, chunkType);
+                break;
+            }
+            case ChunkType::Snow:
+            {
+                if (value < 0.03f)
+                    SpawnObject(SpawnObjectType::Tree, x, y, chunkType);
+                else if (value < 0.05f)
+                    SpawnObject(SpawnObjectType::Grass, x, y, chunkType);
                 break;
             }
             }
-           
-
             m_spawnedPositions.insert(key);
         }
     }
@@ -90,15 +102,10 @@ void ObjectSpawner::SpawnChunk(int chunkX,int chunkY,int chunkWidth,int chunkHei
 
 ChunkType ObjectSpawner::GetChunkType(int chunkX, int chunkY) const
 {
-    unsigned int seed =
-        static_cast<unsigned int>(
-            chunkX * 73856093 ^
-            chunkY * 19349663
-            );
+    if (m_tileMap == nullptr)
+        return ChunkType::GrassLand;
 
-    seed ^= 123456789u;
-
-    return static_cast<ChunkType>(seed % 3);
+    return m_tileMap->GetChunkBiome(chunkX, chunkY);
 }
 
 bool ObjectSpawner::CanSpawnAt(int x, int y) const
@@ -129,107 +136,171 @@ bool ObjectSpawner::CanSpawnAt(int x, int y) const
         return false;
 
     // 기본 땅에만 생성
-    if (tile != TileType::FLOOR)
+    if (tile != TileType::FLOOR && tile!= TileType::SNOW)
         return false;
 
     return true;
 }
 
-void ObjectSpawner::SpawnObject(SpawnObjectType type, int x, int y)
+void ObjectSpawner::SpawnObject(SpawnObjectType type, int x, int y, ChunkType chunkType)
 {
     switch (type)
     {
     case SpawnObjectType::Tree:
-        SpawnTree(x, y);
+        SpawnResourceObject(PickResourceId(m_treePoolByChunk[chunkType]), x, y);
         break;
 
     case SpawnObjectType::Rock:
-        SpawnRock(x, y);
+        SpawnResourceObject(PickResourceId(m_rockPoolByChunk[chunkType]), x, y);
         break;
 
     case SpawnObjectType::Grass:
-        SpawnGrass(x, y);
+    {
+        auto& pool = m_grassImagePoolByChunk[chunkType];
+        if (!pool.empty())
+        {
+            int idx = m_random() % pool.size();
+            const auto& [imageKey, scale] = pool[idx];
+            SpawnGrass(x, y, imageKey, scale);
+        }
         break;
+    }
     }
 }
 
-void ObjectSpawner::SpawnTree(int x, int y)
+string ObjectSpawner::PickResourceId(const vector<string>& pool)
 {
-    //MathEngine::Vector2 world =TileManager::GetInstance().TileToScreen({(float)x,(float)y});
+    if (pool.empty()) return "";
+    int idx = m_random() % pool.size();
+    return pool[idx];
+}
 
-    GameObject* obj =m_scene->CreateObject("Tree");
+void ObjectSpawner::SpawnResourceObject(const string& resourceId, int x, int y)
+{
+    if (resourceId.empty()) return;
 
-    Transform* tr =new Transform();
+    const ResourceObjectData* data = DataManager::GetInstance().FindResourceObject(resourceId);
+    if (data == nullptr) return;
 
-    //tr->SetPosition(world);
+    GameObject* obj = m_scene->CreateObject(data->id);
+
+    Transform* tr = new Transform();
     tr->SetPosition({ (float)x, (float)y });
-    SpriteRenderer* sprite =new SpriteRenderer("Item_Wood");
 
+    SpriteRenderer* sprite = new SpriteRenderer(data->image);
     sprite->SetResourceManager(m_resourceManager);
- ///*   sprite->SetPivot(64,120 );
+    sprite->SetScale(data->scale);
 
-    //sprite->SetScale(0.5f);
+    InteractType interactType = (data->interactType == "Rock") ? InteractType::Rock : InteractType::Tree;
+    Interactable* interact = new Interactable(interactType);
 
-    Interactable* interact =new Interactable(InteractType::Tree);
+    ResourceNode* resource = new ResourceNode(data->baseItemId, data->baseMinCount, data->baseMaxCount);
+    for (const ResourceDrop& drop : data->bonusDrops)
+    {
+        resource->AddBonusDrop(drop.itemId, drop.chance, drop.minCount, drop.maxCount);
+    }
 
-    ResourceNode* resource =new ResourceNode("Item_Wood",1,3);
-
-    resource->AddBonusDrop("Item_Apple", 0.15f, 1, 2);
-    resource->AddBonusDrop("Item_Banana", 0.10f, 1, 2);
-
-    obj->SetElement(tr,ElementType::Transform);
-
+    obj->SetElement(tr, ElementType::Transform);
     obj->SetElement(sprite, ElementType::SpriteRenderer);
-    obj->SetElement(interact,ElementType::Interactable);
-    obj->SetElement(resource,ElementType::ResourceNode);
+    obj->SetElement(interact, ElementType::Interactable);
+    obj->SetElement(resource, ElementType::ResourceNode);
     obj->Init();
 }
 
-void ObjectSpawner::SpawnRock(int x, int y)
+void ObjectSpawner::SpawnGrass(int x, int y, const string& imageKey, float scale)
 {
-    //MathEngine::Vector2 world =TileManager::GetInstance().TileToScreen({(float)x,(float)y});
+    GameObject* obj = m_scene->CreateObject("GrassObject");
 
-    GameObject* obj =m_scene->CreateObject("Rock");
-
-
-    Transform* tr =new Transform();
-    //tr->SetPosition(world);
+    Transform* tr = new Transform();
     tr->SetPosition({ (float)x, (float)y });
-    SpriteRenderer* sprite =new SpriteRenderer("Item_Stone");
 
+    SpriteRenderer* sprite = new SpriteRenderer(imageKey);
     sprite->SetResourceManager(m_resourceManager);
+    sprite->SetScale(scale);
 
-    //sprite->SetPivot(32,32);
-
-    sprite->SetScale(1.5f);
-
-    Interactable* interact =new Interactable(InteractType::Rock);
-    ResourceNode* resource =new ResourceNode("Item_Stone",1,2);
-
-    resource->AddBonusDrop("Item_Mushroom", 0.15f, 1, 2);
-
-    obj->SetElement(tr,ElementType::Transform);
-    obj->SetElement(sprite,ElementType::SpriteRenderer);
-    obj->SetElement(interact,ElementType::Interactable);
-    obj->SetElement(resource,ElementType::ResourceNode);
-    obj->Init();
-}
-
-void ObjectSpawner::SpawnGrass(int x, int y)
-{
-   // MathEngine::Vector2 world =TileManager::GetInstance().TileToScreen({(float)x,(float)y});
-
-    GameObject* obj =m_scene->CreateObject("GrassObject");
-    Transform* tr =new Transform();
-    //tr->SetPosition(world);
-    tr->SetPosition({ (float)x, (float)y });
-    SpriteRenderer* sprite =new SpriteRenderer("Grass");
-
-    sprite->SetResourceManager(m_resourceManager);
-    sprite->SetScale(2.f);
-    //sprite->SetPivot(16,32);
-    //sprite->SetScale(0.5f);
-    obj->SetElement(tr,ElementType::Transform);
+    obj->SetElement(tr, ElementType::Transform);
     obj->SetElement(sprite, ElementType::SpriteRenderer);
     obj->Init();
 }
+
+//
+//void ObjectSpawner::SpawnTree(int x, int y)
+//{
+//    //MathEngine::Vector2 world =TileManager::GetInstance().TileToScreen({(float)x,(float)y});
+//
+//    GameObject* obj =m_scene->CreateObject("Tree");
+//
+//    Transform* tr =new Transform();
+//
+//    //tr->SetPosition(world);
+//    tr->SetPosition({ (float)x, (float)y });
+//    SpriteRenderer* sprite =new SpriteRenderer("Item_Wood");
+//
+//    sprite->SetResourceManager(m_resourceManager);
+// ///*   sprite->SetPivot(64,120 );
+//
+//    //sprite->SetScale(0.5f);
+//
+//    Interactable* interact =new Interactable(InteractType::Tree);
+//
+//    ResourceNode* resource =new ResourceNode("Item_Wood",1,3);
+//
+//    resource->AddBonusDrop("Item_Apple", 0.15f, 1, 2);
+//    resource->AddBonusDrop("Item_Banana", 0.10f, 1, 2);
+//
+//    obj->SetElement(tr,ElementType::Transform);
+//
+//    obj->SetElement(sprite, ElementType::SpriteRenderer);
+//    obj->SetElement(interact,ElementType::Interactable);
+//    obj->SetElement(resource,ElementType::ResourceNode);
+//    obj->Init();
+//}
+//
+//void ObjectSpawner::SpawnRock(int x, int y)
+//{
+//    //MathEngine::Vector2 world =TileManager::GetInstance().TileToScreen({(float)x,(float)y});
+//
+//    GameObject* obj =m_scene->CreateObject("Rock");
+//
+//
+//    Transform* tr =new Transform();
+//    //tr->SetPosition(world);
+//    tr->SetPosition({ (float)x, (float)y });
+//    SpriteRenderer* sprite =new SpriteRenderer("Item_Stone");
+//
+//    sprite->SetResourceManager(m_resourceManager);
+//
+//    //sprite->SetPivot(32,32);
+//
+//    sprite->SetScale(1.5f);
+//
+//    Interactable* interact =new Interactable(InteractType::Rock);
+//    ResourceNode* resource =new ResourceNode("Item_Stone",1,2);
+//
+//    resource->AddBonusDrop("Item_Mushroom", 0.15f, 1, 2);
+//
+//    obj->SetElement(tr,ElementType::Transform);
+//    obj->SetElement(sprite,ElementType::SpriteRenderer);
+//    obj->SetElement(interact,ElementType::Interactable);
+//    obj->SetElement(resource,ElementType::ResourceNode);
+//    obj->Init();
+//}
+
+//void ObjectSpawner::SpawnGrass(int x, int y)
+//{
+//   // MathEngine::Vector2 world =TileManager::GetInstance().TileToScreen({(float)x,(float)y});
+//
+//    GameObject* obj =m_scene->CreateObject("GrassObject");
+//    Transform* tr =new Transform();
+//    //tr->SetPosition(world);
+//    tr->SetPosition({ (float)x, (float)y });
+//    SpriteRenderer* sprite =new SpriteRenderer("Grass");
+//
+//    sprite->SetResourceManager(m_resourceManager);
+//    sprite->SetScale(2.f);
+//    //sprite->SetPivot(16,32);
+//    //sprite->SetScale(0.5f);
+//    obj->SetElement(tr,ElementType::Transform);
+//    obj->SetElement(sprite, ElementType::SpriteRenderer);
+//    obj->Init();
+//}

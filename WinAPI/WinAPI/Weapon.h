@@ -65,6 +65,8 @@ public:
 	{
 		m_onMeleeAttack = callback;
 	}
+
+	void SetFlip(bool flip);
 private:
 	string m_weaponId;
 

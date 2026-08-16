@@ -34,7 +34,7 @@ public:
 	void ToggleInventoryWindow();
 	bool IsInventoryWindowOpen() const { return m_isInventoryOpen; }
 
-	void HandleCraftingInventoryClick(float mouseX, float mouseY);
+	bool HandleCraftingInventoryClick(float mouseX, float mouseY);
 	void HandleInventoryClick(float mouseX, float mouseY);
 	bool HandleCraftingRecipeClick(float mouseX, float mouseY);
 	void EquipItem(const string& itemId);
@@ -90,7 +90,7 @@ private:
 	function<void(const string&)> m_onItemUse;
 
 	float m_equipShieldSlotX = 750.0f;
-	float m_equipShieldSlotY=120.f;
+	float m_equipShieldSlotY=140.f;
 
 
 	// 인벤토리 창 상태
@@ -115,7 +115,7 @@ private:
 
 	// 장비 슬롯 좌표 (인벤토리 옆)
 	float m_equipSlotX = 600.f;
-	float m_equipWeaponSlotY = 120.f;
+	float m_equipWeaponSlotY = 140.f;
 
 	int m_craftRecipeScrollOffset = 0;   // 몇 번째 레시피부터 보여줄지
 	int m_craftRecipeVisibleCount = 3;   // 한 화면에 보여줄 레시피 개수 (아이템당 75px면 영역 높이/75로 계산해도 됨)

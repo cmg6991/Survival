@@ -25,7 +25,9 @@ public:
 	bool IsAnyKeyDown() { return m_isKeyDown; }
 	bool IsAnyKey() { return m_isKey; }
 	bool IsAnyKeyUp() { return m_isKeyUp; }
+
 	MathEngine::Vector2 GetMousePosition();
+	void SetMousePosition(float x, float y);
 
 	void SetWheelPower(int power) { m_wheelPower = power; }
 	int GetWheelPower() { return m_wheelPower; }
@@ -46,6 +48,8 @@ private:
 	bool m_isKeyUp;
 
 	KeyState m_key[0xFE /*VK_OEM_CLEAR*/ + 1];	// 255, https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes 모든 가상 키에 대응할 수 있게 크기를 정한다.
+
+	MathEngine::Vector2 m_mousePosition{ 0.0f,0.0f };
 
 	friend class Singleton<InputManager>;
 };

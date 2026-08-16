@@ -8,6 +8,7 @@ void DataManager::Init()
 	LoadItemData("Resource/Data/Items.json");
 	LoadRecipeData("Resource/Data/Recipes.json");
 	LoadMonsterData("Resource/Data/Monsters.json");
+	LoadResourceObjectData("Resource/Data/ResourceObjects.json");
 }
 
 const string& DataManager::GetImagePath(ImageKey key) const
@@ -124,6 +125,7 @@ ImageKey DataManager::StringToImageKey(const string& str) const
 	if (str == "Item_Grape")  return ImageKey::Item_Grape;
 	if (str == "Item_Mushroom")  return ImageKey::Item_Mushroom;
 	if (str == "Item_Mushroom_Baked")  return ImageKey::Item_Mushroom_Baked;
+	if (str == "Item_Blueberry")  return ImageKey::Item_Blueberry;
 	if (str == "Bullet")  return ImageKey::Bullet;
 	if (str == "Monster")  return ImageKey::Monster;
 	if (str == "Monster2")  return ImageKey::Monster2;
@@ -134,6 +136,7 @@ ImageKey DataManager::StringToImageKey(const string& str) const
 	if (str == "WaterTile")  return ImageKey::WaterTile;
 	if (str == "Grass")  return ImageKey::Grass;
 	if (str == "Snow")  return ImageKey::Snow;
+	if (str == "StoneTile")  return ImageKey::StoneTile;
 	if (str == "CrossHair")  return ImageKey::CrossHair;
 	if (str == "bubbleText")  return ImageKey::BubbleText;
 	if (str == "Text")  return ImageKey::Text;
@@ -141,6 +144,8 @@ ImageKey DataManager::StringToImageKey(const string& str) const
 	if (str == "Day")  return ImageKey::DayUI;
 	if (str == "MiniMapFrame")  return ImageKey::MiniMapFrame;
 	if (str == "HPUI")  return ImageKey::HPUI;
+	if (str == "Item_WinterTree")  return ImageKey::Item_WinterTree;
+	if (str == "Item_WinterGrass")  return ImageKey::Item_WinterGrass;
 
 	return ImageKey::Count;
 }
@@ -226,6 +231,43 @@ void DataManager::LoadMonsterData(const string& filePath)
 	}
 }
 
+void DataManager::LoadResourceObjectData(const string& filePath)
+{
+	ifstream file(filePath);
+	if (!file.is_open()) return;
+
+	json j;
+	file >> j;
+
+	for (auto& item : j)
+	{
+		ResourceObjectData data;
+		data.id = item["id"].get<string>();
+		data.name = item.value("name", "");
+		data.image = item["image"].get<string>();
+		data.interactType = item.value("interactType", "Tree");
+		data.scale = item.value("scale", 1.0f);
+		data.baseItemId = item.value("baseItemId", "");
+		data.baseMinCount = item.value("baseMinCount", 1);
+		data.baseMaxCount = item.value("baseMaxCount", 1);
+
+		if (item.contains("bonusDrops"))
+		{
+			for (auto& dropJson : item["bonusDrops"])
+			{
+				ResourceDrop drop;
+				drop.itemId = dropJson["itemId"].get<string>();
+				drop.chance = dropJson.value("chance", 1.0f);
+				drop.minCount = dropJson.value("minCount", 1);
+				drop.maxCount = dropJson.value("maxCount", 1);
+				data.bonusDrops.push_back(drop);
+			}
+		}
+
+		m_resourceObjects.push_back(data);
+	}
+}
+
 vector<RecipeData> DataManager::GetRecipesByStation(const string& station) const
 {
 	vector<RecipeData> result;
@@ -242,6 +284,15 @@ const MonsterData* DataManager::FindMonster(const string& id) const
 	for (const MonsterData& monster : m_monsters)
 	{
 		if (monster.id == id) return &monster;
+	}
+	return nullptr;
+}
+
+const ResourceObjectData* DataManager::FindResourceObject(const string& id) const
+{
+	for (const ResourceObjectData& obj : m_resourceObjects)
+	{
+		if (obj.id == id) return &obj;
 	}
 	return nullptr;
 }

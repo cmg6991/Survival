@@ -29,6 +29,7 @@ void TileMap::Init()
     m_tileImageKeys[TileType::ROAD] = "Tile_W";
     m_tileImageKeys[TileType::WATER] = "Tile_W";
     m_tileImageKeys[TileType::SNOW] = "Snow";
+    m_tileImageKeys[TileType::Stone] = "StoneTile";
 
     AutotileConfig roadConfig;
     roadConfig.imageKey = "GrassRoad";
@@ -326,17 +327,6 @@ void TileMap::Render(ID2D1DeviceContext* context,ResourceManager* resourceManage
                 bitmask = GetPathBitmask(x, y, type);
             }
 
-
-            // -----------------------------------------
-            // 기본 바닥
-            //
-            // 일반 타일:
-            //     항상 그림
-            //
-            // WATER:
-            //     mask == 15  → 물 중앙 → 안 그림
-            //     mask != 15  → 물 경계 → FLOOR 그림
-            // -----------------------------------------
             bool drawBase = true;
 
             if (type == TileType::WATER)
@@ -371,32 +361,6 @@ void TileMap::Render(ID2D1DeviceContext* context,ResourceManager* resourceManage
                 }
             }
 
-
-            // -----------------------------------------
-            // 오토타일
-            // -----------------------------------------
-            /*if (autoIt != m_autotiles.end())
-            {
-                ID2D1Bitmap* overlayBitmap =
-                    autotileCache[type];
-
-                if (overlayBitmap != nullptr)
-                {
-                    D2D1_RECT_F overlaySrcRect =
-                        GetSrcRect(
-                            autoIt->second,
-                            bitmask
-                        );
-
-                    DrawBitmap(
-                        context,
-                        overlayBitmap,
-                        destRect,
-                        overlaySrcRect,
-                        false
-                    );
-                }
-            }*/
             if (autoIt != m_autotiles.end())
             {
                 ID2D1Bitmap* overlayBitmap =
@@ -518,6 +482,67 @@ void TileMap::SetTile(int x, int y, TileType type)
     m_proceduralTiles[MakeTileKey(x, y)] = type;
 }
 
+ChunkType TileMap::GetChunkBiome(int chunkX, int chunkY) const
+{
+    float centerWorldX = (chunkX + 0.5f) * CHUNK_SIZE;
+    float centerWorldY = (chunkY + 0.5f) * CHUNK_SIZE;
+    return GetBiomeAt(centerWorldX, centerWorldY);
+}
+
+ChunkType TileMap::GetBiomeAt(float worldX, float worldY) const
+{
+    float warpX = worldX + sinf(worldY * 0.02f) * BIOME_WOBBLE;
+    float warpY = worldY + sinf(worldX * 0.023f + 1.7f) * BIOME_WOBBLE;
+
+    int baseCellX = (int)floorf(warpX / BIOME_CELL_SIZE);
+    int baseCellY = (int)floorf(warpY / BIOME_CELL_SIZE);
+
+    float bestDist = FLT_MAX;
+    ChunkType bestType = ChunkType::GrassLand;
+
+    for (int dy = -1; dy <= 1; dy++)
+    {
+        for (int dx = -1; dx <= 1; dx++)
+        {
+            int cellX = baseCellX + dx;
+            int cellY = baseCellY + dy;
+
+            MathEngine::Vector2 seed = GetBiomeSeedPoint(cellX, cellY);
+            float distX = warpX - seed.x;
+            float distY = warpY - seed.y;
+            float dist = distX * distX + distY * distY;
+
+            if (dist < bestDist)
+            {
+                bestDist = dist;
+                bestType = GetBiomeTypeForCell(cellX, cellY);
+            }
+        }
+    }
+
+    return bestType;
+}
+
+MathEngine::Vector2 TileMap::GetBiomeSeedPoint(int cellX, int cellY) const
+{
+    float jitterX = HashFloat01(cellX, cellY, 501);
+    float jitterY = HashFloat01(cellX, cellY, 502);
+
+    return {
+        (cellX + jitterX) * BIOME_CELL_SIZE,
+        (cellY + jitterY) * BIOME_CELL_SIZE
+    };
+}
+
+ChunkType TileMap::GetBiomeTypeForCell(int cellX, int cellY) const
+{
+    float roll = HashFloat01(cellX, cellY, 777);
+    if (roll < 0.45f) return ChunkType::GrassLand;
+    if (roll < 0.55f) return ChunkType::Lake;
+    if (roll < 0.80f) return ChunkType::Snow;
+    return ChunkType::Rock;   // ★ 나머지는 Rock
+}
+
 int TileMap::GetPathBitmask(int x, int y,TileType type) const
 {
     /*auto it = m_autotiles.find(type);
@@ -624,24 +649,24 @@ int TileMap::WorldToLocal(int worldCoord) const
 
 TileType TileMap::GenerateProceduralTile(int worldX, int worldY, int chunkX, int chunkY)
 {
-    if (IsProceduralRoad(worldX,worldY))
-    {
-        return TileType::ROAD;
-    }
     if (IsProceduralWater(worldX, worldY))
-    {
         return TileType::WATER;
-    }
+
+    if (IsProceduralRoad(worldX, worldY))   // 이미 GrassLand에서만 true가 나오므로 물과 안 겹침
+        return TileType::ROAD;
+
     if (IsProceduralSnow(worldX, worldY))
-    {
         return TileType::SNOW;
-    }
+
+    if (IsProceduralStone(worldX, worldY))
+        return TileType::Stone;
+
     return TileType::FLOOR;
 }
 
 bool TileMap::IsProceduralRoad(int worldX, int worldY) const
 {
-    const int ROAD_INTERVAL = 32;
+    /*const int ROAD_INTERVAL = 32;
     const int ROAD_WIDTH = 2;
 
     int xMod =((worldX % ROAD_INTERVAL)+ ROAD_INTERVAL)% ROAD_INTERVAL;
@@ -650,7 +675,19 @@ bool TileMap::IsProceduralRoad(int worldX, int worldY) const
 
     int yMod =((worldY % ROAD_INTERVAL)+ ROAD_INTERVAL)% ROAD_INTERVAL;
     bool horizontalRoad =yMod < ROAD_WIDTH;
-    return verticalRoad ||horizontalRoad;
+    return verticalRoad ||horizontalRoad;*/
+    if (GetBiomeAt((float)worldX, (float)worldY) != ChunkType::GrassLand)
+        return false;
+
+    const int ROAD_INTERVAL = 32;
+    const int ROAD_WIDTH = 2;
+
+    int xMod = ((worldX % ROAD_INTERVAL) + ROAD_INTERVAL) % ROAD_INTERVAL;
+    bool verticalRoad = xMod < ROAD_WIDTH;
+
+    int yMod = ((worldY % ROAD_INTERVAL) + ROAD_INTERVAL) % ROAD_INTERVAL;
+    bool horizontalRoad = yMod < ROAD_WIDTH;
+    return verticalRoad || horizontalRoad;
 }
 
 bool TileMap::IsRoadConnectionFromMap(int worldX, int worldY) const
@@ -718,27 +755,60 @@ bool TileMap::GetLakeInfoForRegion(int regionX, int regionY, MathEngine::Vector2
 
 bool TileMap::IsProceduralWater(int worldX, int worldY) const
 {
-    int regionX = (worldX >= 0) ? worldX / LAKE_REGION_SIZE : (worldX - LAKE_REGION_SIZE + 1) / LAKE_REGION_SIZE;
-    int regionY = (worldY >= 0) ? worldY / LAKE_REGION_SIZE : (worldY - LAKE_REGION_SIZE + 1) / LAKE_REGION_SIZE;
+    //int regionX = (worldX >= 0) ? worldX / LAKE_REGION_SIZE : (worldX - LAKE_REGION_SIZE + 1) / LAKE_REGION_SIZE;
+    //int regionY = (worldY >= 0) ? worldY / LAKE_REGION_SIZE : (worldY - LAKE_REGION_SIZE + 1) / LAKE_REGION_SIZE;
+
+    //for (int dy = -1; dy <= 1; dy++)
+    //{
+    //    for (int dx = -1; dx <= 1; dx++)
+    //    {
+    //        MathEngine::Vector2 center;
+    //        float radius = 0.0f;
+    //        if (!GetLakeInfoForRegion(regionX + dx, regionY + dy, center, radius))
+    //            continue;
+
+    //        float distX = worldX - center.x;
+    //        float distY = worldY - center.y;
+    //        float dist = sqrtf(distX * distX + distY * distY);
+
+    //        // ★ 각도에 따라 반지름을 살짝 흔들어서 울퉁불퉁한 자연스러운 해안선 만들기
+    //        float angle = atan2f(distY, distX);
+    //        float wobble = 1.0f + 0.15f * sinf(angle * 5.0f + center.x * 0.7f)
+    //            + 0.10f * sinf(angle * 9.0f + center.y * 0.5f);
+    //        float effectiveRadius = radius * wobble;
+
+    //        if (dist < effectiveRadius)
+    //            return true;
+    //    }
+    //}
+    //return false;
+    float warpX = worldX + sinf(worldY * 0.02f) * BIOME_WOBBLE;
+    float warpY = worldY + sinf(worldX * 0.023f + 1.7f) * BIOME_WOBBLE;
+
+    int baseCellX = (int)floorf(warpX / BIOME_CELL_SIZE);
+    int baseCellY = (int)floorf(warpY / BIOME_CELL_SIZE);
 
     for (int dy = -1; dy <= 1; dy++)
     {
         for (int dx = -1; dx <= 1; dx++)
         {
-            MathEngine::Vector2 center;
-            float radius = 0.0f;
-            if (!GetLakeInfoForRegion(regionX + dx, regionY + dy, center, radius))
+            int cellX = baseCellX + dx;
+            int cellY = baseCellY + dy;
+
+            if (GetBiomeTypeForCell(cellX, cellY) != ChunkType::Lake)
                 continue;
 
-            float distX = worldX - center.x;
-            float distY = worldY - center.y;
+            MathEngine::Vector2 seed = GetBiomeSeedPoint(cellX, cellY);
+            float distX = worldX - seed.x;
+            float distY = worldY - seed.y;
             float dist = sqrtf(distX * distX + distY * distY);
 
-            // ★ 각도에 따라 반지름을 살짝 흔들어서 울퉁불퉁한 자연스러운 해안선 만들기
+            float baseRadius = BIOME_CELL_SIZE * LAKE_FILL_RADIUS_RATIO;
+
             float angle = atan2f(distY, distX);
-            float wobble = 1.0f + 0.15f * sinf(angle * 5.0f + center.x * 0.7f)
-                + 0.10f * sinf(angle * 9.0f + center.y * 0.5f);
-            float effectiveRadius = radius * wobble;
+            float wobble = 1.0f + 0.15f * sinf(angle * 5.0f + seed.x * 0.7f)
+                + 0.10f * sinf(angle * 9.0f + seed.y * 0.5f);
+            float effectiveRadius = baseRadius * wobble;
 
             if (dist < effectiveRadius)
                 return true;
@@ -749,12 +819,10 @@ bool TileMap::IsProceduralWater(int worldX, int worldY) const
 
 bool TileMap::IsProceduralSnow(int worldX, int worldY) const
 {
-    int chunkX = WorldToChunk(worldX);
-    int chunkY = WorldToChunk(worldY);
+    return GetBiomeAt((float)worldX, (float)worldY) == ChunkType::Snow;
+}
 
-    // 예: 특정 청크부터 눈 지역
-    if (chunkX >= 5)
-        return true;
-
-    return false;
+bool TileMap::IsProceduralStone(int worldX, int worldY) const
+{
+    return GetBiomeAt((float)worldX, (float)worldY) == ChunkType::Rock;
 }

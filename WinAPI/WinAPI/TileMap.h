@@ -3,6 +3,7 @@
 #include "Graphics.h"
 #include "pch.h"
 #include "../MathEngine/Vector2.h"
+#include "ChunkType.h"
 
 class ResourceManager;
 class ObjectSpawner;
@@ -14,6 +15,7 @@ enum class TileType
     GRASS,
     WATER,
     SNOW,
+    Stone,
     END
 };
 
@@ -48,6 +50,19 @@ public:
     TileType GetTile(int x, int y) const;
     void SetTile(int x, int y, TileType type);
     void SetObjectSpawner(ObjectSpawner* spawner) { m_objectSpawner = spawner; }
+
+public:
+    ChunkType GetChunkBiome(int chunkX, int chunkY) const;
+    ChunkType GetBiomeAt(float worldX, float worldY) const;
+
+private:
+
+    static const int BIOME_CELL_SIZE = 128;               // 지역 하나의 대략적 크기 (타일)
+    static constexpr float BIOME_WOBBLE = 24.0f;           // 경계선 흔들림 폭
+    static constexpr float LAKE_FILL_RADIUS_RATIO = 0.42f; // 호수가 셀 크기 대비 얼마나 크게 채워질지
+
+    MathEngine::Vector2 GetBiomeSeedPoint(int cellX, int cellY) const;
+    ChunkType GetBiomeTypeForCell(int cellX, int cellY) const;
 private:
     int GetPathBitmask(int x, int y,TileType type) const;
     D2D1_RECT_F GetSrcRect(const AutotileConfig& config, int bitmask) const;
@@ -77,6 +92,7 @@ private:
     bool GetLakeInfoForRegion(int regionX, int regionY, MathEngine::Vector2& outCenter, float& outRadius) const;
     bool IsProceduralWater(int worldX, int worldY) const;
     bool IsProceduralSnow(int worldX, int worldY) const;
+    bool IsProceduralStone(int worldX, int worldY) const;
 private:
     vector<vector<TileType>> m_tiles;
 

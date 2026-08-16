@@ -182,5 +182,21 @@
 	{
 		"key": "Snow",
 		"path": "Resource/snowTile.png"
+	},
+	{
+		"key": "Item_WinterTree",
+		"path": "Resource/Winter/tree(3).png"
+	},
+	{
+		"key": "Item_WinterGrass",
+		"path": "Resource/Winter/snow_detail(4).png"
+	},
+	{
+		"key": "Item_Blueberry",
+		"path": "Resource/Food/Blueberry_Icon.png"
+	},
+	{
+		"key": "StoneTile",
+		"path": "Resource/StoneTile.png"
 	}
 ]

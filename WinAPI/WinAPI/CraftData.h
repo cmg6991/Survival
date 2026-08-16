@@ -50,3 +50,26 @@ struct MonsterData
 	float colliderRadius;
 	float scale;
 };
+
+struct ResourceDrop
+{
+	string itemId;
+	float chance;
+	int minCount;
+	int maxCount;
+};
+
+struct ResourceObjectData
+{
+	string id;
+	string name;
+	string image;
+	string interactType;
+	float scale = 1.0f;
+
+	string baseItemId;
+	int baseMinCount = 1;
+	int baseMaxCount = 1;
+
+	vector<ResourceDrop> bonusDrops;
+};

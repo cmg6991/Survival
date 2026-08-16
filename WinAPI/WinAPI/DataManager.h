@@ -34,6 +34,7 @@ enum class ImageKey
 	Item_Grape,
 	Item_Mushroom,
 	Item_Mushroom_Baked,
+	Item_Blueberry,
 	Bullet,
 	Monster,
 	Monster2,
@@ -44,6 +45,7 @@ enum class ImageKey
 	WaterTile,
 	Grass,
 	Snow,
+	StoneTile,
 	CrossHair,
 	BubbleText,
 	Text,
@@ -51,6 +53,8 @@ enum class ImageKey
 	DayUI,
 	MiniMapFrame,
 	HPUI,
+	Item_WinterTree,
+	Item_WinterGrass,
 	Count
 };
 
@@ -82,6 +86,9 @@ public:
 	const vector<MonsterData>& GetMonsterList() const { return m_monsters; }
 	const MonsterData* FindMonster(const string& id) const;
 
+	const ResourceObjectData* FindResourceObject(const string& id) const;
+	const vector<ResourceObjectData>& GetResourceObjectList() const { return m_resourceObjects; }
+
 private:
 	void LoadImageData(const string& filePath);
 	void LoadMapData(const string& filePath);
@@ -91,6 +98,7 @@ private:
 	void LoadItemData(const string& filePath);
 	void LoadRecipeData(const string& filePath);
 	void LoadMonsterData(const string& filePath);
+	void LoadResourceObjectData(const string& filePath);
 
 private:
 	vector<ImageData> m_images;
@@ -99,6 +107,7 @@ private:
 	vector<ItemData> m_items;
 	vector<RecipeData> m_recipes;
 	vector<MonsterData> m_monsters;
+	vector<ResourceObjectData> m_resourceObjects;
 private:
 	DataManager() {};
 	~DataManager() {};

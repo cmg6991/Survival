@@ -242,12 +242,15 @@ void Player::Update(float deltaTime)
 
     if (m_weapon != nullptr)
     {
-        float offsetX = m_sprite->GetFlip() ? 0.2f : -0.2f;
-        m_weapon->GetTransform()->SetPosition(
-            {
-                m_transform->GetPostion().x + offsetX,
-                m_transform->GetPostion().y
-            });
+        float k = m_facingRight ? 0.5f : -0.5f;   // ★ 화면상 순수 가로 이동을 위한 월드 오프셋
+        MathEngine::Vector2 weaponPos =
+        {
+            m_transform->GetPostion().x + k,
+            m_transform->GetPostion().y - k
+        };
+        m_weapon->GetTransform()->SetPosition(weaponPos);
+
+        m_weapon->SetFlip(!m_facingRight);
     }
 }
 
@@ -424,11 +427,19 @@ void Player::ApplyFacing(const MathEngine::Vector2& faceDir)
     };
 
     const float PI = 3.14159265f;
-
     float angle = atan2(screenDir.y, screenDir.x);
 
     int octant = (int)std::round(angle / (PI / 4.0f));
     octant = ((octant % 8) + 8) % 8;
+
+    if (octant == 0 || octant == 1 || octant == 7)       // 오른쪽, 오른쪽아래, 오른쪽위
+    {
+        m_facingRight = true;
+    }
+    else if (octant == 3 || octant == 4 || octant == 5)  // 왼쪽아래, 왼쪽, 왼쪽위
+    {
+        m_facingRight = false;
+    }
 
     int row = -1;
     bool flip = false;
@@ -475,7 +486,7 @@ void Player::ApplyFacing(const MathEngine::Vector2& faceDir)
         flip = true;
         break;  // 화면 오른쪽-위
     }
-
+    
     m_animator->SetAnimation(6, row, 0.1f);
     m_sprite->SetFlip(flip);
 }

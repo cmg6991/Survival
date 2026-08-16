@@ -129,6 +129,7 @@
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="CameraManager.h" />
     <ClInclude Include="CampFire.h" />
+    <ClInclude Include="ChunkType.h" />
     <ClInclude Include="ColliderComponent.h" />
     <ClInclude Include="CollisionManager.h" />
     <ClInclude Include="CraftData.h" />

@@ -243,7 +243,7 @@ void MainScene::Update(float deltaTime)
 		if (InputManager::GetInstance().IsGetKeyDown(VK_LBUTTON))
 		{
 			MathEngine::Vector2 mousePos = InputManager::GetInstance().GetMousePosition();
-			UIManager::GetInstance().HandleCraftingInventoryClick(mousePos.x, mousePos.y);
+			//UIManager::GetInstance().HandleCraftingInventoryClick(mousePos.x, mousePos.y);
 
 			bool selected = UIManager::GetInstance().HandleCraftingRecipeClick(mousePos.x, mousePos.y);
 			if (selected)
@@ -867,7 +867,7 @@ void MainScene::EquipWeaponToPlayer(const string& weaponId, bool returnInven)
 		weaponSprite = new SpriteRenderer(weaponId);
 		weaponSprite->SetResourceManager(m_resourceManager);
 		weaponSprite->SetScale(1.f);
-		weaponSprite->SetPivot(18.0f, 32.f);
+		weaponSprite->SetPivot(50.0f, 50.f);
 	}
 	else
 	{

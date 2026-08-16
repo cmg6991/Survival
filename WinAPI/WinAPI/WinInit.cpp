@@ -1,6 +1,7 @@
 #include "WinInit.h"
 #include "GameProcess.h"
 #include "InputManager.h"
+#include <windowsx.h>
 
 WinInit::WinInit() :m_hInst(NULL), m_hWnd(NULL)
 {
@@ -19,10 +20,22 @@ HWND WinInit::Init(HINSTANCE hInstance)
 
 MSG WinInit::ProcessMessage()
 {
-	MSG msg = {};
+	/*MSG msg = {};
 
 	if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 	{
+		DispatchMessage(&msg);
+	}
+
+	return msg;*/
+	MSG msg = {};
+
+	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+	{
+		if (msg.message == WM_QUIT)
+			return msg;
+
+		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
 
@@ -45,6 +58,15 @@ LRESULT WinInit::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		EndPaint(hWnd, &ps);
 	}
 	break;
+	case WM_MOUSEMOVE:
+	{
+		float x = static_cast<float>(GET_X_LPARAM(lParam));
+		float y = static_cast<float>(GET_Y_LPARAM(lParam));
+
+		InputManager::GetInstance().SetMousePosition(x, y);
+
+		return 0;
+	}
 	case WM_MOUSEWHEEL:
 	{
 		int zDelta = GET_WHEEL_DELTA_WPARAM(wParam); // ÈÙ È¸Àü Å©±â
@@ -57,6 +79,7 @@ LRESULT WinInit::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		return 0;
 	}
+
 	break;
 	case WM_DESTROY:
 		PostQuitMessage(0);

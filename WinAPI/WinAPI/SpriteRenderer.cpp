@@ -111,6 +111,7 @@ void SpriteRenderer::Render(ID2D1DeviceContext* context)
 
     float scaledWidth = m_frameWidth * m_scale;
     float scaledHeight = m_frameHeight * m_scale;
+    float pivotX = m_flip ? (m_frameWidth - m_pivot.x) : m_pivot.x;
     float scaledPivotX = m_pivot.x * m_scale;
     float scaledPivotY = m_pivot.y * m_scale;
 

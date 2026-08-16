@@ -97,3 +97,9 @@ void Weapon::Attack()
             m_onMeleeAttack(startPos, dir, m_damage, m_attackRange);
     }
 }
+
+void Weapon::SetFlip(bool flip)
+{
+    if (m_sprite != nullptr)
+        m_sprite->SetFlip(flip);
+}

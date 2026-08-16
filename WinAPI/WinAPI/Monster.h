@@ -38,6 +38,8 @@ public:
     bool IsDead() const { return m_health <= 0; }
     Transform* GetTransform() const { return m_transform; }
 
+    MathEngine::Vector2 GetWaterAvoidVector(const MathEngine::Vector2& pos, float checkRadius) const;
+
     void SetTarget(Transform* target) { m_target = target; }
     void SetCollisionManager(CollisionManager* cm) { m_collisionManager = cm; }
     //void SetPhysicsWorld(PhysicsEngine::PhysicsWorld* world) { m_physicsWorld = world; }
