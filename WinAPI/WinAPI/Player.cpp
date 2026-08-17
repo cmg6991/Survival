@@ -36,6 +36,7 @@ void Player::Init()
     m_sprite = static_cast<SpriteRenderer*>(m_gameObject->GetElement(ElementType::SpriteRenderer));
     m_collider = static_cast<ColliderComponent*>(m_gameObject->GetElement(ElementType::Collider));
     m_fisingController.Init(m_tileMap, this);
+    m_animator->SetAnimation(6, 0, 0.15f);
     UpdateSpriteState();
 }
 

@@ -45,6 +45,13 @@ void GameEngine::Init(const HWND hwnd)
 	TimeManager::GetInstance().Init();
 	DataManager::GetInstance().Init();
 	m_resourceManager->Init();
+
+	m_resourceManager->Init();
+	for (const ImageData& img : DataManager::GetInstance().GetImageList())
+	{
+		m_resourceManager->AddImage(img.keyString, img.path);
+	}
+
 	m_sceneManager->Init(m_resourceManager);
 
 	ResourceManager* rm = m_resourceManager;
@@ -52,6 +59,8 @@ void GameEngine::Init(const HWND hwnd)
 	m_sceneManager->CreateScene("Title", [rm,sm]() -> Scene* { return new TitleScene(rm,sm); });
 	m_sceneManager->CreateScene("Main", [rm]() -> Scene* { return new MainScene(rm); });
 	m_sceneManager->LoadScene("Title");
+
+	
 }
 
 void GameEngine::FixedUpdate()

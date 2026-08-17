@@ -86,16 +86,13 @@ MainScene::~MainScene()
 
 void MainScene::Init()
 {
-	DWORD t0 = GetTickCount64();
-	m_resourceManager->Init();
+	DWORD startTime = GetTickCount64();
 	EnvironmentManager::GetInstance().Init();
+	/*m_resourceManager->Init();
 	for (const ImageData& img : DataManager::GetInstance().GetImageList())
 	{
 		m_resourceManager->AddImage(img.keyString, img.path);
-	}
-
-	DWORD t1 = GetTickCount64();
-	OutputDebugStringW((L"[Init] Image loading: " + std::to_wstring(t1 - t0) + L"ms\n").c_str());
+	}*/
 
 	m_tileMap->Init();
 	m_objectSpawner->Init(
@@ -104,8 +101,6 @@ void MainScene::Init()
 		m_tileMap
 	);
 	m_tileMap->SetObjectSpawner(m_objectSpawner);
-	DWORD t2 = GetTickCount64();
-	OutputDebugStringW((L"[Init] TileMap/ObjectSpawner init: " + std::to_wstring(t2 - t1) + L"ms\n").c_str());
 
 	GameObject* playerObj = new GameObject("Player");
 
@@ -144,12 +139,10 @@ void MainScene::Init()
 		SaveManager::Load(data);
 		m_collectedItemsIds.insert(data.collectedItemsIds.begin(), data.collectedItemsIds.end());
 	}
-
 	RegisterTileHandlers();
 	const vector<string>& mapData = DataManager::GetInstance().GetMap("MainMap");
 	LoadMap(mapData);
 	m_tileMap->LoadFromMapData(mapData);
-
 
 	//TimeManager::GetInstance().Init();
 
@@ -198,7 +191,6 @@ void MainScene::Init()
 		{
 			ClearAllMonsters();
 		});
-
 	m_miniMap = new MiniMap();
 
 	m_miniMap->Init(
@@ -530,6 +522,13 @@ void MainScene::RegisterTileHandlers()
 			if (col && col->GetCollider())
 			{
 				col->GetCollider()->center = { x, y };
+
+				PhysicsEngine::Object* physObj = col->GetPhysicsObject();
+				if (physObj != nullptr)
+				{
+					physObj->position = { x, y };
+					physObj->velocity = MathEngine::Vector2(0.f, 0.f);
+				}
 			}
 		};
 

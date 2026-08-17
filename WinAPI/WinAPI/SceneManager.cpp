@@ -66,6 +66,9 @@ void SceneManager::Release()
 
 void SceneManager::LoadScene(std::string sceneName)
 {
+	wchar_t buf[128];
+	swprintf_s(buf, L"[LoadScene] called with: %S (loadCount=%d)\n", sceneName.c_str(), m_loadCount);
+	OutputDebugStringW(buf);
 	if (m_loadCount > 0)
 	{
 		m_currentScene->DeleteAllObject();

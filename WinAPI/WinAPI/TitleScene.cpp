@@ -19,12 +19,6 @@ TitleScene::~TitleScene()
 
 void TitleScene::Init()
 {
-    m_resourceManager->Init();
-    for (const ImageData& img : DataManager::GetInstance().GetImageList())
-    {
-        m_resourceManager->AddImage(img.keyString, img.path);
-    }
-
 
     m_startButton = D2D1::RectF(
         490.0f,
@@ -113,9 +107,9 @@ void TitleScene::Render(ID2D1DeviceContext* context)
         GRAPHICS.DrawBitmapUI(
             logo,
             340.0f,
-            80.0f,
+            10.0f,
             600.0f,
-            200.0f
+            400.0f
         );
     }
 
