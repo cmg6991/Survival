@@ -91,5 +91,7 @@ private:
     bool m_isDying = false;
     float m_deathTimer = 0.0f;
     const float m_deathDuration = 0.6f;
+
+    const float m_detailedAvoidRange = 15.0f;
 };
 

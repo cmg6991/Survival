@@ -60,6 +60,20 @@
     "healAmount": 5
   },
   {
+    "id": "Item_Fish",
+    "name": "물고기",
+    "image": "Item_Fish",
+    "type": "Food",
+    "healAmount": 5
+  },
+  {
+    "id": "Item_Fish_Baked",
+    "name": "구운 물고기",
+    "image": "Item_Fish_Baked",
+    "type": "Food",
+    "healAmount": 10
+  },
+  {
     "id": "Item_Sword",
     "name": "검",
     "image": "Item_Sword",
@@ -96,5 +110,13 @@
     "type": "Shield",
     "weaponSpriteKey": "Player_Shield",
     "defenseValue": 2
+  },
+  {
+    "id": "Item_Fishing",
+    "name": "낚시대",
+    "image": "Item_Fishing",
+    "type": "Weapon",
+    "weaponType": "Fishing",
+    "weaponSpriteKey": "Player_Fishing"
   }
 ]

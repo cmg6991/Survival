@@ -110,4 +110,9 @@ private:
 	int m_lastPlayerTileY = -9999;
 
 	MiniMap* m_miniMap;
+
+	float m_flowFieldRecomputeTimer = 0.0f;
+	const float m_flowFieldRecomputeInterval = 0.4f;
+
+	const float m_monsterDespawnDistance = 20.0f;
 };

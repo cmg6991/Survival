@@ -69,7 +69,7 @@ void SceneManager::LoadScene(std::string sceneName)
 	if (m_loadCount > 0)
 	{
 		m_currentScene->DeleteAllObject();
-		m_resourceManager->Release();
+		//m_resourceManager->Release();
 	}
 
 	m_preScene = m_currentScene;

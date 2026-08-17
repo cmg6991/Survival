@@ -368,21 +368,21 @@ void UIManager::RenderTime(ID2D1DeviceContext* context)
 	// ÇöÀç ½Ã°£´ë
 	const wchar_t* phase = TimeManager::GetInstance().GetPhaseString();
 
-	ID2D1Bitmap* timeUI = nullptr;
+	ID2D1Bitmap* DayUI = nullptr;
 
 	if (wcscmp(phase, L"Àú³á") == 0 || wcscmp(phase, L"¹ã") == 0)
 	{
-		timeUI =m_resourceManager->GetImage("Night");
+		DayUI =m_resourceManager->GetImage("Night");
 	}
 	else
 	{
-		timeUI = m_resourceManager->GetImage("Day");
+		DayUI = m_resourceManager->GetImage("Day");
 	}
 
-	if (timeUI != nullptr)
+	if (DayUI != nullptr)
 	{
 		GRAPHICS.DrawBitmapUI(
-			timeUI,
+			DayUI,
 			x,
 			y - 30.f,
 			uiWidth,
@@ -407,17 +407,30 @@ void UIManager::RenderTime(ID2D1DeviceContext* context)
 		D2D1::ColorF(D2D1::ColorF::Black),
 		dayFontSize
 	);
+
+	ID2D1Bitmap* TimeUI = m_resourceManager->GetImage("TimeUI");
+
+	if (TimeUI != nullptr)
+	{
+		GRAPHICS.DrawBitmapUI(
+			TimeUI,
+			x-4,
+			y +40,
+			uiWidth+10,
+			uiHeight - 25
+		);
+	}
 	wchar_t timeText[32];
 
 	swprintf_s(timeText,L"%02d : %02d",hour,minute);
 	float timeFontSize = 30.0f;
 	float timeTextWidth =GRAPHICS.MeasureTextWidth(timeText,timeFontSize);
 	float timeX = x + (uiWidth - timeTextWidth) * 0.5f;
-	float timeY =y + 48.0f;
+	float timeY =y + 60.0f;
 
 	GRAPHICS.DrawString(
 		timeText,
-		timeX,
+		timeX +20,
 		timeY,
 		D2D1::ColorF(D2D1::ColorF::Black),
 		timeFontSize

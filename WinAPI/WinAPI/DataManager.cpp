@@ -106,6 +106,9 @@ ImageKey DataManager::StringToImageKey(const string& str) const
 	if (str == "Player_Sword_Idle")  return ImageKey::Player_Sword_Idle;
 	if (str == "Player_Sword_Walk") return ImageKey::Player_Sword_Walk;
 	if (str == "Player_Sword_Attack") return ImageKey::Player_Sword_Attack;
+	if (str == "Player_Fishing_Idle") return ImageKey::Player_Fishing_Idle;
+	if (str == "Player_Fishing_Walk") return ImageKey::Player_Fishing_Walk;
+	if (str == "Player_Fishing_Attack") return ImageKey::Player_Fishing_Attack;
 	if (str == "Player_Shield_Idle") return ImageKey::Player_Shield_Idle;
 	if (str == "Player_Shield_Walk") return ImageKey::Player_Shield_Walk;
 	if (str == "Wall_N")  return ImageKey::Wall_N;
@@ -122,12 +125,15 @@ ImageKey DataManager::StringToImageKey(const string& str) const
 	if (str == "Item_Sword_Refined")  return ImageKey::Item_Sword_Refined;
 	if (str == "Item_Gun")  return ImageKey::Item_Gun;
 	if (str == "Item_Shield")  return ImageKey::Item_Shield;
+	if (str == "Item_Fishing")  return ImageKey::Item_Fishing;
 	if (str == "Item_Apple")  return ImageKey::Item_Apple;
 	if (str == "Item_Banana")  return ImageKey::Item_Banana;
 	if (str == "Item_Grape")  return ImageKey::Item_Grape;
 	if (str == "Item_Mushroom")  return ImageKey::Item_Mushroom;
 	if (str == "Item_Mushroom_Baked")  return ImageKey::Item_Mushroom_Baked;
 	if (str == "Item_Blueberry")  return ImageKey::Item_Blueberry;
+	if (str == "Item_Fish")  return ImageKey::Item_Fish;
+	if (str == "Item_Fish_Baked")  return ImageKey::Item_Fish_Baked;
 	if (str == "Bullet")  return ImageKey::Bullet;
 	if (str == "Monster")  return ImageKey::Monster;
 	if (str == "Monster2")  return ImageKey::Monster2;
@@ -146,10 +152,13 @@ ImageKey DataManager::StringToImageKey(const string& str) const
 	if (str == "Day")  return ImageKey::DayUI;
 	if (str == "MiniMapFrame")  return ImageKey::MiniMapFrame;
 	if (str == "HPUI")  return ImageKey::HPUI;
+	if (str == "TimeUI")  return ImageKey::TimeUI;
 	if (str == "Item_WinterTree")  return ImageKey::Item_WinterTree;
 	if (str == "Item_WinterGrass")  return ImageKey::Item_WinterGrass;
 	if (str == "Item_NormalTree")  return ImageKey::Item_NormalTree;
 	if (str == "IronBox")  return ImageKey::IronBox;
+	if (str == "TitleBackGround")  return ImageKey::TitleBackGround;
+	if (str == "TitleLogo")  return ImageKey::TitleLogo;
 
 	return ImageKey::Count;
 }

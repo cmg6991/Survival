@@ -5,6 +5,7 @@
 class TileMap;
 class MainScene;
 class ResourceManager;
+class GameObject;
 
 enum class SpawnObjectType
 {
@@ -25,19 +26,21 @@ public:
 
     ChunkType GetChunkType(int chunkX, int chunkY) const;
 
+    void UnloadChunk(int chunkX, int chunkY);
+
 private:
     bool CanSpawnAt(int x,int y) const;
 
-    void SpawnObject(SpawnObjectType type,int x,int y, ChunkType chunkType);
+    void SpawnObject(SpawnObjectType type,int x,int y, ChunkType chunkType, const string& chunkKey);
 
     /*void SpawnTree(int x,int y);
 
     void SpawnRock(int x,int y);*/
 
     string PickResourceId(const vector<string>& pool);
-    void SpawnResourceObject(const string& resourceId, int x, int y);
+    GameObject* SpawnResourceObject(const string& resourceId, int x, int y);
 
-    void SpawnGrass(int x, int y, const string& imageKey, float scale);
+    GameObject* SpawnGrass(int x, int y, const string& imageKey, float scale);
 
 private:
     MainScene* m_scene;
@@ -55,4 +58,11 @@ private:
 
     // 청크 타입별 등장 가능한 잔디 이미지+스케일 목록
     unordered_map<ChunkType, vector<pair<string, float>>> m_grassImagePoolByChunk;
+
+    struct ChunkData
+    {
+        vector<GameObject*> objects;
+        vector<string> positionKeys;
+    };
+    unordered_map<string, ChunkData> m_chunkObjects;
 };

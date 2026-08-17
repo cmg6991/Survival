@@ -14,6 +14,20 @@
     ]
   },
   {
+    "id": "Recipe_BakedFish",
+    "result": "Item_Fish_Baked",
+    "resultCount": 1,
+    "station": "CampFire",
+    "isWeaponUpgrade": false,
+    "successRate": 1,
+    "ingredients": [
+      {
+        "id": "Item_Fish",
+        "count": 1
+      }
+    ]
+  },
+  {
     "id": "Recipe_Sword",
     "result": "Item_Sword",
     "resultCount": 1,
@@ -78,6 +92,20 @@
       {
         "id": "Item_Stone",
         "count": 1
+      }
+    ]
+  },
+  {
+    "id": "Recipe_Fishing",
+    "result": "Item_Fishing",
+    "resultCount": 1,
+    "station": "WorkTable",
+    "isWeaponUpgrade": false,
+    "successRate": 1,
+    "ingredients": [
+      {
+        "id": "Item_Stone",
+        "count": 3
       }
     ]
   }

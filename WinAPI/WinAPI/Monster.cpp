@@ -358,7 +358,10 @@ if (IsDead()) return;
         return;
     }
 
-    // ★ 물도 이제 그냥 멈추지 않고, 아래 tryAngles 우회 루프를 그대로 탐 (return 제거)
+    if (distToPlayer > m_detailedAvoidRange)
+    {
+        return;
+    }
 
     const float tryAngles[] = { 30.0f, -30.0f, 60.0f, -60.0f, 90.0f, -90.0f, 120.0f, -120.0f, 150.0f, -150.0f };
     for (float angleDeg : tryAngles)

@@ -74,6 +74,7 @@ private:
     bool IsChunkGenerated(int chunkX,int chunkY) const;
     int WorldToChunk(int worldCoord) const;
     int WorldToLocal(int worldCoord) const;
+    void UnloadFarChunks(int centerChunkX, int centerChunkY, int keepRadius);
 
     //tile
     TileType GenerateProceduralTile(int worldX,int worldY,int chunkX,int chunkY);
@@ -105,6 +106,8 @@ private:
     // 자동 생성된 Chunk
     unordered_set<long long> m_generatedChunks;
     unordered_map<long long, TileType> m_proceduralTiles;
+
+    unordered_map<long long, pair<int, int>> m_activeChunkCoords;
 
     ObjectSpawner* m_objectSpawner = nullptr;
 };

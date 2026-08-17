@@ -69,6 +69,15 @@ void Weapon::SetGameObject(GameObject* gameObject)
 
 void Weapon::Attack()
 {
+    MathEngine::Vector2 startPos = m_transform->GetPostion();
+
+    if (m_weaponType == WeaponType::Fishing)
+    {
+        if (m_onFish)
+            m_onFish(startPos);
+        return;
+    }
+
     MathEngine::Vector2 mouseScreen = InputManager::GetInstance().GetMousePosition();
     MathEngine::Vector2 mouseWorld =
     {
@@ -77,7 +86,7 @@ void Weapon::Attack()
     };
     MathEngine::Vector2 mouseTile = TileManager::GetInstance().ScreenToTile(mouseWorld);
 
-    MathEngine::Vector2 startPos = m_transform->GetPostion();
+    //MathEngine::Vector2 startPos = m_transform->GetPostion();
     MathEngine::Vector2 dir = (mouseTile - startPos);
     if (dir.Magnitude() < 0.001f)
         return;

@@ -35,6 +35,7 @@ void Player::Init()
     m_animator = static_cast<Animator*>(m_gameObject->GetElement(ElementType::Animator));
     m_sprite = static_cast<SpriteRenderer*>(m_gameObject->GetElement(ElementType::SpriteRenderer));
     m_collider = static_cast<ColliderComponent*>(m_gameObject->GetElement(ElementType::Collider));
+    m_fisingController.Init(m_tileMap, this);
     UpdateSpriteState();
 }
 
@@ -47,16 +48,39 @@ void Player::Update(float deltaTime)
     if (m_isDying)
         return;
 
+    //if (m_isAttacking)
+    //{
+    //    m_attackTimer -= deltaTime;
+    //    if (m_attackTimer <= 0.0f)
+    //    {
+    //        m_isAttacking = false;
+    //        UpdateSpriteState(); // 공격 끝 -> Walk/Idle로 복귀
+    //    }
+    //}
     if (m_isAttacking)
     {
-        m_attackTimer -= deltaTime;
-        if (m_attackTimer <= 0.0f)
+        bool isFishing =(m_weapon != nullptr &&m_weapon->GetWeaponType() == WeaponType::Fishing);
+
+        if (isFishing)
         {
-            m_isAttacking = false;
-            UpdateSpriteState(); // 공격 끝 -> Walk/Idle로 복귀
+            if (!m_fisingController.IsFishing())
+            {
+                m_isAttacking = false;
+                UpdateSpriteState();
+            }
+        }
+        else
+        {
+            m_attackTimer -= deltaTime;
+
+            if (m_attackTimer <= 0.0f)
+            {
+                m_isAttacking = false;
+                UpdateSpriteState();
+            }
         }
     }
-
+    m_fisingController.Update(deltaTime);
     MathEngine::Vector2 current = m_transform->GetPostion();
 
     MathEngine::Vector2 freeDir = { 0,0 };
@@ -293,29 +317,35 @@ void Player::SetGameObject(GameObject* gameObject)
     m_gameObject = gameObject;
 }
 
-//void Player::SetEquipWeapon(const string& weaponId)
-//{
-//    m_equippedWeapon = weaponId;
-//}
-
-//void Player::EquipWeapon(string weaponID)
-//{
-//    if (m_weapon == nullptr)
-//        return;
-//
-//    m_equippedWeapon = weaponID;
-//
-//    m_weapon->SetEquipped(true);
-//
-//    OutputDebugStringA("무기 장착 완료\n");
-//}
-
 void Player::Attack()
 {
+    /*if (m_weapon != nullptr && m_weapon->GetWeaponType() == WeaponType::Fishing)
+    {
+        m_fisingController.TryStartFishing(m_transform->GetPostion());
+    }
+
     if (m_weapon)
         m_weapon->Attack();
+
     m_isAttacking = true;
     m_attackTimer = m_attackDuration;
+    UpdateSpriteState();*/
+    if (m_weapon != nullptr &&
+        m_weapon->GetWeaponType() == WeaponType::Fishing)
+    {
+        m_fisingController.TryStartFishing(m_transform->GetPostion());
+        m_isAttacking = true;
+        UpdateSpriteState();
+
+        return;
+    }
+
+    if (m_weapon != nullptr)
+        m_weapon->Attack();
+
+    m_isAttacking = true;
+    m_attackTimer = m_attackDuration;
+
     UpdateSpriteState();
 }
 

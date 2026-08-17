@@ -7,7 +7,8 @@
 enum class WeaponType
 {
 	Melee,		//근거리
-	Ranged		//원거리
+	Ranged,		//원거리
+	Fishing
 };
 
 class Transform;
@@ -38,8 +39,7 @@ public:
 
 	void Attack();
 
-	bool IsMuzzleFlashActive() const {return m_timeSinceFire < m_muzzleFlashDuration;
-	}
+	bool IsMuzzleFlashActive() const {return m_timeSinceFire < m_muzzleFlashDuration;}
 
 	string GetWeaponId() { return m_weaponId; }
 	Transform* GetTransform() { return m_transform; }
@@ -65,6 +65,7 @@ public:
 	{
 		m_onMeleeAttack = callback;
 	}
+	void SetOnFish(std::function<void(const MathEngine::Vector2& pos)> callback) { m_onFish = callback; }
 
 	void SetFlip(bool flip);
 private:
@@ -85,7 +86,8 @@ private:
 		int damage, float speed, float range)> m_onFire;
 	function<void(const MathEngine::Vector2& startPos, const MathEngine::Vector2& dir,
 		int damage, float range)> m_onMeleeAttack;
-
+	function<void(const MathEngine::Vector2& pos)> m_onFish;
+	
 	float m_timeSinceFire = 999.0f;
 	const float m_muzzleFlashDuration = 0.08f;
 };

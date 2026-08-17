@@ -139,6 +139,7 @@
     <ClInclude Include="ElementBase.h" />
     <ClInclude Include="EnvironmentManager.h" />
     <ClInclude Include="Fire.h" />
+    <ClInclude Include="FishingController.h" />
     <ClInclude Include="FlowFieldManager.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameEngine.h" />
@@ -170,6 +171,7 @@
     <ClInclude Include="TileManager.h" />
     <ClInclude Include="TileMap.h" />
     <ClInclude Include="TimeManager.h" />
+    <ClInclude Include="TitleScene.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="Tree.h" />
     <ClInclude Include="UIManager.h" />
@@ -190,6 +192,7 @@
     <ClCompile Include="DataManager.cpp" />
     <ClCompile Include="EnvironmentManager.cpp" />
     <ClCompile Include="Fire.cpp" />
+    <ClCompile Include="FishingController.cpp" />
     <ClCompile Include="FlowFieldManager.cpp" />
     <ClCompile Include="GameEngine.cpp" />
     <ClCompile Include="GameObject.cpp" />
@@ -214,6 +217,7 @@
     <ClCompile Include="TileManager.cpp" />
     <ClCompile Include="TileMap.cpp" />
     <ClCompile Include="TimeManager.cpp" />
+    <ClCompile Include="TitleScene.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="Tree.cpp" />
     <ClCompile Include="UIManager.cpp" />

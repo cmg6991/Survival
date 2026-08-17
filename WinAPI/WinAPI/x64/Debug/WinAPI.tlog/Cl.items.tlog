@@ -9,6 +9,7 @@ C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\CraftingManager.cpp;C:\Us
 C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\DataManager.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\DataManager.obj
 C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\EnvironmentManager.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\EnvironmentManager.obj
 C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\Fire.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\Fire.obj
+C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\FishingController.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\FishingController.obj
 C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\FlowFieldManager.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\FlowFieldManager.obj
 C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\GameEngine.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\GameEngine.obj
 C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\GameObject.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\GameObject.obj
@@ -33,6 +34,7 @@ C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\SpriteRenderer.cpp;C:\Use
 C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\TileManager.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\TileManager.obj
 C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\TileMap.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\TileMap.obj
 C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\TimeManager.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\TimeManager.obj
+C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\TitleScene.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\TitleScene.obj
 C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\Transform.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\Transform.obj
 C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\Tree.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\Tree.obj
 C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\UIManager.cpp;C:\Users\cmg69\Documents\GitHub\Survival\WinAPI\WinAPI\x64\Debug\UIManager.obj

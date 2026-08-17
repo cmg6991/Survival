@@ -397,6 +397,12 @@ void TileMap::Render(ID2D1DeviceContext* context,ResourceManager* resourceManage
                 }
             }
         }
+        int centerTileX = (minX + maxX) / 2;
+        int centerTileY = (minY + maxY) / 2;
+        int centerChunkX = WorldToChunk(centerTileX);
+        int centerChunkY = WorldToChunk(centerTileY);
+
+        UnloadFarChunks(centerChunkX, centerChunkY, 3);
     }
 }
 
@@ -537,8 +543,8 @@ MathEngine::Vector2 TileMap::GetBiomeSeedPoint(int cellX, int cellY) const
 ChunkType TileMap::GetBiomeTypeForCell(int cellX, int cellY) const
 {
     float roll = HashFloat01(cellX, cellY, 777);
-    if (roll < 0.45f) return ChunkType::GrassLand;
-    if (roll < 0.55f) return ChunkType::Lake;
+    if (roll < 0.35f) return ChunkType::GrassLand;
+    if (roll < 0.60f) return ChunkType::Lake;
     if (roll < 0.80f) return ChunkType::Snow;
     return ChunkType::Rock;   // ★ 나머지는 Rock
 }
@@ -594,7 +600,9 @@ void TileMap::EnsureChunk(int chunkX, int chunkY)
     if (IsChunkGenerated(chunkX, chunkY))
         return;
 
-    m_generatedChunks.insert(MakeChunkKey(chunkX, chunkY));
+    long long key = MakeChunkKey(chunkX, chunkY);
+    m_generatedChunks.insert(key);
+    m_activeChunkCoords[key] = { chunkX, chunkY };
     GenerateChunk(chunkX, chunkY);
 }
 
@@ -645,6 +653,53 @@ int TileMap::WorldToLocal(int worldCoord) const
     if (local < 0)
         local += CHUNK_SIZE;
     return local;
+}
+
+void TileMap::UnloadFarChunks(int centerChunkX, int centerChunkY, int keepRadius)
+{
+    vector<long long> toRemove;
+
+    for (auto& [key, coord] : m_activeChunkCoords)
+    {
+        int cx = coord.first;
+        int cy = coord.second;
+
+        if (abs(cx - centerChunkX) > keepRadius ||
+            abs(cy - centerChunkY) > keepRadius)
+        {
+            toRemove.push_back(key);
+        }
+    }
+
+    for (long long key : toRemove)
+    {
+        auto it = m_activeChunkCoords.find(key);
+        if (it == m_activeChunkCoords.end())
+            continue;
+
+        int cx = it->second.first;
+        int cy = it->second.second;
+
+        // 절차적 타일 제거 (맵 데이터 영역은 애초에 여기 안 들어가므로 안전)
+        int startX = cx * CHUNK_SIZE;
+        int startY = cy * CHUNK_SIZE;
+        for (int localY = 0; localY < CHUNK_SIZE; localY++)
+        {
+            for (int localX = 0; localX < CHUNK_SIZE; localX++)
+            {
+                m_proceduralTiles.erase(
+                    MakeTileKey(startX + localX, startY + localY));
+            }
+        }
+
+        m_generatedChunks.erase(key);
+        m_activeChunkCoords.erase(key);
+
+        if (m_objectSpawner != nullptr)
+        {
+            m_objectSpawner->UnloadChunk(cx, cy);
+        }
+    }
 }
 
 TileType TileMap::GenerateProceduralTile(int worldX, int worldY, int chunkX, int chunkY)

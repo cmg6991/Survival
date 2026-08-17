@@ -4,6 +4,7 @@
 #include "ElementBase.h"
 #include "../MathEngine/Vector2.h"
 #include "Inventory.h"
+#include "FishingController.h"
 
 class TileMap;
 class Transform;
@@ -12,8 +13,6 @@ class Animator;
 class SpriteRenderer;
 class Weapon;
 class ColliderComponent;
-
-//namespace PhysicsEngine { class PhysicsWorld; struct Object; }
 
 class Player : public ElementBase
 {
@@ -88,6 +87,7 @@ private:
 	Animator* m_animator;
 	SpriteRenderer* m_sprite;
 	ColliderComponent* m_collider = nullptr;
+	FishingController m_fisingController;
 
 	Inventory m_inventory = Inventory(10, 50);
 	Weapon* m_weapon;

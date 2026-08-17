@@ -40,6 +40,18 @@
 		"path": "Resource/Animation/Character0_SwordAttack_Sword.png"
 	},
 	{
+		"key": "Player_Fishing_Idle",
+		"path": "Resource/Animation/Character0_IdleHoldingTool_Fishingpole.png"
+	},
+	{
+		"key": "Player_Fishing_Walk",
+		"path": "Resource/Animation/Character0_WalkHoldingTool_Fishingpole.png"
+	},
+	{
+		"key": "Player_Fishing_Attack",
+		"path": "Resource/Animation/Character0_Fish_Fishingpole.png"
+	},
+	{
 		"key": "Player_Shield_Idle",
 		"path": "Resource/Animation/Character0_IdleHoldingTool_Shield.png"
 	},
@@ -104,6 +116,10 @@
 		"path": "Resource/Shield.png"
 	},
 	{
+		"key": "Item_Fishing",
+		"path": "Resource/Fishing.png"
+	},
+	{
 		"key": "SideBarUI",
 		"path": "Resource/vertical_type_1.png"
 	},
@@ -160,6 +176,14 @@
 		"path": "Resource/Food/bakedmushroom.png"
 	},
 	{
+		"key": "Item_Fish",
+		"path": "Resource/Food/Fish_Icon.png"
+	},
+	{
+		"key": "Item_Fish_Baked",
+		"path": "Resource/Food/Fish_Icon copy.png"
+	},
+	{
 		"key": "CrossHair",
 		"path": "Resource/crosshair086.png"
 	},
@@ -188,6 +212,10 @@
 		"path": "Resource/UI/HP.png"
 	},
 	{
+		"key": "TimeUI",
+		"path": "Resource/UI/TimeUI.png"
+	},
+	{
 		"key": "Snow",
 		"path": "Resource/snowTile.png"
 	},
@@ -214,5 +242,13 @@
 	{
 		"key": "IronBox",
 		"path": "Resource/IronBox.png"
+	},
+	{
+		"key": "TitleBackGround",
+		"path": "Resource/Title/titleScene.png"
+	},
+	{
+		"key": "TitleLogo",
+		"path": "Resource/Title/titleScenelogo.png"
 	}
 ]

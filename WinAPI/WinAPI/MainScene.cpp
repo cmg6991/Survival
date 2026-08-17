@@ -86,12 +86,16 @@ MainScene::~MainScene()
 
 void MainScene::Init()
 {
+	DWORD t0 = GetTickCount64();
 	m_resourceManager->Init();
 	EnvironmentManager::GetInstance().Init();
 	for (const ImageData& img : DataManager::GetInstance().GetImageList())
 	{
 		m_resourceManager->AddImage(img.keyString, img.path);
 	}
+
+	DWORD t1 = GetTickCount64();
+	OutputDebugStringW((L"[Init] Image loading: " + std::to_wstring(t1 - t0) + L"ms\n").c_str());
 
 	m_tileMap->Init();
 	m_objectSpawner->Init(
@@ -100,7 +104,8 @@ void MainScene::Init()
 		m_tileMap
 	);
 	m_tileMap->SetObjectSpawner(m_objectSpawner);
-
+	DWORD t2 = GetTickCount64();
+	OutputDebugStringW((L"[Init] TileMap/ObjectSpawner init: " + std::to_wstring(t2 - t1) + L"ms\n").c_str());
 
 	GameObject* playerObj = new GameObject("Player");
 
@@ -146,7 +151,7 @@ void MainScene::Init()
 	m_tileMap->LoadFromMapData(mapData);
 
 
-	TimeManager::GetInstance().Init();
+	//TimeManager::GetInstance().Init();
 
 	if (hasSave)
 	{
@@ -183,19 +188,11 @@ void MainScene::Init()
 		});
 	m_flowField.Init(m_collisionManager, 100, 100);
 	m_monsterSpawner->Init(m_collisionManager, 100, 100);
-	//m_monsterSpawner->SetOnSpawnRequest([this](float x, float y)
-	//	{
-	//		CreateMonster(x, y, 30);
-	//	});
-	//m_monsterSpawner->SetOnClearAllMonsters([this]()
-	//	{
-	//		ClearAllMonsters();
-	//	});
 	m_monsterSpawner->SetSpawnPool({ "Monster2", "Monster", "Monster3" });  // ★ 추가
 
 	m_monsterSpawner->SetOnSpawnRequest([this](const string& monsterId, float x, float y)   // ★ 시그니처 변경
 		{
-			CreateMonster(monsterId, x, y);   // ★ 호출부도 변경
+			CreateMonster(monsterId, x, y);
 		});
 	m_monsterSpawner->SetOnClearAllMonsters([this]()
 		{
@@ -207,6 +204,12 @@ void MainScene::Init()
 	m_miniMap->Init(
 		m_player,
 		m_resourceManager);
+	Transform* playerTr = static_cast<Transform*>(m_player->GetGameObject()->GetElement(ElementType::Transform));
+	CameraManager::GetInstance().Follow(playerTr);
+	DWORD elapsed = GetTickCount64() - startTime;
+	wchar_t buf[64];
+	swprintf_s(buf, L"MainScene::Init took %lu ms\n", elapsed);
+	OutputDebugStringW(buf);
 }
 
 void MainScene::FixedUpdate()
@@ -216,7 +219,7 @@ void MainScene::FixedUpdate()
 
 void MainScene::Update(float deltaTime)
 {
-	InputManager::GetInstance().Update();
+	//InputManager::GetInstance().Update();
 	UIManager::GetInstance().Update(deltaTime);
 
 	if (InputManager::GetInstance().IsGetKeyDown('I'))
@@ -376,13 +379,24 @@ void MainScene::Update(float deltaTime)
 	int playerTileX = (int)round(playerTr->GetPostion().x);
 	int playerTileY = (int)round(playerTr->GetPostion().y);
 
-	if (playerTileX != m_lastPlayerTileX || playerTileY != m_lastPlayerTileY)
+	/*if (playerTileX != m_lastPlayerTileX || playerTileY != m_lastPlayerTileY)
 	{
 		m_flowField.Recompute(playerTileX, playerTileY);
 		m_lastPlayerTileX = playerTileX;
 		m_lastPlayerTileY = playerTileY;
-	}
+	}*/
 
+	m_flowFieldRecomputeTimer -= deltaTime;
+	if (m_flowFieldRecomputeTimer <= 0.0f)
+	{
+		if (playerTileX != m_lastPlayerTileX || playerTileY != m_lastPlayerTileY)
+		{
+			m_flowField.Recompute(playerTileX, playerTileY);
+			m_lastPlayerTileX = playerTileX;
+			m_lastPlayerTileY = playerTileY;
+		}
+		m_flowFieldRecomputeTimer = m_flowFieldRecomputeInterval;
+	}
 	Interactable* nearby = FindNearByInteractable();
 	if (nearby != nullptr)
 	{
@@ -869,6 +883,11 @@ void MainScene::EquipWeaponToPlayer(const string& weaponId, bool returnInven)
 		weaponSprite->SetScale(1.f);
 		weaponSprite->SetPivot(50.0f, 50.f);
 	}
+	else if (itemData != nullptr && itemData->weaponType == "Fishing")
+	{
+		weapon->SetWeaponType(WeaponType::Fishing);
+		// 낚싯대 전용 pivot/scale 조정
+	}
 	else
 	{
 		weapon->SetWeaponType(WeaponType::Melee);
@@ -1145,7 +1164,6 @@ GameObject* MainScene::AcquireMonster(const string& monsterId)
 	const MonsterData* data = DataManager::GetInstance().FindMonster(monsterId);
 	if (data == nullptr)
 	{
-		// 데이터 못 찾으면 기본값 사용 or 로그
 		return nullptr;
 	}
 
@@ -1211,77 +1229,6 @@ void MainScene::ReleaseMonster(GameObject* obj, const string& monsterId)
 	m_monsterPool[monsterId].push_back(obj);
 }
 
-//GameObject* MainScene::AcquireMonster()
-//{
-//	if (!m_monsterPool.empty())
-//	{
-//		GameObject* obj = m_monsterPool.back();
-//		m_monsterPool.pop_back();
-//		return obj;
-//	}
-//
-//	// 없으면 새로 생성 (최초 워밍업 또는 풀 부족 시에만)
-//	GameObject* obj = CreateObject("Monster");
-//
-//	Transform* tr = new Transform();
-//	SpriteRenderer* sprite = new SpriteRenderer("Monster");
-//	sprite->SetResourceManager(m_resourceManager);
-//	sprite->SetPivot(23, 30);
-//
-//	Animator* animator = new Animator();
-//	Monster* monster = new Monster(30); // 기본 체력, Acquire 시 Reset으로 덮어씀
-//
-//	ColliderComponent* collider = new ColliderComponent();
-//	collider->SetPhysicsWorld(m_physicsWorld);
-//	collider->SetSyncMode(ColliderSyncMode::TransformDrivesPhysics);
-//
-//	obj->SetElement(tr, ElementType::Transform);
-//	obj->SetElement(sprite, ElementType::SpriteRenderer);
-//	obj->SetElement(animator, ElementType::Animator);
-//	obj->SetElement(monster, ElementType::Monster);
-//	obj->SetElement(collider, ElementType::Collider);
-//	obj->Init();
-//
-//	auto circleCollider = std::make_unique<PhysicsEngine::CircleCollider>(0.f, 0.f, 0.4f);
-//	collider->SetCollider(std::move(circleCollider), 1.0f, false);
-//	collider->SetTrigger(true);
-//
-//	monster->SetCollisionManager(m_collisionManager);
-//	monster->SetFlowField(&m_flowField);
-//	monster->SetStats(1.5f, 5);
-//
-//	ColliderComponent* playerCollider =
-//		static_cast<ColliderComponent*>(m_player->GetGameObject()->GetElement(ElementType::Collider));
-//	monster->SetTargetCollider(playerCollider);
-//	monster->SetTarget(m_player->GetTransform());
-//
-//	auto contactDamage = [this, monster](GameObject* other)
-//		{
-//			if (other == m_player->GetGameObject() && monster->CanDealDamage())
-//			{
-//				m_player->TakeDamage(monster->GetContactDamage());
-//				monster->ResetDamageCooldown();
-//			}
-//		};
-//	collider->SetOnCollisionEnter(contactDamage);
-//	collider->SetOnCollisionStay(contactDamage);
-//
-//	return obj;
-//}
-
-//void MainScene::ReleaseMonster(GameObject* obj)
-//{
-//	obj->SetActive(false);
-//
-//	ColliderComponent* collider = static_cast<ColliderComponent*>(obj->GetElement(ElementType::Collider));
-//	if (collider != nullptr)
-//	{
-//		collider->SetEnabled(false);
-//	}
-//
-//	m_monsterPool.push_back(obj);
-//}
-
 void MainScene::ClearAllMonsters()
 {
 	for (GameObject* obj : m_objects)
@@ -1298,34 +1245,6 @@ void MainScene::ClearAllMonsters()
 
 void MainScene::LoadMap(const vector<string>& mapData)
 {
-	//for (int y = 0; y < (int)mapData.size(); y++)
-	//{
-	//	const string& row = mapData[y];
-	//	for (int x = 0; x < (int)row.size(); x++)
-	//	{
-	//		char tile = row[x];
-
-	//		// 벽은 방향 판별이 필요해서 예외로 별도 처리
-	//		if (tile == '#')
-	//		{
-	//			string wallImage = "Wall_N";
-	//			if (y == 0) wallImage = "Wall_N";
-	//			else if (y == (int)mapData.size() - 1) wallImage = "Wall_S";
-	//			else if (x == 0) wallImage = "Wall_W";
-	//			else if (x == (int)row.size() - 1) wallImage = "Wall_E";
-
-	//			CreateWall((float)x, (float)y, wallImage);
-	//			continue;
-	//		}
-
-	//		// 그 외 문자는 등록된 핸들러로 위임
-	//		auto it = m_tileHandlers.find(tile);
-	//		if (it != m_tileHandlers.end())
-	//		{
-	//			it->second((float)x, (float)y);
-	//		}
-	//	}
-	//}
 	for (int y = 0; y < (int)mapData.size(); y++)
 	{
 		const string& row = mapData[y];
@@ -1333,10 +1252,7 @@ void MainScene::LoadMap(const vector<string>& mapData)
 		for (int x = 0; x < (int)row.size(); x++)
 		{
 			char tile = row[x];
-
-			// ========================================
 			// Wall
-			// ========================================
 			if (tile == '#')
 			{
 				string wallImage =
@@ -1351,9 +1267,7 @@ void MainScene::LoadMap(const vector<string>& mapData)
 				continue;
 			}
 
-			// ========================================
 			// 기타 타일
-			// ========================================
 			auto it = m_tileHandlers.find(tile);
 
 			if (it != m_tileHandlers.end())
@@ -1419,62 +1333,40 @@ void MainScene::CheckBullets()
 	{
 		ReleaseBullet(obj);   // DeletePObject 대신 풀로 반납
 	}
-	//vector<GameObject*> toRemove;
-
-	//for (GameObject* obj : m_objects)
-	//{
-	//	Bullet* bullet = static_cast<Bullet*>(obj->GetElement(ElementType::Bullet));
-	//	if (bullet == nullptr) continue;
-
-	//	if (bullet->IsDead())
-	//	{
-	//		toRemove.push_back(obj);
-	//	}
-	//}
-
-	//for (GameObject* obj : toRemove)
-	//{
-	//	DeletePObject(obj);
-	//}
 }
 
 void MainScene::CheckMonsters()
 {
-	/*vector<GameObject*> toRemove;
-	for (GameObject* obj : m_objects)
-	{
-		Monster* monster = static_cast<Monster*>(obj->GetElement(ElementType::Monster));
-		if (monster != nullptr && monster->IsDead())
-		{
-			toRemove.push_back(obj);
-		}
-	}
-	for (GameObject* obj : toRemove) DeletePObject(obj);*/
-	//vector<GameObject*> toRelease;
-	//for (GameObject* obj : m_objects)
-	//{
-	//	if (!obj->GetActive()) continue; // 이미 풀에 있는 건 스킵
-
-	//	Monster* monster = static_cast<Monster*>(obj->GetElement(ElementType::Monster));
-	//	if (monster != nullptr && monster->IsDead())
-	//	{
-	//		toRelease.push_back(obj);
-	//	}
-	//}
-	//for (GameObject* obj : toRelease)
-	//{
-	//	ReleaseMonster(obj);
-	//}
 	vector<pair<GameObject*, string>> toRelease;
+
+	Transform* playerTr = m_player->GetTransform();
+	MathEngine::Vector2 playerPos = playerTr->GetPostion();
+
 	for (GameObject* obj : m_objects)
 	{
 		if (!obj->GetActive()) continue;
+
 		Monster* monster = static_cast<Monster*>(obj->GetElement(ElementType::Monster));
-		if (monster != nullptr && monster->IsReadyToRemove())
+		if (monster == nullptr) continue;
+
+		if (monster->IsReadyToRemove())
 		{
 			toRelease.push_back({ obj, monster->GetMonsterId() });
+			continue;
+		}
+
+		//플레이어에게서 너무 멀어지면 즉시 회수
+		Transform* monsterTr = monster->GetTransform();
+		if (monsterTr != nullptr)
+		{
+			float dist = (monsterTr->GetPostion() - playerPos).Magnitude();
+			if (dist > m_monsterDespawnDistance)
+			{
+				toRelease.push_back({ obj, monster->GetMonsterId() });
+			}
 		}
 	}
+
 	for (auto& [obj, id] : toRelease)
 	{
 		ReleaseMonster(obj, id);
@@ -1648,53 +1540,84 @@ void MainScene::UpdateMonsterSeparation()
 		if (!obj->GetActive())
 			continue;
 
-		Monster* monster =static_cast<Monster*>(obj->GetElement(ElementType::Monster));
+		Monster* monster = static_cast<Monster*>(obj->GetElement(ElementType::Monster));
 
 		if (monster != nullptr && !monster->IsDead())
 		{
 			monsters.push_back(monster);
 		}
 	}
+	const float separationRadius = 0.9f;
+	const float separationRadiusSq = separationRadius * separationRadius;
 
-	// 2. 각각의 몬스터에 대해 주변 몬스터를 계산
-	for (Monster* monster : monsters)
+	for (size_t i = 0; i < monsters.size(); i++)
 	{
+		Monster* monster = monsters[i];
 		Transform* myTransform = monster->GetTransform();
-
-		if (myTransform == nullptr)
-			continue;
+		if (myTransform == nullptr) continue;
 
 		MathEngine::Vector2 myPos = myTransform->GetPostion();
-
 		MathEngine::Vector2 separation(0.0f, 0.0f);
 
-		for (Monster* other : monsters)
+		for (size_t j = 0; j < monsters.size(); j++)
 		{
-			if (monster == other)
-				continue;
+			if (i == j) continue;
 
+			Monster* other = monsters[j];
 			Transform* otherTransform = other->GetTransform();
+			if (otherTransform == nullptr) continue;
 
-			if (otherTransform == nullptr)
-				continue;
+			MathEngine::Vector2 diff = myPos - otherTransform->GetPostion();
+			float distSq = diff.x * diff.x + diff.y * diff.y; // ★ sqrt 없이 먼저 판별
 
-			MathEngine::Vector2 diff =
-				myPos - otherTransform->GetPostion();
-
-			float distance = diff.Magnitude();
-
-			// 몬스터끼리 너무 가까워졌을 때만 밀어냄
-			const float separationRadius = 0.9f;
-
-			if (distance < separationRadius && distance > 0.001f)
+			if (distSq < separationRadiusSq && distSq > 0.000001f)
 			{
-				float strength =(separationRadius - distance) / separationRadius;
-
-				separation += diff.Normalize() * strength;
+				float distance = sqrtf(distSq); // ★ 진짜 반경 안에 들어온 쌍만 sqrt
+				float strength = (separationRadius - distance) / separationRadius;
+				separation += diff.Normalize() * strength; // Normalize 내부에서도 sqrt 있으니 필요시 diff/distance로 직접 계산 가능
 			}
 		}
 
 		monster->SetSeparation(separation);
+		//// 2. 각각의 몬스터에 대해 주변 몬스터를 계산
+		//for (Monster* monster : monsters)
+		//{
+		//	Transform* myTransform = monster->GetTransform();
+
+		//	if (myTransform == nullptr)
+		//		continue;
+
+		//	MathEngine::Vector2 myPos = myTransform->GetPostion();
+
+		//	MathEngine::Vector2 separation(0.0f, 0.0f);
+
+		//	for (Monster* other : monsters)
+		//	{
+		//		if (monster == other)
+		//			continue;
+
+		//		Transform* otherTransform = other->GetTransform();
+
+		//		if (otherTransform == nullptr)
+		//			continue;
+
+		//		MathEngine::Vector2 diff =
+		//			myPos - otherTransform->GetPostion();
+
+		//		float distance = diff.Magnitude();
+
+		//		// 몬스터끼리 너무 가까워졌을 때만 밀어냄
+		//		const float separationRadius = 0.9f;
+
+		//		if (distance < separationRadius && distance > 0.001f)
+		//		{
+		//			float strength =(separationRadius - distance) / separationRadius;
+
+		//			separation += diff.Normalize() * strength;
+		//		}
+		//	}
+
+		//	monster->SetSeparation(separation);
 	}
 }
 
