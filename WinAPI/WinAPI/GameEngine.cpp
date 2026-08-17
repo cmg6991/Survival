@@ -42,7 +42,6 @@ void GameEngine::Init(const HWND hwnd)
 {
 	InputManager::GetInstance().Init(hwnd);
 	CameraManager::GetInstance().Init();
-	TimeManager::GetInstance().Init();
 	DataManager::GetInstance().Init();
 	m_resourceManager->Init();
 
@@ -72,7 +71,7 @@ void GameEngine::Update(float deltaTime)
 {
 	InputManager::GetInstance().Update();
 	//CameraManager::GetInstance().Follow(m_player->GetTransform());
-	TimeManager::GetInstance().Update(deltaTime);
+	//TimeManager::GetInstance().Update(deltaTime);
 	m_sceneManager->Update(deltaTime);
 }
 

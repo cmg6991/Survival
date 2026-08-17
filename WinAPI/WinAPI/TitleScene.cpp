@@ -107,7 +107,7 @@ void TitleScene::Render(ID2D1DeviceContext* context)
         GRAPHICS.DrawBitmapUI(
             logo,
             340.0f,
-            10.0f,
+            50.0f,
             600.0f,
             400.0f
         );
@@ -134,6 +134,7 @@ void TitleScene::RenderButton(const D2D1_RECT_F& rect, const wchar_t* text, bool
 
     float width = rect.right - rect.left;
     float height =rect.bottom - rect.top;
+
 
     if (hover)
     {
@@ -222,7 +223,7 @@ void TitleScene::RenderButton(const D2D1_RECT_F& rect, const wchar_t* text, bool
     GRAPHICS.DrawString(
         text,
         textX,
-        textY,
+        textY+50,
         textColor,
         fontSize
     );

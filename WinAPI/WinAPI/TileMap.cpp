@@ -543,7 +543,7 @@ ChunkType TileMap::GetBiomeTypeForCell(int cellX, int cellY) const
 {
     float roll = HashFloat01(cellX, cellY, 777);
     if (roll < 0.45f) return ChunkType::GrassLand;
-    if (roll < 0.65f) return ChunkType::Lake;
+    if (roll < 0.75f) return ChunkType::Lake;
     if (roll < 0.80f) return ChunkType::Snow;
     return ChunkType::Rock;   // ★ 나머지는 Rock
 }

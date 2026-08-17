@@ -144,7 +144,7 @@ void MainScene::Init()
 	LoadMap(mapData);
 	m_tileMap->LoadFromMapData(mapData);
 
-	//TimeManager::GetInstance().Init();
+	TimeManager::GetInstance().Init();
 
 	if (hasSave)
 	{
@@ -212,6 +212,7 @@ void MainScene::FixedUpdate()
 void MainScene::Update(float deltaTime)
 {
 	//InputManager::GetInstance().Update();
+	TimeManager::GetInstance().Update(deltaTime);
 	UIManager::GetInstance().Update(deltaTime);
 
 	if (InputManager::GetInstance().IsGetKeyDown('I'))
