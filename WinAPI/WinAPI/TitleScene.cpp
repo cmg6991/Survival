@@ -22,16 +22,16 @@ void TitleScene::Init()
 
     m_startButton = D2D1::RectF(
         490.0f,
-        400.0f,
+        500.0f,
         790.0f,
-        470.0f
+        570.0f
     );
 
     m_exitButton = D2D1::RectF(
         490.0f,
-        490.0f,
+        590.0f,
         790.0f,
-        560.0f
+        660.0f
     );
 
     m_startHover = false;
@@ -223,7 +223,7 @@ void TitleScene::RenderButton(const D2D1_RECT_F& rect, const wchar_t* text, bool
     GRAPHICS.DrawString(
         text,
         textX,
-        textY+50,
+        textY,
         textColor,
         fontSize
     );

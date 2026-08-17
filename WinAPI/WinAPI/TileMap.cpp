@@ -720,17 +720,7 @@ TileType TileMap::GenerateProceduralTile(int worldX, int worldY, int chunkX, int
 
 bool TileMap::IsProceduralRoad(int worldX, int worldY) const
 {
-    /*const int ROAD_INTERVAL = 32;
-    const int ROAD_WIDTH = 2;
-
-    int xMod =((worldX % ROAD_INTERVAL)+ ROAD_INTERVAL)% ROAD_INTERVAL;
-
-    bool verticalRoad =xMod < ROAD_WIDTH;
-
-    int yMod =((worldY % ROAD_INTERVAL)+ ROAD_INTERVAL)% ROAD_INTERVAL;
-    bool horizontalRoad =yMod < ROAD_WIDTH;
-    return verticalRoad ||horizontalRoad;*/
-    if (GetBiomeAt((float)worldX, (float)worldY) != ChunkType::GrassLand)
+    /*if (GetBiomeAt((float)worldX, (float)worldY) != ChunkType::GrassLand)
         return false;
 
     const int ROAD_INTERVAL = 32;
@@ -741,6 +731,47 @@ bool TileMap::IsProceduralRoad(int worldX, int worldY) const
 
     int yMod = ((worldY % ROAD_INTERVAL) + ROAD_INTERVAL) % ROAD_INTERVAL;
     bool horizontalRoad = yMod < ROAD_WIDTH;
+    return verticalRoad || horizontalRoad;*/
+    if (GetBiomeAt((float)worldX, (float)worldY) != ChunkType::GrassLand)
+        return false;
+
+    const int ROAD_INTERVAL = 32;
+    const int ROAD_WIDTH = 3;
+
+    // 세로 도로
+
+    int roadIndexX =
+        (int)floorf((float)worldX / ROAD_INTERVAL);
+
+    int baseX = roadIndexX * ROAD_INTERVAL;
+
+    float noise =
+        sinf(worldY * 0.06f + roadIndexX * 2.37f);
+
+    int offsetX = (int)roundf(noise * 3.0f);
+
+    int roadX = baseX + offsetX;
+
+    bool verticalRoad =
+        abs(worldX - roadX) <= ROAD_WIDTH / 2;
+
+    //가로도로 
+    int roadIndexY =
+        (int)floorf((float)worldY / ROAD_INTERVAL);
+
+    int baseY = roadIndexY * ROAD_INTERVAL;
+
+    float noiseY =
+        sinf(worldX * 0.06f + roadIndexY * 3.17f);
+
+    int offsetY = (int)roundf(noiseY * 3.0f);
+
+    int roadY = baseY + offsetY;
+
+    bool horizontalRoad =
+        abs(worldY - roadY) <= ROAD_WIDTH / 2;
+
+
     return verticalRoad || horizontalRoad;
 }
 
@@ -809,33 +840,6 @@ bool TileMap::GetLakeInfoForRegion(int regionX, int regionY, MathEngine::Vector2
 
 bool TileMap::IsProceduralWater(int worldX, int worldY) const
 {
-    //int regionX = (worldX >= 0) ? worldX / LAKE_REGION_SIZE : (worldX - LAKE_REGION_SIZE + 1) / LAKE_REGION_SIZE;
-    //int regionY = (worldY >= 0) ? worldY / LAKE_REGION_SIZE : (worldY - LAKE_REGION_SIZE + 1) / LAKE_REGION_SIZE;
-
-    //for (int dy = -1; dy <= 1; dy++)
-    //{
-    //    for (int dx = -1; dx <= 1; dx++)
-    //    {
-    //        MathEngine::Vector2 center;
-    //        float radius = 0.0f;
-    //        if (!GetLakeInfoForRegion(regionX + dx, regionY + dy, center, radius))
-    //            continue;
-
-    //        float distX = worldX - center.x;
-    //        float distY = worldY - center.y;
-    //        float dist = sqrtf(distX * distX + distY * distY);
-
-    //        // ★ 각도에 따라 반지름을 살짝 흔들어서 울퉁불퉁한 자연스러운 해안선 만들기
-    //        float angle = atan2f(distY, distX);
-    //        float wobble = 1.0f + 0.15f * sinf(angle * 5.0f + center.x * 0.7f)
-    //            + 0.10f * sinf(angle * 9.0f + center.y * 0.5f);
-    //        float effectiveRadius = radius * wobble;
-
-    //        if (dist < effectiveRadius)
-    //            return true;
-    //    }
-    //}
-    //return false;
     float warpX = worldX + sinf(worldY * 0.02f) * BIOME_WOBBLE;
     float warpY = worldY + sinf(worldX * 0.023f + 1.7f) * BIOME_WOBBLE;
 
