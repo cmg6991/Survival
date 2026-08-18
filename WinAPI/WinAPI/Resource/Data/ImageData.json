@@ -133,11 +133,19 @@
 	},
 	{
 		"key": "Monster2",
-		"path": "Resource/Animation/jorg_idle.png"
+		"path": "Resource/Animation/Slimes/slimes_white.png"
 	},
 	{
 		"key": "Monster3",
-		"path": "Resource/Animation/chomp_idle.png"
+		"path": "Resource/Animation/Slimes/slimes_dark.png"
+	},
+	{
+		"key": "Monster4",
+		"path": "Resource/Animation/Slimes/slimes_yellow.png"
+	},
+	{
+		"key": "Monster5",
+		"path": "Resource/Animation/Slimes/chomp_idle.png"
 	},
 	{
 		"key": "Fire",

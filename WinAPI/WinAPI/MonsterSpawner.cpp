@@ -74,18 +74,6 @@ int MonsterSpawner::GetNightHourIndex() const
 
 MathEngine::Vector2 MonsterSpawner::GetRandomSpawnPositionOffscreen(const MathEngine::Vector2& playerPos) const
 {
-    /*float angle = ((float)rand() / RAND_MAX) * 2.0f * 3.14159265f;
-
-    MathEngine::Vector2 offset;
-    offset.x = cosf(angle) * m_spawnRadius;
-    offset.y = sinf(angle) * m_spawnRadius;
-
-    MathEngine::Vector2 spawnPos = playerPos + offset;
-
-    spawnPos.x = max(1.0f, min(spawnPos.x, (float)(m_mapWidth - 2)));
-    spawnPos.y = max(1.0f, min(spawnPos.y, (float)(m_mapHeight - 2)));
-
-    return spawnPos;*/
     float angle =
         ((float)rand() / RAND_MAX) *
         2.0f * 3.14159265f;
@@ -121,15 +109,61 @@ void MonsterSpawner::SpawnAroundPlayer(int count, const MathEngine::Vector2& pla
 
 string MonsterSpawner::ChooseMonsterId(int dayFactor) const
 {
-    int weightSmall = max(1, 10 - dayFactor * 2);   // 날짜 지날수록 감소
-    int weightNormal = 5 + dayFactor;                     // 서서히 증가
-    int weightBig = max(0, dayFactor - 1);            // 3일차부터 등장 시작, 계속 증가
+    int day = dayFactor + 1;
 
-    int total = weightSmall + weightNormal + weightBig;
-    int roll = rand() % total;
+    // 1일차
+    if (day == 1)
+    {
+        int roll = rand() % 10;
 
-    if (roll < weightSmall) return "Monster2";
-    roll -= weightSmall;
-    if (roll < weightNormal) return "Monster";
-    return "Monster3";
+        if (roll < 7)
+            return "Monster2";
+
+        return "Monster";
+    }
+
+    // 2일차
+    if (day == 2)
+    {
+        int roll = rand() % 10;
+
+        if (roll < 5)
+            return "Monster2";
+
+        if (roll < 9)
+            return "Monster";
+
+        return "Monster3";
+    }
+
+    // 3일차
+    if (day == 3)
+    {
+        int roll = rand() % 10;
+
+        if (roll < 4)
+            return "Monster2";
+
+        if (roll < 7)
+            return "Monster";
+
+        return "Monster3";
+    }
+
+    // 4일차 이상
+    int roll = rand() % 10;
+
+    if (roll < 3)
+        return "Monster2";
+
+    if (roll < 6)
+        return "Monster";
+
+    if (roll < 8)
+        return "Monster3";
+
+    if (roll < 9)
+        return "Monster4";
+
+    return "Monster5";
 }

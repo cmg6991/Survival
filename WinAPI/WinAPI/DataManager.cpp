@@ -138,6 +138,8 @@ ImageKey DataManager::StringToImageKey(const string& str) const
 	if (str == "Monster")  return ImageKey::Monster;
 	if (str == "Monster2")  return ImageKey::Monster2;
 	if (str == "Monster3")  return ImageKey::Monster3;
+	if (str == "Monster4")  return ImageKey::Monster4;
+	if (str == "Monster5")  return ImageKey::Monster5;
 	if (str == "SideBarUI")  return ImageKey::SideBarUI;
 	if (str == "Fire")  return ImageKey::Fire;
 	if (str == "GrassRoad")  return ImageKey::GrassRoad;

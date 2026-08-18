@@ -287,11 +287,6 @@ void MainScene::Update(float deltaTime)
 			UIManager::GetInstance().HandleInventoryClick(mousePos.x,mousePos.y);
 		}
 	}
-	if (InputManager::GetInstance().IsGetKeyDown(VK_F5))
-	{
-		SaveGame();
-	}
-
 
 	if (UIManager::GetInstance().IsCraftingOpen())
 	{

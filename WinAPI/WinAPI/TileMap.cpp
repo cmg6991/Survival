@@ -597,8 +597,8 @@ MathEngine::Vector2 TileMap::GetBiomeSeedPoint(int cellX, int cellY) const
 ChunkType TileMap::GetBiomeTypeForCell(int cellX, int cellY) const
 {
     float roll = HashFloat01(cellX, cellY, 777);
-    if (roll < 0.35f) return ChunkType::GrassLand;
-    if (roll < 0.60f) return ChunkType::Lake;
+    if (roll < 0.45f) return ChunkType::GrassLand;
+    if (roll < 0.65f) return ChunkType::Lake;
     if (roll < 0.80f) return ChunkType::Snow;
     return ChunkType::Rock;   // ★ 나머지는 Rock
 }
@@ -958,269 +958,164 @@ void TileMap::GenerateDockForChunk(int chunkX, int chunkY)
     const int startX = chunkX * CHUNK_SIZE;
     const int startY = chunkY * CHUNK_SIZE;
 
-    const int endX =
-        startX + CHUNK_SIZE - 1;
+    const int endX =startX + CHUNK_SIZE - 1;
 
-    const int endY =
-        startY + CHUNK_SIZE - 1;
+    const int endY =startY + CHUNK_SIZE - 1;
 
     // 이 청크 주변의 바이옴 셀만 검사
-    int minCellX =
-        (int)floorf((float)startX / BIOME_CELL_SIZE) - 1;
-
-    int maxCellX =
-        (int)floorf((float)endX / BIOME_CELL_SIZE) + 1;
-
-    int minCellY =
-        (int)floorf((float)startY / BIOME_CELL_SIZE) - 1;
-
-    int maxCellY =
-        (int)floorf((float)endY / BIOME_CELL_SIZE) + 1;
+    int minCellX =(int)floorf((float)startX / BIOME_CELL_SIZE) - 1;
+    int maxCellX =(int)floorf((float)endX / BIOME_CELL_SIZE) + 1;
+    int minCellY =(int)floorf((float)startY / BIOME_CELL_SIZE) - 1;
+    int maxCellY =(int)floorf((float)endY / BIOME_CELL_SIZE) + 1;
 
 
-    for (int cellY = minCellY;
-        cellY <= maxCellY;
-        cellY++)
+    for (int cellY = minCellY;cellY <= maxCellY;cellY++)
     {
-        for (int cellX = minCellX;
-            cellX <= maxCellX;
-            cellX++)
+        for (int cellX = minCellX;cellX <= maxCellX;cellX++)
         {
             // 호수 바이옴이 아니면 데크 없음
-            if (GetBiomeTypeForCell(cellX, cellY)
-                != ChunkType::Lake)
+            if (GetBiomeTypeForCell(cellX, cellY)!= ChunkType::Lake)
             {
                 continue;
             }
 
-            MathEngine::Vector2 center =
-                GetBiomeSeedPoint(cellX, cellY);
+            MathEngine::Vector2 center =GetBiomeSeedPoint(cellX, cellY);
 
-            int centerX =
-                (int)roundf(center.x);
-
-            int centerY =
-                (int)roundf(center.y);
-
-
+            int centerX =(int)roundf(center.x);
+            int centerY =(int)roundf(center.y);
             // 가로 데크 / 세로 데크
-            bool horizontal =
-                IsDockHorizontal(cellX, cellY);
+            bool horizontal =IsDockHorizontal(cellX, cellY);
+            bool positive =HashFloat01(cellX,cellY,9002) < 0.5f;
 
-            bool positive =
-                HashFloat01(
-                    cellX,
-                    cellY,
-                    9002
-                ) < 0.5f;
+            int direction =positive ? 1 : -1;
+            const float baseRadius =BIOME_CELL_SIZE *LAKE_FILL_RADIUS_RATIO;
 
-
-            int direction =
-                positive ? 1 : -1;
-
-
-            const float baseRadius =
-                BIOME_CELL_SIZE *
-                LAKE_FILL_RADIUS_RATIO;
-
-
-            // --------------------------------
             // 가로 방향 데크
-            // --------------------------------
             if (horizontal)
             {
                 int edgeX = centerX;
+                bool foundShore = false;
+                const int searchLimit = (int)(baseRadius * 1.6f) + 6;
 
                 // 호수 가장자리 찾기
-                for (int i = 0;
-                    i < (int)baseRadius;
-                    i++)
+                for (int i = 0;i < (int)baseRadius;i++)
                 {
-                    int checkX =
-                        centerX + direction * i;
+                    int checkX =centerX + direction * i;
 
-                    if (!IsProceduralWater(
-                        checkX,
-                        centerY))
+                    if (!IsProceduralWater(checkX,centerY))
                     {
+                        foundShore = true;
                         break;
                     }
 
                     edgeX = checkX;
                 }
-
-                // ================================
+                if (!foundShore)
+                    continue;
                 // T자 데크 본체
-                // ================================
-                for (int i = 0;
-                    i < DOCK_LENGTH;
-                    i++)
+                for (int i = 0;i < DOCK_LENGTH;i++)
                 {
-                    int dockX =
-                        edgeX - direction * i;
+                    int dockX =edgeX - direction * i;
 
                     // 본체를 2칸 폭으로
-                    for (int width = -1;
-                        width <= 0;
-                        width++)
+                    for (int width = -1;width <= 0;width++)
                     {
-                        int dockY =
-                            centerY + width;
+                        int dockY =centerY + width;
 
-                        if (dockX < startX ||
-                            dockX > endX ||
-                            dockY < startY ||
-                            dockY > endY)
+                        if (dockX < startX ||dockX > endX ||
+                            dockY < startY ||dockY > endY)
                         {
                             continue;
                         }
 
-                        if (IsProceduralWater(
-                            dockX,
-                            dockY))
+                        if (IsProceduralWater(dockX,dockY))
                         {
-                            m_dockTiles.insert(
-                                MakeTileKey(
-                                    dockX,
-                                    dockY
-                                )
-                            );
+                            m_dockTiles.insert(MakeTileKey(dockX,dockY));
                         }
                     }
                 }
-
-                // ================================
                 // T자 머리 부분
-                // ================================
-                int headX =
-                    edgeX - direction * (DOCK_LENGTH - 1);
+                int headX =edgeX - direction * (DOCK_LENGTH - 1);
 
-                for (int width = -2;
-                    width <= 2;
-                    width++)
+                for (int width = -2;width <= 2;width++)
                 {
-                    int dockY =
-                        centerY + width;
+                    int dockY =centerY + width;
 
-                    if (headX < startX ||
-                        headX > endX ||
-                        dockY < startY ||
-                        dockY > endY)
+                    if (headX < startX ||headX > endX ||
+                        dockY < startY ||dockY > endY)
                     {
                         continue;
                     }
 
-                    if (IsProceduralWater(
-                        headX,
-                        dockY))
+                    if (IsProceduralWater(headX,dockY))
                     {
-                        m_dockTiles.insert(
-                            MakeTileKey(
-                                headX,
-                                dockY
-                            )
-                        );
+                        m_dockTiles.insert(MakeTileKey(headX,dockY));
                     }
                 }
             }
-
-
-            // --------------------------------
             // 세로 방향 데크
-            // --------------------------------
             else
             {
                 int edgeY = centerY;
 
-                // 호수 가장자리 찾기
-                for (int i = 0;
-                    i < (int)baseRadius;
-                    i++)
-                {
-                    int checkY =
-                        centerY + direction * i;
+                bool foundShore = false;
 
-                    if (!IsProceduralWater(
-                        centerX,
-                        checkY))
+                const int searchLimit = (int)(baseRadius * 1.6f) + 6;
+                // 호수 가장자리 찾기
+                for (int i = 0;i < (int)baseRadius;i++)
+                {
+                    int checkY =centerY + direction * i;
+
+                    if (!IsProceduralWater(centerX,checkY))
                     {
+                        foundShore = true;
                         break;
                     }
 
                     edgeY = checkY;
                 }
-
-                // ================================
+                if (!foundShore)
+                    continue;
                 // T자 데크 본체
-                // ================================
-                for (int i = 0;
-                    i < DOCK_LENGTH;
-                    i++)
+       
+                for (int i = 0;i < DOCK_LENGTH;i++)
                 {
-                    int dockY =
-                        edgeY - direction * i;
+                    int dockY =edgeY - direction * i;
 
                     // 본체를 2칸 폭으로
-                    for (int width = -1;
-                        width <= 0;
-                        width++)
+                    for (int width = -1;width <= 0;width++)
                     {
-                        int dockX =
-                            centerX + width;
+                        int dockX =centerX + width;
 
-                        if (dockX < startX ||
-                            dockX > endX ||
-                            dockY < startY ||
-                            dockY > endY)
+                        if (dockX < startX ||dockX > endX ||
+                            dockY < startY ||dockY > endY)
                         {
                             continue;
                         }
 
-                        if (IsProceduralWater(
-                            dockX,
-                            dockY))
+                        if (IsProceduralWater(dockX,dockY))
                         {
-                            m_dockTiles.insert(
-                                MakeTileKey(
-                                    dockX,
-                                    dockY
-                                )
-                            );
+                            m_dockTiles.insert(MakeTileKey(dockX,dockY));
                         }
                     }
                 }
 
-                // ================================
                 // T자 머리 부분
-                // ================================
-                int headY =
-                    edgeY - direction * (DOCK_LENGTH - 1);
+                int headY =edgeY - direction * (DOCK_LENGTH - 1);
 
-                for (int width = -2;
-                    width <= 2;
-                    width++)
+                for (int width = -2;width <= 2;width++)
                 {
-                    int dockX =
-                        centerX + width;
+                    int dockX =centerX + width;
 
-                    if (dockX < startX ||
-                        dockX > endX ||
-                        headY < startY ||
-                        headY > endY)
+                    if (dockX < startX ||dockX > endX ||
+                        headY < startY ||headY > endY)
                     {
                         continue;
                     }
 
-                    if (IsProceduralWater(
-                        dockX,
-                        headY))
+                    if (IsProceduralWater(dockX,headY))
                     {
-                        m_dockTiles.insert(
-                            MakeTileKey(
-                                dockX,
-                                headY
-                            )
-                        );
+                        m_dockTiles.insert(MakeTileKey(dockX,headY));
                     }
                 }
             }

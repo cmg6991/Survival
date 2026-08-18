@@ -47,6 +47,8 @@ enum class ImageKey
 	Monster,
 	Monster2,
 	Monster3,
+	Monster4,
+	Monster5,
 	SideBarUI,
 	Fire,
 	GrassRoad,
