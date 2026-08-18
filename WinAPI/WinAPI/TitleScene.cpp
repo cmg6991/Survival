@@ -4,6 +4,7 @@
 #include "Graphics.h"
 #include "SceneManager.h"
 #include "DataManager.h"
+#include "SoundManager.h"
 
 TitleScene::TitleScene(ResourceManager* resourceManager,SceneManager* sceneManager)
 	:Scene("TitleScene"), m_resourceManager(nullptr),m_startHover(nullptr), m_exitHover(false),
@@ -65,7 +66,7 @@ void TitleScene::Update(float deltaTime)
         if (m_startHover)
         {
             OutputDebugStringW(L"GAME START CLICKED\n");
-
+            SoundManager::GetInstance().PlaySFX("Button", 1.f);
             m_sceneManager->LoadScene("Main");
         }
 

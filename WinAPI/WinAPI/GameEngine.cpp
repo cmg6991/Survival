@@ -10,6 +10,7 @@
 #include "TimeManager.h"
 #include "DataManager.h"
 #include "UIManager.h"
+#include "SoundManager.h"
 
 #include "Animator.h"
 #include "TileMap.h"
@@ -43,7 +44,9 @@ void GameEngine::Init(const HWND hwnd)
 	InputManager::GetInstance().Init(hwnd);
 	CameraManager::GetInstance().Init();
 	DataManager::GetInstance().Init();
-	m_resourceManager->Init();
+	SoundManager::GetInstance().Init();
+
+	SoundManager::GetInstance().LoadSound("Button", "Resource/Sound/ButtonSound.wav");
 
 	m_resourceManager->Init();
 	for (const ImageData& img : DataManager::GetInstance().GetImageList())
@@ -72,6 +75,7 @@ void GameEngine::Update(float deltaTime)
 	InputManager::GetInstance().Update();
 	//CameraManager::GetInstance().Follow(m_player->GetTransform());
 	//TimeManager::GetInstance().Update(deltaTime);
+	SoundManager::GetInstance().Update();
 	m_sceneManager->Update(deltaTime);
 }
 
@@ -116,4 +120,6 @@ void GameEngine::Release()
 	m_resourceManager->Release();
 	delete m_resourceManager;
 	m_resourceManager = nullptr;
+
+	SoundManager::GetInstance().Release();
 }
