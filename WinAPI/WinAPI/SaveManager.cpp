@@ -14,6 +14,8 @@ bool SaveManager::Save(const SaveData& data, const string& filePath)
 	j["hour"] = data.hour;
 	j["minute"] = data.minute;
 
+	j["playTimeSeconds"] = data.playTimeSeconds;
+
 	// ¿þÀÌºê
 	j["currentWave"] = data.currentWave;
 
@@ -38,6 +40,16 @@ bool SaveManager::Save(const SaveData& data, const string& filePath)
 	{
 		filesystem::create_directories(path.parent_path());
 	}
+
+	wchar_t buffer[512];
+
+	swprintf_s(
+		buffer,
+		L"[SAVE] filePath = %S\n",
+		filePath.c_str()
+	);
+
+	OutputDebugStringW(buffer);
 
 	std::ofstream file(filePath);
 	if (!file.is_open())
@@ -81,6 +93,8 @@ bool SaveManager::Load(SaveData& outData, const string& filePath)
 	outData.hour = j.value("hour", 6);
 	outData.minute = j.value("minute", 0);
 
+	outData.playTimeSeconds = j.value("playTimeSeconds", 0);
+
 	outData.currentWave = j.value("currentWave", 1);
 
 	outData.inventory.clear();
@@ -115,4 +129,39 @@ bool SaveManager::DeleteSaveFile(const string& filePath)
 		return false;
 
 	return std::filesystem::remove(filePath);
+}
+
+string SaveManager::GetSavePath(int slot)
+{
+	char buffer[64];
+	sprintf_s(buffer,"Save/Save_%02d.json",slot);
+	return string(buffer);
+}
+
+bool SaveManager::SaveSlot(const SaveData& data, int slot)
+{
+	if (slot < 1 || slot > 3)
+		return false;
+	return Save(data,GetSavePath(slot));
+}
+
+bool SaveManager::LoadSlot(SaveData& outData, int slot)
+{
+	if (slot < 1 || slot > 3)
+		return false;
+	return Load(outData,GetSavePath(slot));
+}
+
+bool SaveManager::HasSaveSlot(int slot)
+{
+	if (slot < 1 || slot > 3)
+		return false;
+	return HasSaveFile(GetSavePath(slot));
+}
+
+bool SaveManager::DeleteSaveSlot(int slot)
+{
+	if (slot < 1 || slot > 3)
+		return false;
+	return DeleteSaveFile(GetSavePath(slot));
 }

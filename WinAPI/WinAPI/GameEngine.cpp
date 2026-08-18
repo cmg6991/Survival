@@ -113,8 +113,19 @@ void GameEngine::Render(ID2D1DeviceContext* context)
 
 void GameEngine::Release()
 {
+	if (m_released)
+		return;
+
+	m_released = true;
+	OutputDebugStringW(
+		L"========== GameEngine::Release START ==========\n"
+	);
+
 	if (m_sceneManager != nullptr)
 	{
+		OutputDebugStringW(
+			L"GameEngine -> delete SceneManager\n"
+		);
 		delete m_sceneManager;
 		m_sceneManager = nullptr;
 	}
@@ -126,4 +137,8 @@ void GameEngine::Release()
 	}
 
 	SoundManager::GetInstance().Release();
+
+	OutputDebugStringW(
+		L"========== GameEngine::Release END ==========\n"
+	);
 }

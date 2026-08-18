@@ -144,17 +144,19 @@ void MainScene::Init()
 	
 	SaveData data;
 
-	bool isLoadGame =
-		m_sceneManager->GetGameStartType() == GameStartType::LoadGame;
+	bool isLoadGame =m_sceneManager->GetGameStartType() == GameStartType::LoadGame;
+
+	int saveSlot =m_sceneManager->GetSaveSlot();
+	bool hasSave = false;
 
 	if (isLoadGame)
 	{
-		if (SaveManager::Load(data))
+		hasSave =SaveManager::HasSaveSlot(saveSlot);
+
+		if (hasSave)
 		{
-			m_collectedItemsIds.insert(
-				data.collectedItemsIds.begin(),
-				data.collectedItemsIds.end()
-			);
+			SaveManager::LoadSlot(data,saveSlot);
+			m_collectedItemsIds.insert(data.collectedItemsIds.begin(),data.collectedItemsIds.end());
 		}
 	}
 
@@ -176,17 +178,9 @@ void MainScene::Init()
 	}*/
 	if (isLoadGame)
 	{
-		Transform* playerTr =
-			static_cast<Transform*>(
-				m_player->GetGameObject()->GetElement(
-					ElementType::Transform
-				)
-				);
+		Transform* playerTr =static_cast<Transform*>(m_player->GetGameObject()->GetElement(ElementType::Transform));
 
-		playerTr->SetPosition({
-			data.playerX,
-			data.playerY
-			});
+		playerTr->SetPosition({data.playerX,data.playerY});
 
 		TimeManager::GetInstance().SetTime(
 			data.day,
@@ -194,9 +188,8 @@ void MainScene::Init()
 			data.minute
 		);
 
-		m_player->GetInventory()->SetAllItems(
-			data.inventory
-		);
+		m_player->GetInventory()->SetAllItems(data.inventory);
+		m_playTime = static_cast<float>(data.playTimeSeconds);
 	}
 
 	UIManager::GetInstance().SetInventory(m_player->GetInventory());
@@ -257,6 +250,7 @@ void MainScene::Update(float deltaTime)
 	//InputManager::GetInstance().Update();
 	TimeManager::GetInstance().Update(deltaTime);
 	UIManager::GetInstance().Update(deltaTime);
+	m_playTime += deltaTime;
 
 	if (InputManager::GetInstance().IsGetKeyDown('I'))
 	{
@@ -274,6 +268,12 @@ void MainScene::Update(float deltaTime)
 
 		return;
 	}
+	if (InputManager::GetInstance().IsGetKeyDown(VK_F5))
+	{
+		SaveGame();
+	}
+
+
 	if (UIManager::GetInstance().IsCraftingOpen())
 	{
 		string station = InteractTypeToStationString(UIManager::GetInstance().GetCraftingStation());
@@ -517,7 +517,12 @@ void MainScene::PostRender(ID2D1DeviceContext* context)
 
 void MainScene::Release()
 {
-	SaveGame();
+	OutputDebugStringW(L"========== MainScene::Release() ==========\n");
+
+	if (m_player != nullptr)
+	{
+		SaveGame();
+	}
 
 	delete m_tileMap;
 	m_tileMap = nullptr;
@@ -528,10 +533,38 @@ void MainScene::Release()
 	delete m_monsterSpawner;
 	m_monsterSpawner = nullptr;
 
+	delete m_objectSpawner;
+	m_objectSpawner = nullptr;
+
+	delete m_miniMap;
+	m_miniMap = nullptr;
+
+	for (GameObject* obj : m_bulletPool)
+	{
+		delete obj;
+	}
+
+	for (auto& pair : m_monsterPool)
+	{
+		for (GameObject* obj : pair.second)
+		{
+			delete obj;
+		}
+
+		pair.second.clear();
+	}
+
+	m_monsterPool.clear();
+
+	m_bulletPool.clear();
+
 	Scene::Release();
 
 	delete m_physicsWorld; // 추가
 	m_physicsWorld = nullptr;
+	OutputDebugStringW(
+		L"========== MainScene::Release END ==========\n"
+	);
 }
 
 void MainScene::SaveGame()
@@ -550,7 +583,27 @@ void MainScene::SaveGame()
 	data.inventory = m_player->GetInventory()->GetAllItems();
 	data.collectedItemsIds.assign(m_collectedItemsIds.begin(), m_collectedItemsIds.end());
 
-	SaveManager::Save(data);
+	data.playTimeSeconds = static_cast<int>(m_playTime);
+
+	int saveSlot = m_sceneManager->GetSaveSlot();
+	if (saveSlot < 1 || saveSlot > 3)
+	{
+		OutputDebugStringW(L"SaveGame 실패: 잘못된 슬롯 번호\n");
+		return;
+	}
+
+	bool result =SaveManager::SaveSlot(data,saveSlot);
+
+	if (result)
+	{
+		wchar_t buf[128];
+		swprintf_s(buf,L"게임 저장 성공 - Slot %d\n",saveSlot);
+		OutputDebugStringW(buf);
+	}
+	else
+	{
+		OutputDebugStringW(L"게임 저장 실패\n");
+	}
 }
 
 void MainScene::RegisterTileHandlers()

@@ -117,4 +117,6 @@ private:
 	const float m_flowFieldRecomputeInterval = 0.4f;
 
 	const float m_monsterDespawnDistance = 20.0f;
+
+	float m_playTime = 0.0f;
 };

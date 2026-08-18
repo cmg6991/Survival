@@ -25,5 +25,6 @@ private:
 	ResourceManager* m_resourceManager;
 	SceneManager* m_sceneManager;
 	//vector<GameObject*> m_objects;
+	bool m_released = false;
 };
 

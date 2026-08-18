@@ -15,4 +15,6 @@ struct SaveData
 	unordered_map<string, int> inventory;
 
 	vector<string> collectedItemsIds;
+
+	int playTimeSeconds = 0;
 };

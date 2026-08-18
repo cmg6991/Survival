@@ -2,9 +2,17 @@
 #include "Scene.h"
 #include "pch.h"
 #include "Graphics.h"
+#include "SaveData.h"
 
 class ResourceManager;
 class SceneManager;
+
+enum class TitleMenuState
+{
+	Main,
+	NewGameSlot,
+	LoadGameSlot
+};
 
 class TitleScene : public Scene
 {
@@ -26,17 +34,47 @@ public:
 
 private:
 	void RenderButton(const D2D1_RECT_F& rect,const wchar_t* text,bool hover);
+	void SelectSlot(int slot);
+
+	void RenderSlotButton(const D2D1_RECT_F& rect,int slot,bool hover);
+
+	void RenderConfirmWindow();
+
+	bool IsSlotOccupied(int slot);
 
 private:
-	ResourceManager* m_resourceManager;
+	ResourceManager* m_resourceManager; 
 	SceneManager* m_sceneManager;
 
 	D2D1_RECT_F m_startButton;
 	D2D1_RECT_F m_exitButton;
 	D2D1_RECT_F m_loadButton;
+	D2D1_RECT_F m_backButton;
 
 	bool m_startHover;
 	bool m_exitHover;
 	bool m_loadHover;
+	bool m_backHover;
+
+	// 슬롯 메뉴
+	D2D1_RECT_F m_slot1Button;
+	D2D1_RECT_F m_slot2Button;
+	D2D1_RECT_F m_slot3Button;
+
+	bool m_slot1Hover;
+	bool m_slot2Hover;
+	bool m_slot3Hover;
+
+	// 현재 타이틀 메뉴
+	TitleMenuState m_menuState;
+
+
+	bool m_showConfirm = false;
+
+	int m_selectedSlot = 0;
+
+	SaveData m_slotData[3];
+
+	bool m_slotExists[3] = { false,false,false };
 };
 

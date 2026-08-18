@@ -53,19 +53,34 @@ void SceneManager::PostRender(ID2D1DeviceContext* context)
 
 void SceneManager::Release()
 {
+	OutputDebugStringA(
+		"========== SceneManager::Release START ==========\n"
+	);
+
 	for (auto& scene : m_scenes)
 	{
 		if (scene.second != nullptr)
 		{
+			OutputDebugStringA(
+				("Releasing Scene: " + scene.first + "\n").c_str()
+			);
+
+			scene.second->Release();
+
 			delete scene.second;
 			scene.second = nullptr;
 		}
 	}
+
 	m_scenes.clear();
 
 	m_currentScene = nullptr;
 	m_nextScene = nullptr;
 	m_preScene = nullptr;
+
+	OutputDebugStringA(
+		"========== SceneManager::Release END ==========\n"
+	);
 }
 
 void SceneManager::LoadScene(std::string sceneName)

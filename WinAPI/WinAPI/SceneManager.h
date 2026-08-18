@@ -43,6 +43,10 @@ public:
 
 	void SetGameStartType(GameStartType type) { m_gameStartType = type; }
 	GameStartType GetGameStartType() const { return m_gameStartType; }
+
+	void SetSaveSlot(int slot) {m_saveSlot = slot;}
+
+	int GetSaveSlot() const {return m_saveSlot;}
 private:
 	Scene* m_currentScene;
 	Scene* m_nextScene;
@@ -55,5 +59,6 @@ private:
 	int m_loadCount = 0;
 
 	GameStartType m_gameStartType = GameStartType::NewGame;
+	int m_saveSlot = 1;
 };
 
