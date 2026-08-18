@@ -250,5 +250,13 @@
 	{
 		"key": "TitleLogo",
 		"path": "Resource/Title/titleScenelogo.png"
+	},
+	{
+		"key": "Dock",
+		"path": "Resource/BridgeTile.png"
+	},
+	{
+		"key": "Flower",
+		"path": "Resource/prop_flowers_pink.png"
 	}
 ]

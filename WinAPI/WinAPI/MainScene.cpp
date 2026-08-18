@@ -215,6 +215,9 @@ void MainScene::Init()
 		{
 			UseItem(itemId);
 		});
+	UIManager::GetInstance().SetOnSave([this](){SaveGame();});
+	UIManager::GetInstance().SetOnExit([this](){PostQuitMessage(0);});
+	UIManager::GetInstance().SetOnTitle([this](){m_sceneManager->LoadScene("Title");});
 	m_flowField.Init(m_collisionManager, 100, 100);
 	m_monsterSpawner->Init(m_collisionManager, 100, 100);
 	m_monsterSpawner->SetSpawnPool({ "Monster2", "Monster", "Monster3" });  // ★ 추가
@@ -252,6 +255,24 @@ void MainScene::Update(float deltaTime)
 	UIManager::GetInstance().Update(deltaTime);
 	m_playTime += deltaTime;
 
+	if (InputManager::GetInstance().IsGetKeyDown(VK_ESCAPE))
+	{
+		UIManager::GetInstance().TogglePauseMenu();
+		return;
+	}
+
+	// Pause 상태라면 게임 업데이트 정지
+	if (UIManager::GetInstance().IsPauseMenuOpen())
+	{
+		if (InputManager::GetInstance().IsGetKeyDown(VK_LBUTTON))
+		{
+			MathEngine::Vector2 mousePos = InputManager::GetInstance().GetMousePosition();
+
+			UIManager::GetInstance().HandlePauseMenuClick(mousePos.x, mousePos.y);
+		}
+		return;
+	}
+
 	if (InputManager::GetInstance().IsGetKeyDown('I'))
 	{
 		UIManager::GetInstance().ToggleInventoryWindow();
@@ -265,8 +286,6 @@ void MainScene::Update(float deltaTime)
 
 			UIManager::GetInstance().HandleInventoryClick(mousePos.x,mousePos.y);
 		}
-
-		return;
 	}
 	if (InputManager::GetInstance().IsGetKeyDown(VK_F5))
 	{

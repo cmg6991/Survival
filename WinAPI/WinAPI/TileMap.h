@@ -47,6 +47,7 @@ public:
     bool IsRoad(int x, int y) const;
     bool IsWater(int x, int y) const { return GetTile(x, y) == TileType::WATER; }
     bool IsType(int x, int y, TileType type) const;
+    bool IsDock(int worldX, int worldY) const;
     TileType GetTile(int x, int y) const;
     void SetTile(int x, int y, TileType type);
     void SetObjectSpawner(ObjectSpawner* spawner) { m_objectSpawner = spawner; }
@@ -94,6 +95,12 @@ private:
     bool IsProceduralWater(int worldX, int worldY) const;
     bool IsProceduralSnow(int worldX, int worldY) const;
     bool IsProceduralStone(int worldX, int worldY) const;
+
+  
+private:
+    void GenerateDockForChunk(int chunkX, int chunkY);
+    bool IsDockHorizontal(int cellX, int cellY) const;
+    const int DOCK_LENGTH = 6;
 private:
     vector<vector<TileType>> m_tiles;
 
@@ -108,6 +115,7 @@ private:
     unordered_map<long long, TileType> m_proceduralTiles;
 
     unordered_map<long long, pair<int, int>> m_activeChunkCoords;
+    unordered_set<long long> m_dockTiles;
 
     ObjectSpawner* m_objectSpawner = nullptr;
 };

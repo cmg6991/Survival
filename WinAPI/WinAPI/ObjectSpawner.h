@@ -12,7 +12,8 @@ enum class SpawnObjectType
 	Tree,
 	Rock,
 	Grass,
-    Iron
+    Iron,
+    Flower
 };
 
 class ObjectSpawner
@@ -41,6 +42,7 @@ private:
     GameObject* SpawnResourceObject(const string& resourceId, int x, int y);
 
     GameObject* SpawnGrass(int x, int y, const string& imageKey, float scale);
+    GameObject* SpawnFlower(int x, int y, const string& imageKey, float scale);
 
 private:
     MainScene* m_scene;
@@ -58,6 +60,7 @@ private:
 
     // 청크 타입별 등장 가능한 잔디 이미지+스케일 목록
     unordered_map<ChunkType, vector<pair<string, float>>> m_grassImagePoolByChunk;
+    unordered_map<ChunkType, vector<pair<string, float>>> m_flowerImagePoolByChunk;
 
     struct ChunkData
     {

@@ -68,6 +68,8 @@ enum class ImageKey
 	IronBox,
 	TitleBackGround,
 	TitleLogo,
+	Dock,
+	Flower,
 	Count
 };
 

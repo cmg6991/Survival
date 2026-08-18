@@ -30,6 +30,8 @@ ObjectSpawner::ObjectSpawner() : m_scene(nullptr), m_resourceManager(nullptr), m
     m_grassImagePoolByChunk[ChunkType::GrassLand] = { { "Grass", 2.0f } };
     m_grassImagePoolByChunk[ChunkType::Lake] = { { "Grass", 1.5f } };
     m_grassImagePoolByChunk[ChunkType::Snow] = { { "Item_WinterGrass", 1.5f } };
+
+    m_flowerImagePoolByChunk[ChunkType::Lake] = { {"Flower", 1.5f} };
 }
 
 ObjectSpawner::~ObjectSpawner()
@@ -91,8 +93,10 @@ void ObjectSpawner::SpawnChunk(int chunkX,int chunkY,int chunkWidth,int chunkHei
             }
             case ChunkType::Lake:
             {
-                if (value < 0.2f)
+                if (value < 0.02f)
                     SpawnObject(SpawnObjectType::Grass, x, y, chunkType, chunkKey);
+                else if(value <0.05f)
+                    SpawnObject(SpawnObjectType::Flower, x, y, chunkType, chunkKey);
                 break;
             }
             case ChunkType::Snow:
@@ -235,6 +239,17 @@ void ObjectSpawner::SpawnObject(SpawnObjectType type, int x, int y, ChunkType ch
         }
         break;
     }
+    case SpawnObjectType::Flower:
+    {
+        auto& pool = m_flowerImagePoolByChunk[chunkType];
+        if (!pool.empty())
+        {
+            int idx = m_random() % pool.size();
+            const auto& [imageKey, scale] = pool[idx];
+            obj = SpawnFlower(x, y, imageKey, scale);
+        }
+        break;
+    }
     }
 
     if (obj != nullptr)
@@ -334,6 +349,24 @@ GameObject* ObjectSpawner::SpawnResourceObject(const string& resourceId, int x, 
 GameObject* ObjectSpawner::SpawnGrass(int x, int y, const string& imageKey, float scale)
 {
     GameObject* obj = m_scene->CreateObject("GrassObject");
+
+    Transform* tr = new Transform();
+    tr->SetPosition({ (float)x, (float)y });
+
+    SpriteRenderer* sprite = new SpriteRenderer(imageKey);
+    sprite->SetResourceManager(m_resourceManager);
+    sprite->SetScale(scale);
+
+    obj->SetElement(tr, ElementType::Transform);
+    obj->SetElement(sprite, ElementType::SpriteRenderer);
+    obj->Init();
+
+    return obj; // Ãß°¡
+}
+
+GameObject* ObjectSpawner::SpawnFlower(int x, int y, const string& imageKey, float scale)
+{
+    GameObject* obj = m_scene->CreateObject("Flower");
 
     Transform* tr = new Transform();
     tr->SetPosition({ (float)x, (float)y });

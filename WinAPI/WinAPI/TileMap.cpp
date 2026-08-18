@@ -398,6 +398,61 @@ void TileMap::Render(ID2D1DeviceContext* context,ResourceManager* resourceManage
             }
         }
     }
+    ID2D1Bitmap* dockBitmap =
+        resourceManager->GetImage("Dock");
+
+    if (dockBitmap != nullptr)
+    {
+        D2D1_SIZE_F size =
+            dockBitmap->GetSize();
+
+        D2D1_RECT_F srcRect =
+            D2D1::RectF(
+                0,
+                0,
+                size.width,
+                size.height
+            );
+
+        for (int y = minY; y <= maxY; y++)
+        {
+            for (int x = minX; x <= maxX; x++)
+            {
+                if (!IsDock(x, y))
+                    continue;
+
+                MathEngine::Vector2 screen =
+                    TileManager::GetInstance()
+                    .TileToScreen(
+                        {
+                            (float)x,
+                            (float)y
+                        });
+
+                float screenX =
+                    screen.x - camX;
+
+                float screenY =
+                    screen.y - camY;
+
+                D2D1_RECT_F dockRect =
+                    D2D1::RectF(
+                        screenX - TILE_W / 2.0f,
+                        screenY,
+                        screenX + TILE_W / 2.0f,
+                        screenY + TILE_H
+                    );
+
+                DrawBitmap(
+                    context,
+                    dockBitmap,
+                    dockRect,
+                    srcRect,
+                    false
+                );
+            }
+        }
+    }
     int centerTileX = (minX + maxX) / 2;
     int centerTileY = (minY + maxY) / 2;
     int centerChunkX = WorldToChunk(centerTileX);
@@ -627,6 +682,7 @@ void TileMap::GenerateChunk(int chunkX, int chunkY)
             m_proceduralTiles[MakeTileKey(worldX,worldY)] = type;
         }
     }
+    GenerateDockForChunk(chunkX, chunkY);
     if (m_objectSpawner != nullptr)
     {
         m_objectSpawner->SpawnChunk(chunkX, chunkY, CHUNK_SIZE, CHUNK_SIZE);
@@ -883,4 +939,291 @@ bool TileMap::IsProceduralSnow(int worldX, int worldY) const
 bool TileMap::IsProceduralStone(int worldX, int worldY) const
 {
     return GetBiomeAt((float)worldX, (float)worldY) == ChunkType::Rock;
+}
+
+bool TileMap::IsDock(int worldX, int worldY) const
+{
+    return m_dockTiles.find(MakeTileKey(worldX, worldY)) != m_dockTiles.end();
+}
+
+bool TileMap::IsDockHorizontal(int cellX, int cellY) const
+{
+    float roll =HashFloat01(cellX, cellY, 9001);
+
+    return roll < 0.5f;
+}
+
+void TileMap::GenerateDockForChunk(int chunkX, int chunkY)
+{
+    const int startX = chunkX * CHUNK_SIZE;
+    const int startY = chunkY * CHUNK_SIZE;
+
+    const int endX =
+        startX + CHUNK_SIZE - 1;
+
+    const int endY =
+        startY + CHUNK_SIZE - 1;
+
+    // 이 청크 주변의 바이옴 셀만 검사
+    int minCellX =
+        (int)floorf((float)startX / BIOME_CELL_SIZE) - 1;
+
+    int maxCellX =
+        (int)floorf((float)endX / BIOME_CELL_SIZE) + 1;
+
+    int minCellY =
+        (int)floorf((float)startY / BIOME_CELL_SIZE) - 1;
+
+    int maxCellY =
+        (int)floorf((float)endY / BIOME_CELL_SIZE) + 1;
+
+
+    for (int cellY = minCellY;
+        cellY <= maxCellY;
+        cellY++)
+    {
+        for (int cellX = minCellX;
+            cellX <= maxCellX;
+            cellX++)
+        {
+            // 호수 바이옴이 아니면 데크 없음
+            if (GetBiomeTypeForCell(cellX, cellY)
+                != ChunkType::Lake)
+            {
+                continue;
+            }
+
+            MathEngine::Vector2 center =
+                GetBiomeSeedPoint(cellX, cellY);
+
+            int centerX =
+                (int)roundf(center.x);
+
+            int centerY =
+                (int)roundf(center.y);
+
+
+            // 가로 데크 / 세로 데크
+            bool horizontal =
+                IsDockHorizontal(cellX, cellY);
+
+            bool positive =
+                HashFloat01(
+                    cellX,
+                    cellY,
+                    9002
+                ) < 0.5f;
+
+
+            int direction =
+                positive ? 1 : -1;
+
+
+            const float baseRadius =
+                BIOME_CELL_SIZE *
+                LAKE_FILL_RADIUS_RATIO;
+
+
+            // --------------------------------
+            // 가로 방향 데크
+            // --------------------------------
+            if (horizontal)
+            {
+                int edgeX = centerX;
+
+                // 호수 가장자리 찾기
+                for (int i = 0;
+                    i < (int)baseRadius;
+                    i++)
+                {
+                    int checkX =
+                        centerX + direction * i;
+
+                    if (!IsProceduralWater(
+                        checkX,
+                        centerY))
+                    {
+                        break;
+                    }
+
+                    edgeX = checkX;
+                }
+
+                // ================================
+                // T자 데크 본체
+                // ================================
+                for (int i = 0;
+                    i < DOCK_LENGTH;
+                    i++)
+                {
+                    int dockX =
+                        edgeX - direction * i;
+
+                    // 본체를 2칸 폭으로
+                    for (int width = -1;
+                        width <= 0;
+                        width++)
+                    {
+                        int dockY =
+                            centerY + width;
+
+                        if (dockX < startX ||
+                            dockX > endX ||
+                            dockY < startY ||
+                            dockY > endY)
+                        {
+                            continue;
+                        }
+
+                        if (IsProceduralWater(
+                            dockX,
+                            dockY))
+                        {
+                            m_dockTiles.insert(
+                                MakeTileKey(
+                                    dockX,
+                                    dockY
+                                )
+                            );
+                        }
+                    }
+                }
+
+                // ================================
+                // T자 머리 부분
+                // ================================
+                int headX =
+                    edgeX - direction * (DOCK_LENGTH - 1);
+
+                for (int width = -2;
+                    width <= 2;
+                    width++)
+                {
+                    int dockY =
+                        centerY + width;
+
+                    if (headX < startX ||
+                        headX > endX ||
+                        dockY < startY ||
+                        dockY > endY)
+                    {
+                        continue;
+                    }
+
+                    if (IsProceduralWater(
+                        headX,
+                        dockY))
+                    {
+                        m_dockTiles.insert(
+                            MakeTileKey(
+                                headX,
+                                dockY
+                            )
+                        );
+                    }
+                }
+            }
+
+
+            // --------------------------------
+            // 세로 방향 데크
+            // --------------------------------
+            else
+            {
+                int edgeY = centerY;
+
+                // 호수 가장자리 찾기
+                for (int i = 0;
+                    i < (int)baseRadius;
+                    i++)
+                {
+                    int checkY =
+                        centerY + direction * i;
+
+                    if (!IsProceduralWater(
+                        centerX,
+                        checkY))
+                    {
+                        break;
+                    }
+
+                    edgeY = checkY;
+                }
+
+                // ================================
+                // T자 데크 본체
+                // ================================
+                for (int i = 0;
+                    i < DOCK_LENGTH;
+                    i++)
+                {
+                    int dockY =
+                        edgeY - direction * i;
+
+                    // 본체를 2칸 폭으로
+                    for (int width = -1;
+                        width <= 0;
+                        width++)
+                    {
+                        int dockX =
+                            centerX + width;
+
+                        if (dockX < startX ||
+                            dockX > endX ||
+                            dockY < startY ||
+                            dockY > endY)
+                        {
+                            continue;
+                        }
+
+                        if (IsProceduralWater(
+                            dockX,
+                            dockY))
+                        {
+                            m_dockTiles.insert(
+                                MakeTileKey(
+                                    dockX,
+                                    dockY
+                                )
+                            );
+                        }
+                    }
+                }
+
+                // ================================
+                // T자 머리 부분
+                // ================================
+                int headY =
+                    edgeY - direction * (DOCK_LENGTH - 1);
+
+                for (int width = -2;
+                    width <= 2;
+                    width++)
+                {
+                    int dockX =
+                        centerX + width;
+
+                    if (dockX < startX ||
+                        dockX > endX ||
+                        headY < startY ||
+                        headY > endY)
+                    {
+                        continue;
+                    }
+
+                    if (IsProceduralWater(
+                        dockX,
+                        headY))
+                    {
+                        m_dockTiles.insert(
+                            MakeTileKey(
+                                dockX,
+                                headY
+                            )
+                        );
+                    }
+                }
+            }
+        }
+    }
 }

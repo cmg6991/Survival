@@ -159,6 +159,8 @@ ImageKey DataManager::StringToImageKey(const string& str) const
 	if (str == "IronBox")  return ImageKey::IronBox;
 	if (str == "TitleBackGround")  return ImageKey::TitleBackGround;
 	if (str == "TitleLogo")  return ImageKey::TitleLogo;
+	if (str == "Dock")  return ImageKey::Dock;
+	if (str == "Flower")  return ImageKey::Flower;
 
 	return ImageKey::Count;
 }

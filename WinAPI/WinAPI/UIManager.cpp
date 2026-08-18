@@ -29,6 +29,46 @@ void UIManager::Update(float deltaTime)
 			ScrollCraftingRecipe(wheel > 0 ? -1 : 1);
 		}
 	}
+
+	MathEngine::Vector2 mouse = InputManager::GetInstance().GetMousePosition();
+
+	if (m_isPauseMenuOpen)
+	{
+		float panelWidth = 420.0f;
+		float panelHeight = 430.0f;
+
+		float panelX = (1280.0f - panelWidth) * 0.5f;
+		float panelY = (720.0f - panelHeight) * 0.5f;
+
+		float buttonWidth = 260.0f;
+		float buttonHeight = 65.0f;
+
+		float buttonX =
+			panelX + (panelWidth - buttonWidth) * 0.5f;
+
+		// 저장 버튼
+		float saveY = panelY + 130.0f;
+
+		m_saveHover =
+			mouse.x >= buttonX &&
+			mouse.x <= buttonX + buttonWidth &&
+			mouse.y >= saveY &&
+			mouse.y <= saveY + buttonHeight;
+
+		// 종료 버튼
+		float exitY = panelY + 220.0f;
+
+		m_exitHover =
+			mouse.x >= buttonX &&
+			mouse.x <= buttonX + buttonWidth &&
+			mouse.y >= exitY &&
+			mouse.y <= exitY + buttonHeight;
+	}
+	else
+	{
+		m_saveHover = false;
+		m_exitHover = false;
+	}
 }
 
 void UIManager::Render(ID2D1DeviceContext* context)
@@ -49,7 +89,10 @@ void UIManager::Render(ID2D1DeviceContext* context)
 	{
 		RenderInventoryWindow(context);
 	}
-
+	if (m_isPauseMenuOpen)
+	{
+		RenderPauseMenu(context);
+	}
 }
 
 void UIManager::ShowMessage(const wstring& message, float duration)
@@ -355,6 +398,266 @@ void UIManager::ScrollCraftingRecipe(int direction)
 		m_craftRecipeScrollOffset = 0;
 	if (m_craftRecipeScrollOffset > maxOffset)
 		m_craftRecipeScrollOffset = maxOffset;
+}
+
+void UIManager::TogglePauseMenu()
+{
+	m_isPauseMenuOpen = !m_isPauseMenuOpen;
+	if (m_isPauseMenuOpen)
+	{
+		m_isInventoryOpen = false;
+		m_isCraftingOpen = false;
+	}
+}
+
+bool UIManager::HandlePauseMenuClick(float mouseX, float mouseY)
+{
+	if (!m_isPauseMenuOpen)
+		return false;
+
+	float panelWidth = 420.0f;
+	float panelHeight = 430.0f;
+
+	float panelX = (1280.0f - panelWidth) * 0.5f;
+	float panelY = (720.0f - panelHeight) * 0.5f;
+
+	float buttonWidth = 260.0f;
+	float buttonHeight = 65.0f;
+
+	float buttonX =
+		panelX + (panelWidth - buttonWidth) * 0.5f;
+
+	// ==========================================
+	// 저장하기
+	// ==========================================
+
+	float saveY = panelY + 130.0f;
+
+	if (mouseX >= buttonX &&
+		mouseX <= buttonX + buttonWidth &&
+		mouseY >= saveY &&
+		mouseY <= saveY + buttonHeight)
+	{
+		if (m_onSave)
+		{
+			m_onSave();
+		}
+
+		// 1.5초 동안 표시
+		ShowMessage(L"저장되었습니다", 1.5f);
+
+		return true;
+	}
+
+	// ==========================================
+	// 게임 종료
+	// ==========================================
+
+	float exitY = panelY + 220.0f;
+
+	if (mouseX >= buttonX &&
+		mouseX <= buttonX + buttonWidth &&
+		mouseY >= exitY &&
+		mouseY <= exitY + buttonHeight)
+	{
+		if (m_onExit)
+		{
+			m_onExit();
+		}
+
+		return true;
+	}
+
+	return true;
+}
+
+void UIManager::RenderPauseMenu(ID2D1DeviceContext* context)
+{
+	GRAPHICS.FillRect(
+		0.0f,
+		0.0f,
+		1280.0f,
+		720.0f,
+		D2D1::ColorF(
+			0.0f,
+			0.0f,
+			0.0f,
+			0.45f
+		)
+	);
+
+	float panelWidth = 420.0f;
+	float panelHeight = 430.0f;
+
+	float panelX = (1280.0f - panelWidth) * 0.5f;
+	float panelY = (720.0f - panelHeight) * 0.5f;
+
+	GRAPHICS.FillRoundedRect(
+		panelX,
+		panelY,
+		panelWidth,
+		panelHeight,
+		20.0f,
+		D2D1::ColorF(
+			0.92f,
+			0.87f,
+			0.75f,
+			1.0f
+		)
+	);
+
+	GRAPHICS.DrawRoundedRect(
+		panelX,
+		panelY,
+		panelWidth,
+		panelHeight,
+		20.0f,
+		D2D1::ColorF::Black,
+		3.0f
+	);
+
+	// ==========================================
+	// 제목
+	// ==========================================
+
+	const wchar_t* title = L"설정";
+
+	float titleFontSize = 36.0f;
+
+	float titleWidth =
+		GRAPHICS.MeasureTextWidth(
+			title,
+			titleFontSize
+		);
+
+	GRAPHICS.DrawString(
+		title,
+		panelX + (panelWidth - titleWidth) * 0.5f,
+		panelY + 35.0f,
+		D2D1::ColorF::Black,
+		titleFontSize
+	);
+
+	// ==========================================
+	// 버튼
+	// ==========================================
+
+	float buttonWidth = 260.0f;
+	float buttonHeight = 65.0f;
+
+	float buttonX =
+		panelX + (panelWidth - buttonWidth) * 0.5f;
+
+	// 저장 버튼
+	float saveY = panelY + 130.0f;
+
+	D2D1::ColorF saveButtonColor =
+		m_saveHover
+		? D2D1::ColorF(0.85f, 0.80f, 0.68f, 1.0f)
+		: D2D1::ColorF(0.97f, 0.94f, 0.85f, 1.0f);
+
+	GRAPHICS.FillRoundedRect(
+		buttonX,
+		saveY,
+		buttonWidth,
+		buttonHeight,
+		12.0f,
+		saveButtonColor
+	);
+
+	GRAPHICS.DrawRoundedRect(
+		buttonX,
+		saveY,
+		buttonWidth,
+		buttonHeight,
+		12.0f,
+		D2D1::ColorF::Black,
+		2.0f
+	);
+
+	const wchar_t* saveText = L"저장하기";
+
+	float saveTextSize = 24.0f;
+
+	float saveTextWidth =
+		GRAPHICS.MeasureTextWidth(
+			saveText,
+			saveTextSize
+		);
+
+	GRAPHICS.DrawString(
+		saveText,
+		buttonX + (buttonWidth - saveTextWidth) * 0.5f,
+		saveY + 17.0f,
+		D2D1::ColorF::Black,
+		saveTextSize
+	);
+
+	// ==========================================
+	// 종료 버튼
+	// ==========================================
+
+	float exitY = panelY + 220.0f;
+	D2D1::ColorF exitButtonColor =
+		m_exitHover
+		? D2D1::ColorF(0.85f, 0.80f, 0.68f, 1.0f)
+		: D2D1::ColorF(0.97f, 0.94f, 0.85f, 1.0f);
+
+	GRAPHICS.FillRoundedRect(
+		buttonX,
+		exitY,
+		buttonWidth,
+		buttonHeight,
+		12.0f,
+		exitButtonColor
+	);
+
+	GRAPHICS.DrawRoundedRect(
+		buttonX,
+		exitY,
+		buttonWidth,
+		buttonHeight,
+		12.0f,
+		D2D1::ColorF::Black,
+		2.0f
+	);
+
+	const wchar_t* exitText = L"게임 종료";
+
+	float exitTextSize = 24.0f;
+
+	float exitTextWidth =
+		GRAPHICS.MeasureTextWidth(
+			exitText,
+			exitTextSize
+		);
+
+	GRAPHICS.DrawString(
+		exitText,
+		buttonX + (buttonWidth - exitTextWidth) * 0.5f,
+		exitY + 17.0f,
+		D2D1::ColorF::Black,
+		exitTextSize
+	);
+
+
+	const wchar_t* closeText = L"ESC : 닫기";
+
+	float closeFontSize = 18.0f;
+
+	float closeTextWidth =
+		GRAPHICS.MeasureTextWidth(
+			closeText,
+			closeFontSize
+		);
+
+	GRAPHICS.DrawString(
+		closeText,
+		panelX + (panelWidth - closeTextWidth) * 0.5f,
+		panelY + 340.0f,
+		D2D1::ColorF::Black,
+		closeFontSize
+	);
 }
 
 void UIManager::RenderTime(ID2D1DeviceContext* context)
@@ -1658,16 +1961,11 @@ void UIManager::RenderHP(ID2D1DeviceContext* context)
 
 	hpRatio = max(0.0f, min(1.0f, hpRatio));
 
-	// -----------------------------------------
-	// HP 위치 / 크기
-	// -----------------------------------------
-
 	float x = 25.0f;
 	float y = 10.0f;
 
 	float barWidth = 220.0f;
 	float barHeight = 100.0f;
-
 
 	ID2D1Bitmap* hpImage = m_resourceManager->GetImage("HPUI");
 

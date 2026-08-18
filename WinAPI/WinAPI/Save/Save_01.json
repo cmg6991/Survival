@@ -2,10 +2,10 @@
     "collectedItemsIds": [],
     "currentWave": 1,
     "day": 1,
-    "hour": 13,
+    "hour": 22,
     "inventory": {},
     "minute": 30,
-    "playTimeSeconds": 11,
-    "playerX": 42.80655288696289,
-    "playerY": 7.345085144042969
+    "playTimeSeconds": 65,
+    "playerX": 35.757591247558594,
+    "playerY": 17.90667724609375
 }

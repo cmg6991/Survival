@@ -275,7 +275,7 @@ void Player::Update(float deltaTime)
         int tileY = (int)round(nextPos.y);
 
         bool blockedByTile = m_collisionManager->IsBlocked(tileX, tileY);
-        bool blockedByWater =(m_tileMap != nullptr &&m_tileMap->IsWater(tileX, tileY));
+        bool blockedByWater =(m_tileMap != nullptr &&m_tileMap->IsWater(tileX, tileY)&& !m_tileMap->IsDock(tileX, tileY));
         bool blockedByPhysics = false;
         /*if (!blockedByTile && m_physicsWorld != nullptr)
         {
@@ -302,7 +302,7 @@ void Player::Update(float deltaTime)
 
     if (m_weapon != nullptr)
     {
-        float k = m_facingRight ? 0.5f : -0.5f;   // ★ 화면상 순수 가로 이동을 위한 월드 오프셋
+        float k = m_facingRight ? 0.5f : -0.5f; 
         MathEngine::Vector2 weaponPos =
         {
             m_transform->GetPostion().x + k,

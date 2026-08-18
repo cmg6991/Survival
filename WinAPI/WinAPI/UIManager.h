@@ -50,6 +50,14 @@ public:
 
 	void ScrollCraftingRecipe(int direction);
 
+public:
+	void TogglePauseMenu();
+	bool IsPauseMenuOpen() const { return m_isPauseMenuOpen; }
+	bool HandlePauseMenuClick(float mouseX, float mouseY);
+	void RenderPauseMenu(ID2D1DeviceContext* context);
+	void SetOnSave(const function<void()>& callback){m_onSave = callback;}
+	void SetOnExit(const function<void()>& callback){m_onExit = callback;}
+	void SetOnTitle(const function<void()>& callback){m_onTitle = callback;}
 private:
 	void RenderTime(ID2D1DeviceContext* context);
 	void RenderInventory(ID2D1DeviceContext* context);
@@ -121,6 +129,15 @@ private:
 	int m_craftRecipeVisibleCount = 3;   // 한 화면에 보여줄 레시피 개수 (아이템당 75px면 영역 높이/75로 계산해도 됨)
 	float m_craftRecipeAreaHeight = 330.f; // 재료 슬롯 침범하지 않는 리스트 영역 높이
 
+
+	bool m_isPauseMenuOpen = false;
+
+	function<void()> m_onSave;
+	function<void()> m_onTitle;
+	function<void()> m_onExit;
+
+	bool m_saveHover = false;
+	bool m_exitHover = false;
 private:
 	UIManager() {}
 	~UIManager() {}
