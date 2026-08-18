@@ -6,6 +6,12 @@ class Scene;
 class ResourceManager;
 class GameProcess;
 
+enum class GameStartType
+{
+	NewGame,
+	LoadGame
+};
+
 class SceneManager
 {
 public:
@@ -34,6 +40,9 @@ public:
 	void	SetCurrentScene(std::string sceneName) { m_currentScene = m_scenes[sceneName]; }
 
 	ResourceManager* GetResourceManager() { return m_resourceManager; }
+
+	void SetGameStartType(GameStartType type) { m_gameStartType = type; }
+	GameStartType GetGameStartType() const { return m_gameStartType; }
 private:
 	Scene* m_currentScene;
 	Scene* m_nextScene;
@@ -44,5 +53,7 @@ private:
 	ResourceManager* m_resourceManager;
 	
 	int m_loadCount = 0;
+
+	GameStartType m_gameStartType = GameStartType::NewGame;
 };
 

@@ -5,9 +5,10 @@
 #include "SceneManager.h"
 #include "DataManager.h"
 #include "SoundManager.h"
+#include "SaveManager.h"
 
 TitleScene::TitleScene(ResourceManager* resourceManager,SceneManager* sceneManager)
-	:Scene("TitleScene"), m_resourceManager(nullptr),m_startHover(nullptr), m_exitHover(false),
+	:Scene("TitleScene"), m_resourceManager(nullptr),m_startHover(nullptr), m_exitHover(false),m_loadHover(false),
     m_sceneManager(nullptr)
 {
     m_resourceManager = resourceManager;
@@ -23,19 +24,27 @@ void TitleScene::Init()
 
     m_startButton = D2D1::RectF(
         490.0f,
-        500.0f,
+        430.0f,
         790.0f,
-        570.0f
+        500.0f
+    );
+
+    m_loadButton = D2D1::RectF(
+        490.0f,
+        520.0f,
+        790.0f,
+        590.0f
     );
 
     m_exitButton = D2D1::RectF(
         490.0f,
-        590.0f,
+        610.0f,
         790.0f,
-        660.0f
+        680.0f
     );
 
     m_startHover = false;
+    m_loadHover = false;
     m_exitHover = false;
 }
 
@@ -59,6 +68,11 @@ void TitleScene::Update(float deltaTime)
         mouse.x <= m_exitButton.right &&
         mouse.y >= m_exitButton.top &&
         mouse.y <= m_exitButton.bottom;
+    m_loadHover =
+        mouse.x >= m_loadButton.left &&
+        mouse.x <= m_loadButton.right &&
+        mouse.y >= m_loadButton.top &&
+        mouse.y <= m_loadButton.bottom;
 
 
     if (InputManager::GetInstance().IsGetKeyDown(VK_LBUTTON))
@@ -67,11 +81,29 @@ void TitleScene::Update(float deltaTime)
         {
             OutputDebugStringW(L"GAME START CLICKED\n");
             SoundManager::GetInstance().PlaySFX("Button", 1.f);
+            m_sceneManager->SetGameStartType(GameStartType::NewGame);
+            m_sceneManager->LoadScene("Main");
+        }
+
+        if (m_loadHover)
+        {
+            OutputDebugStringW(L"LOAD GAME CLICKED\n");
+
+            SoundManager::GetInstance().PlaySFX("Button", 1.f);
+
+            if (!SaveManager::HasSaveFile())
+            {
+                OutputDebugStringW(L"SAVE FILE NOT FOUND\n");
+                return;
+            }
+
+            m_sceneManager->SetGameStartType(GameStartType::LoadGame);
             m_sceneManager->LoadScene("Main");
         }
 
         if (m_exitHover)
         {
+            SoundManager::GetInstance().PlaySFX("Button", 1.f);
             PostQuitMessage(0);
         }
     }
@@ -115,6 +147,7 @@ void TitleScene::Render(ID2D1DeviceContext* context)
     }
 
     RenderButton(m_startButton,L"GAME START",m_startHover);
+    RenderButton(m_loadButton, L"LOAD GAME", m_loadHover);
     RenderButton(m_exitButton,L"EXIT",m_exitHover);
 
 }

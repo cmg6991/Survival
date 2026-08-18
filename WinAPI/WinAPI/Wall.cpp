@@ -25,7 +25,7 @@ void Wall::Release()
 
 ElementType Wall::GetElementType() const
 {
-    return ElementType::Wall;
+    return ElementType::Wall; 
 }
 
 GameObject* Wall::GetGameObject() const

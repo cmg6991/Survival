@@ -33,8 +33,10 @@ private:
 
 	D2D1_RECT_F m_startButton;
 	D2D1_RECT_F m_exitButton;
+	D2D1_RECT_F m_loadButton;
 
 	bool m_startHover;
 	bool m_exitHover;
+	bool m_loadHover;
 };
 

@@ -100,6 +100,16 @@ void GameObject::Release()
 	{
 		if (m_elements[i] != nullptr)
 		{
+			char buffer[128];
+
+			sprintf_s(
+				buffer,
+				"GameObject::Release ElementType = %d\n",
+				i
+			);
+
+			OutputDebugStringA(buffer);
+
 			m_elements[i]->Release();
 			delete m_elements[i];
 		}

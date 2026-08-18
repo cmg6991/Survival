@@ -59,7 +59,7 @@ void GameEngine::Init(const HWND hwnd)
 	ResourceManager* rm = m_resourceManager;
 	SceneManager* sm = m_sceneManager;
 	m_sceneManager->CreateScene("Title", [rm,sm]() -> Scene* { return new TitleScene(rm,sm); });
-	m_sceneManager->CreateScene("Main", [rm]() -> Scene* { return new MainScene(rm); });
+	m_sceneManager->CreateScene("Main", [rm,sm]() -> Scene* { return new MainScene(rm,sm); });
 	m_sceneManager->LoadScene("Title");
 
 	
@@ -113,13 +113,17 @@ void GameEngine::Render(ID2D1DeviceContext* context)
 
 void GameEngine::Release()
 {
-	m_sceneManager->Release();
-	delete m_sceneManager;
-	m_sceneManager = nullptr;
+	if (m_sceneManager != nullptr)
+	{
+		delete m_sceneManager;
+		m_sceneManager = nullptr;
+	}
 
-	m_resourceManager->Release();
-	delete m_resourceManager;
-	m_resourceManager = nullptr;
+	if (m_resourceManager != nullptr)
+	{
+		delete m_resourceManager;
+		m_resourceManager = nullptr;
+	}
 
 	SoundManager::GetInstance().Release();
 }

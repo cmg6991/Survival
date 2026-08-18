@@ -58,7 +58,43 @@ void Player::Update(float deltaTime)
     //        UpdateSpriteState(); // 공격 끝 -> Walk/Idle로 복귀
     //    }
     //}
+
+
+    bool isFishing =(m_weapon != nullptr &&m_weapon->GetWeaponType() == WeaponType::Fishing &&m_fisingController.IsFishing());
+    m_fisingController.Update(deltaTime);
+
+    // 낚시가 끝났는지 확인
+    bool fishingAfterUpdate =(m_weapon != nullptr &&m_weapon->GetWeaponType() == WeaponType::Fishing &&m_fisingController.IsFishing());
+
+    if (isFishing && !fishingAfterUpdate)
+    {
+        m_isAttacking = false;
+
+        UpdateSpriteState();
+    }
+    if (isFishing)
+    {
+        return;
+    }
     if (m_isAttacking)
+    {
+        bool fishing =(m_weapon != nullptr &&m_weapon->GetWeaponType() == WeaponType::Fishing);
+        if (!fishing)
+        {
+            m_attackTimer -= deltaTime;
+
+
+            if (m_attackTimer <= 0.0f)
+            {
+                m_isAttacking = false;
+
+                UpdateSpriteState();
+            }
+        }
+    }
+
+
+    /*if (m_isAttacking)
     {
         bool isFishing =(m_weapon != nullptr &&m_weapon->GetWeaponType() == WeaponType::Fishing);
 
@@ -80,8 +116,7 @@ void Player::Update(float deltaTime)
                 UpdateSpriteState();
             }
         }
-    }
-    m_fisingController.Update(deltaTime);
+    }*/
     MathEngine::Vector2 current = m_transform->GetPostion();
 
     MathEngine::Vector2 freeDir = { 0,0 };
@@ -393,8 +428,7 @@ void Player::TakeDamage(int rawDamage)
         OutputDebugStringW(L"PLAYER DIE ANIMATION!\n");
         m_sprite->ChangeImage("Player_Die");
 
-        // ★ Die 애니메이션
-        m_animator->SetAnimation(6, 4, 0.15f);
+        m_animator->PlayAndPauseAt(4, 6, 0.15f, 5);
         return;
     }
     wchar_t buffer[128];
@@ -422,6 +456,9 @@ void Player::Heal(int amount)
 void Player::UpdateSpriteState()
 {
     if (m_sprite == nullptr) return;
+
+    if (m_isDying)
+        return;
 
     string baseKey;
     if (!m_currentArmedSprite.empty())

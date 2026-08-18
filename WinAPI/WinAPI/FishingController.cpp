@@ -4,6 +4,7 @@
 #include "Player.h"
 #include "UIManager.h"
 #include "DataManager.h"
+#include "Animator.h"
 
 void FishingController::Init(TileMap* tileMap, Player* player)
 {
@@ -26,6 +27,23 @@ bool FishingController::TryStartFishing(const MathEngine::Vector2& playerPos)
 
     m_waitTimer = waitDist(rng);
     m_state = FishingState::Waiting;
+
+    if (m_player != nullptr)
+    {
+        Animator* animator =
+            m_player->GetAnimator();
+
+
+        if (animator != nullptr)
+        {
+            animator->PlayAndPauseAt(
+                2,      // row
+                6,      // 총 프레임
+                0.15f,  // 프레임 시간
+                5       // ★ 3번 프레임에서 정지
+            );
+        }
+    }
 
     UIManager::GetInstance().ShowMessage(L"낚싯대를 던졌습니다...");
     return true;
@@ -78,6 +96,18 @@ void FishingController::Update(float deltaTime)
         else
         {
             UIManager::GetInstance().ShowMessage(L"놓쳤습니다...");
+        }
+
+        if (m_player != nullptr)
+        {
+            Animator* animator =
+                m_player->GetAnimator();
+
+
+            if (animator != nullptr)
+            {
+                animator->ResumeAnimation();
+            }
         }
 
         m_state = FishingState::Idle;  

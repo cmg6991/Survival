@@ -67,8 +67,7 @@ public:
 
 	void Heal(int amount);
 
-	//void SetPhysicsWorld(PhysicsEngine::PhysicsWorld* world) { m_physicsWorld = world; }
-	//void SetSelfPhysicsObject(PhysicsEngine::Object* obj) { m_selfPhysicsObject = obj; }
+	Animator* GetAnimator() { return m_animator; }
 
 private:
 	bool m_isAutoMoving = false;

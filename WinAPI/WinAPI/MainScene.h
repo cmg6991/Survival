@@ -17,11 +17,12 @@ class MonsterSpawner;
 class MiniMap;
 class ObjectSpawner;
 class ResourceNode;
+class SceneManager;
 
 class MainScene : public Scene
 {
 public:
-	MainScene(ResourceManager* resourceManager);
+	MainScene(ResourceManager* resourceManager, SceneManager* sceneManager);
 	~MainScene();
 
 	void Init() override;
@@ -96,6 +97,7 @@ private:
 	FlowFieldManager m_flowField;
 	MonsterSpawner* m_monsterSpawner;
 	ObjectSpawner* m_objectSpawner;
+	SceneManager* m_sceneManager;
 
 	unordered_map<char, function<void(float, float)>> m_tileHandlers;
 	unordered_set<string> m_collectedItemsIds;

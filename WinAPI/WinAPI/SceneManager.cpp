@@ -10,6 +10,7 @@ SceneManager::SceneManager()
 
 SceneManager::~SceneManager()
 {
+	Release();
 }
 
 void SceneManager::Init(ResourceManager* resourceManager)
@@ -54,8 +55,11 @@ void SceneManager::Release()
 {
 	for (auto& scene : m_scenes)
 	{
-		scene.second->Release();
-		delete scene.second;
+		if (scene.second != nullptr)
+		{
+			delete scene.second;
+			scene.second = nullptr;
+		}
 	}
 	m_scenes.clear();
 

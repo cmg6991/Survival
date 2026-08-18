@@ -30,6 +30,15 @@ public:
 
 	void Play(int row, int frameCount, float frameTime);
 
+	void PlayAndPauseAt(int row, int frameCount, float frameTime, int pauseFrame);
+	void ResumeAnimation();
+
+	void Pause() { m_isPaused = true; }
+	void Resume() { m_isPaused = false; }
+	bool IsPaused() const { return m_isPaused; }
+	int GetFrame() const { return m_frame; }
+
+	bool IsFinished() const { return m_isFinished; }
 private:
 	void ApplyCurrentFrame();
 private:
@@ -44,5 +53,11 @@ private:
 
 	int m_cellWidth = 460;
 	int m_cellHeight = 460;
+	
+	bool m_isPaused = false;
+	bool m_pauseAtFrame = false;
+	int m_pauseFrame = 0;
+
+	bool m_isFinished = false;
 };
 

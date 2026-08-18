@@ -15,6 +15,7 @@
 #include "FlowFieldManager.h"
 #include "MonsterSpawner.h"
 #include "ObjectSpawner.h"
+#include "SceneManager.h"
 
 #include "Player.h"
 #include "GameObject.h"
@@ -66,10 +67,11 @@ wstring UTF8ToWString(const string& str)
 	return result;
 }
 
-MainScene::MainScene(ResourceManager* resourceManager)
+MainScene::MainScene(ResourceManager* resourceManager, SceneManager* sceneManager)
 	: Scene("MainScene"), m_tileMap(nullptr),
 	m_resourceManager(resourceManager), m_collisionManager(nullptr),
-	m_player(nullptr), m_physicsWorld(nullptr), m_monsterSpawner(nullptr), m_miniMap(nullptr),m_objectSpawner(nullptr)
+	m_player(nullptr), m_physicsWorld(nullptr), m_monsterSpawner(nullptr), m_miniMap(nullptr),m_objectSpawner(nullptr),
+	m_sceneManager(sceneManager)
 {
 	m_tileMap = new TileMap;
 	m_collisionManager = new CollisionManager;
@@ -132,13 +134,30 @@ void MainScene::Init()
 		std::make_unique<PhysicsEngine::CircleCollider>(0.f, 0.f, 0.5f);
 
 	collider->SetCollider(std::move(circleCollider), 1.0f, false);
-	SaveData data;
+	/*SaveData data;
 	bool hasSave = SaveManager::HasSaveFile();
 	if (hasSave)
 	{
 		SaveManager::Load(data);
 		m_collectedItemsIds.insert(data.collectedItemsIds.begin(), data.collectedItemsIds.end());
+	}*/
+	
+	SaveData data;
+
+	bool isLoadGame =
+		m_sceneManager->GetGameStartType() == GameStartType::LoadGame;
+
+	if (isLoadGame)
+	{
+		if (SaveManager::Load(data))
+		{
+			m_collectedItemsIds.insert(
+				data.collectedItemsIds.begin(),
+				data.collectedItemsIds.end()
+			);
+		}
 	}
+
 	RegisterTileHandlers();
 	const vector<string>& mapData = DataManager::GetInstance().GetMap("MainMap");
 	LoadMap(mapData);
@@ -146,7 +165,7 @@ void MainScene::Init()
 
 	TimeManager::GetInstance().Init();
 
-	if (hasSave)
+	/*if (hasSave)
 	{
 		Transform* playerTr = static_cast<Transform*>(m_player->GetGameObject()->GetElement(ElementType::Transform));
 		playerTr->SetPosition({ data.playerX, data.playerY });
@@ -154,6 +173,30 @@ void MainScene::Init()
 		TimeManager::GetInstance().SetTime(data.day, data.hour, data.minute);
 
 		m_player->GetInventory()->SetAllItems(data.inventory);
+	}*/
+	if (isLoadGame)
+	{
+		Transform* playerTr =
+			static_cast<Transform*>(
+				m_player->GetGameObject()->GetElement(
+					ElementType::Transform
+				)
+				);
+
+		playerTr->SetPosition({
+			data.playerX,
+			data.playerY
+			});
+
+		TimeManager::GetInstance().SetTime(
+			data.day,
+			data.hour,
+			data.minute
+		);
+
+		m_player->GetInventory()->SetAllItems(
+			data.inventory
+		);
 	}
 
 	UIManager::GetInstance().SetInventory(m_player->GetInventory());
@@ -560,12 +603,11 @@ void MainScene::CreateWall(float x, float y, const string& imageName)
 	tr->SetPosition({ x, y });
 
 	SpriteRenderer* sprite = new SpriteRenderer(imageName);
-	//sprite->SetPivot(47, 112);
 	sprite->SetResourceManager(m_resourceManager);
 
 	wallObj->SetElement(tr, ElementType::Transform);
-	wallObj->SetElement(sprite, ElementType::Wall);
 	wallObj->SetElement(sprite, ElementType::SpriteRenderer);
+
 	wallObj->Init();
 
 	m_collisionManager->SetBlocked(x, y, true);
