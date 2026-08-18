@@ -92,7 +92,6 @@ void TitleScene::Init()
     m_showConfirm = false;
     m_selectedSlot = 0;
 
-
     for (int i = 0; i < 3; i++)
     {
         m_slotExists[i] = false;
@@ -198,14 +197,8 @@ void TitleScene::Update(float deltaTime)
 
         if (m_backHover)
         {
-            SoundManager::GetInstance().PlaySFX(
-                "Button",
-                1.f
-            );
-
-            m_menuState =
-                TitleMenuState::Main;
-
+            SoundManager::GetInstance().PlaySFX("Button",1.f);
+            m_menuState =TitleMenuState::Main;
             return;
         }
     }
@@ -234,8 +227,6 @@ void TitleScene::Render(ID2D1DeviceContext* context)
             720.0f
         );
     }
-
-
     ID2D1Bitmap* logo =m_resourceManager->GetImage("TitleLogo");
 
     if (logo != nullptr)
@@ -249,10 +240,6 @@ void TitleScene::Render(ID2D1DeviceContext* context)
         );
     }
 
-    //RenderButton(m_startButton,L"GAME START",m_startHover);
-    //RenderButton(m_loadButton, L"LOAD GAME", m_loadHover);
-    //RenderButton(m_exitButton,L"EXIT",m_exitHover);
-
     if (m_menuState == TitleMenuState::Main)
     {
         RenderButton(m_startButton,L"NEW GAME",m_startHover);
@@ -262,26 +249,15 @@ void TitleScene::Render(ID2D1DeviceContext* context)
     else
     {
         RenderSlotPanel();
-
         // 제목
         RenderSlotTitle();
 
         // 슬롯 3개
         for (int i = 0; i < 3; i++)
         {
-            RenderSlotButton(
-                m_slotButtons[i],
-                i + 1,
-                m_slotHover[i]
-            );
+            RenderSlotButton(m_slotButtons[i],i + 1,m_slotHover[i]);
         }
 
-        // 뒤로가기
-        RenderButton(
-            m_backButton,
-            L"BACK",
-            m_backHover
-        );
         RenderButton(m_backButton,L"BACK",m_backHover);
     }
 
@@ -303,7 +279,6 @@ void TitleScene::RenderButton(const D2D1_RECT_F& rect, const wchar_t* text, bool
 
     float width = rect.right - rect.left;
     float height =rect.bottom - rect.top;
-
 
     if (hover)
     {
@@ -374,24 +349,7 @@ void TitleScene::RenderButton(const D2D1_RECT_F& rect, const wchar_t* text, bool
     float textX =rect.left +(width - textWidth) * 0.5f;
     float textY =rect.top +(height - fontSize) * 0.5f;
 
-    /*D2D1::ColorF textColor =
-        hover
-        ? D2D1::ColorF(
-            0.05f,
-            0.05f,
-            0.05f,
-            1.0f
-        )
-        : D2D1::ColorF(
-            1.0f,
-            1.0f,
-            1.0f,
-            1.0f
-        );*/
-    D2D1::ColorF textColor = D2D1::ColorF(0.05f,
-        0.05f,
-        0.05f,
-        1.0f);
+    D2D1::ColorF textColor = D2D1::ColorF(0.05f,0.05f,0.05f,1.0f);
 
     GRAPHICS.DrawString(
         text,
@@ -405,7 +363,6 @@ void TitleScene::RenderButton(const D2D1_RECT_F& rect, const wchar_t* text, bool
 void TitleScene::SelectSlot(int slot)
 {
     SoundManager::GetInstance().PlaySFX("Button",1.f);
-
 
     if (m_menuState == TitleMenuState::NewGameSlot)
     {
@@ -438,11 +395,8 @@ void TitleScene::SelectSlot(int slot)
 
 void TitleScene::RenderSlotButton(const D2D1_RECT_F& rect, int slot, bool hover)
 {
-    float width =
-        rect.right - rect.left;
-
-    float height =
-        rect.bottom - rect.top;
+    float width =rect.right - rect.left;
+    float height =rect.bottom - rect.top;
 
     D2D1::ColorF background =
         hover
@@ -491,12 +445,8 @@ void TitleScene::RenderSlotButton(const D2D1_RECT_F& rect, int slot, bool hover)
     );
 
     int index = slot - 1;
-
-    float textX =
-        rect.left + 20.0f;
-
-    float textY =
-        rect.top + 12.0f;
+    float textX =rect.left + 20.0f;
+    float textY =rect.top + 12.0f;
 
     D2D1::ColorF textColor =
         hover
@@ -613,24 +563,11 @@ void TitleScene::RenderSlotPanel()
 
 void TitleScene::RenderSlotTitle()
 {
-    const wchar_t* title =
-        m_menuState == TitleMenuState::NewGameSlot
-        ? L"NEW GAME"
-        : L"LOAD GAME";
-
+    const wchar_t* title =m_menuState == TitleMenuState::NewGameSlot? L"NEW GAME": L"LOAD GAME";
     float fontSize = 32.0f;
-
-    float textWidth =
-        GRAPHICS.MeasureTextWidth(
-            title,
-            fontSize
-        );
-
-    float panelCenter =
-        (m_slotPanel.left + m_slotPanel.right) * 0.5f;
-
-    float textX =
-        panelCenter - textWidth * 0.5f;
+    float textWidth =GRAPHICS.MeasureTextWidth(title,fontSize);
+    float panelCenter =(m_slotPanel.left + m_slotPanel.right) * 0.5f;
+    float textX =panelCenter - textWidth * 0.5f;
 
     GRAPHICS.DrawString(
         title,
