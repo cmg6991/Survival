@@ -24,60 +24,69 @@ void TitleScene::Init()
 
     m_startButton = D2D1::RectF(
         490.0f,
-        430.0f,
+        400.0f,
         790.0f,
-        500.0f
+        470.0f
     );
 
     m_loadButton = D2D1::RectF(
         490.0f,
-        520.0f,
+        490.0f,
         790.0f,
-        590.0f
+        560.0f
     );
 
     m_exitButton = D2D1::RectF(
         490.0f,
-        610.0f,
+        580.0f,
         790.0f,
-        680.0f
+        650.0f
     );
 
-    m_slot1Button = D2D1::RectF(
-        490.0f,
-        350.0f,
-        790.0f,
-        420.0f
+    m_slotPanel = D2D1::RectF(
+        390.0f,
+        70.0f,
+        890.0f,
+        630.0f
     );
 
-    m_slot2Button = D2D1::RectF(
-        490.0f,
-        440.0f,
-        790.0f,
-        510.0f
+    m_slotButtons[0] = D2D1::RectF(
+        430.0f,
+        150.0f,
+        850.0f,
+        250.0f
     );
 
-    m_slot3Button = D2D1::RectF(
-        490.0f,
-        530.0f,
-        790.0f,
-        600.0f
+    m_slotButtons[1] = D2D1::RectF(
+        430.0f,
+        270.0f,
+        850.0f,
+        370.0f
+    );
+
+    m_slotButtons[2] = D2D1::RectF(
+        430.0f,
+        390.0f,
+        850.0f,
+        490.0f
     );
 
     m_backButton = D2D1::RectF(
-        490.0f,
-        620.0f,
-        790.0f,
-        690.0f
+        540.0f,
+        520.0f,
+        740.0f,
+        580.0f
     );
 
     m_startHover = false;
     m_loadHover = false;
     m_exitHover = false;
 
-    m_slot1Hover = false;
-    m_slot2Hover = false;
-    m_slot3Hover = false;
+    for (int i = 0; i < 3; i++)
+    {
+        m_slotHover[i] = false;
+    }
+
     m_backHover = false;
 
     m_showConfirm = false;
@@ -159,23 +168,14 @@ void TitleScene::Update(float deltaTime)
         return;
     }
 
-    m_slot1Hover =
-        mouse.x >= m_slot1Button.left &&
-        mouse.x <= m_slot1Button.right &&
-        mouse.y >= m_slot1Button.top &&
-        mouse.y <= m_slot1Button.bottom;
-
-    m_slot2Hover =
-        mouse.x >= m_slot2Button.left &&
-        mouse.x <= m_slot2Button.right &&
-        mouse.y >= m_slot2Button.top &&
-        mouse.y <= m_slot2Button.bottom;
-
-    m_slot3Hover =
-        mouse.x >= m_slot3Button.left &&
-        mouse.x <= m_slot3Button.right &&
-        mouse.y >= m_slot3Button.top &&
-        mouse.y <= m_slot3Button.bottom;
+    for (int i = 0; i < 3; i++)
+    {
+        m_slotHover[i] =
+            mouse.x >= m_slotButtons[i].left &&
+            mouse.x <= m_slotButtons[i].right &&
+            mouse.y >= m_slotButtons[i].top &&
+            mouse.y <= m_slotButtons[i].bottom;
+    }
 
     m_backHover =
         mouse.x >= m_backButton.left &&
@@ -187,22 +187,13 @@ void TitleScene::Update(float deltaTime)
     if (InputManager::GetInstance().IsGetKeyDown(VK_LBUTTON))
     {
 
-        if (m_slot1Hover)
+        for (int i = 0; i < 3; i++)
         {
-            SelectSlot(1);
-            return;
-        }
-
-        if (m_slot2Hover)
-        {
-            SelectSlot(2);
-            return;
-        }
-
-        if (m_slot3Hover)
-        {
-            SelectSlot(3);
-            return;
+            if (m_slotHover[i])
+            {
+                SelectSlot(i + 1);
+                return;
+            }
         }
 
         if (m_backHover)
@@ -252,7 +243,7 @@ void TitleScene::Render(ID2D1DeviceContext* context)
         GRAPHICS.DrawBitmapUI(
             logo,
             340.0f,
-            50.0f,
+            0.0f,
             600.0f,
             400.0f
         );
@@ -270,9 +261,27 @@ void TitleScene::Render(ID2D1DeviceContext* context)
     }
     else
     {
-        RenderSlotButton(m_slot1Button,1,m_slot1Hover);
-        RenderSlotButton(m_slot2Button, 2, m_slot2Hover);
-        RenderSlotButton(m_slot3Button,3,m_slot3Hover);
+        RenderSlotPanel();
+
+        // 제목
+        RenderSlotTitle();
+
+        // 슬롯 3개
+        for (int i = 0; i < 3; i++)
+        {
+            RenderSlotButton(
+                m_slotButtons[i],
+                i + 1,
+                m_slotHover[i]
+            );
+        }
+
+        // 뒤로가기
+        RenderButton(
+            m_backButton,
+            L"BACK",
+            m_backHover
+        );
         RenderButton(m_backButton,L"BACK",m_backHover);
     }
 
@@ -336,10 +345,10 @@ void TitleScene::RenderButton(const D2D1_RECT_F& rect, const wchar_t* text, bool
             height,
             12.0f,
             D2D1::ColorF(
-                0.05f,
-                0.05f,
-                0.05f,
-                0.85f
+                0.92f,
+                0.87f,
+                0.75f,
+                1.0f
             )
         );
 
@@ -365,7 +374,7 @@ void TitleScene::RenderButton(const D2D1_RECT_F& rect, const wchar_t* text, bool
     float textX =rect.left +(width - textWidth) * 0.5f;
     float textY =rect.top +(height - fontSize) * 0.5f;
 
-    D2D1::ColorF textColor =
+    /*D2D1::ColorF textColor =
         hover
         ? D2D1::ColorF(
             0.05f,
@@ -378,7 +387,11 @@ void TitleScene::RenderButton(const D2D1_RECT_F& rect, const wchar_t* text, bool
             1.0f,
             1.0f,
             1.0f
-        );
+        );*/
+    D2D1::ColorF textColor = D2D1::ColorF(0.05f,
+        0.05f,
+        0.05f,
+        1.0f);
 
     GRAPHICS.DrawString(
         text,
@@ -425,79 +438,126 @@ void TitleScene::SelectSlot(int slot)
 
 void TitleScene::RenderSlotButton(const D2D1_RECT_F& rect, int slot, bool hover)
 {
-    float width =rect.right - rect.left;
-    float height =rect.bottom - rect.top;
-    // 기존 버튼 배경
-    if (hover)
-    {
-        GRAPHICS.FillRoundedRect(
-            rect.left,
-            rect.top,
-            width,
-            height,
-            12.0f,
-            D2D1::ColorF(
-                1.0f,
-                1.0f,
-                1.0f,
-                0.95f
-            )
+    float width =
+        rect.right - rect.left;
+
+    float height =
+        rect.bottom - rect.top;
+
+    D2D1::ColorF background =
+        hover
+        ? D2D1::ColorF(
+            0.92f,
+            0.87f,
+            0.75f,
+            1.0f
+        )
+        : D2D1::ColorF(
+            0.08f,
+            0.08f,
+            0.08f,
+            0.9f
         );
-    }
-    else
-    {
-        GRAPHICS.FillRoundedRect(
-            rect.left,
-            rect.top,
-            width,
-            height,
-            12.0f,
-            D2D1::ColorF(
-                0.05f,
-                0.05f,
-                0.05f,
-                0.85f
-            )
-        );
-    }
+
+    GRAPHICS.FillRoundedRect(
+        rect.left,
+        rect.top,
+        width,
+        height,
+        12.0f,
+        background
+    );
+
+    GRAPHICS.DrawRoundedRect(
+        rect.left,
+        rect.top,
+        width,
+        height,
+        12.0f,
+        hover
+        ? D2D1::ColorF(
+            1.0f,
+            1.0f,
+            1.0f,
+            0.8f
+        )
+        : D2D1::ColorF(
+            0.92f,
+            0.87f,
+            0.75f,
+            1.0f
+        ),
+        2.0f
+    );
+
     int index = slot - 1;
-    float textX =rect.left + 20.0f;
-    float textY =rect.top + 10.0f;
-    // SLOT 번호
+
+    float textX =
+        rect.left + 20.0f;
+
+    float textY =
+        rect.top + 12.0f;
+
+    D2D1::ColorF textColor =
+        hover
+        ? D2D1::ColorF(
+            0.05f,
+            0.05f,
+            0.05f
+        )
+        : D2D1::ColorF(
+            1.0f,
+            1.0f,
+            1.0f
+        );
+
     wchar_t slotText[64];
-    swprintf_s(slotText,L"SLOT %d",slot);
+
+    swprintf_s(
+        slotText,
+        L"SLOT %d",
+        slot
+    );
+
     GRAPHICS.DrawString(
         slotText,
         textX,
         textY,
-        hover
-        ? D2D1::ColorF(0.05f, 0.05f, 0.05f)
-        : D2D1::ColorF(1.0f, 1.0f, 1.0f),
+        textColor,
         22.0f
     );
 
+    // 비어있는 슬롯
     if (!m_slotExists[index])
     {
         GRAPHICS.DrawString(
             L"EMPTY",
             textX,
-            textY + 32.0f,
+            textY + 35.0f,
             hover
-            ? D2D1::ColorF(0.2f, 0.2f, 0.2f)
-            : D2D1::ColorF(0.7f, 0.7f, 0.7f),
+            ? D2D1::ColorF(
+                0.3f,
+                0.3f,
+                0.3f
+            )
+            : D2D1::ColorF(
+                0.65f,
+                0.65f,
+                0.65f
+            ),
             16.0f
         );
 
         return;
     }
-    // 저장 데이터
+
+    // 플레이 시간
+    int totalSeconds =m_slotData[index].playTimeSeconds;
+    int hours =totalSeconds / 3600;
+    int minutes =(totalSeconds % 3600) / 60;
+    int seconds =totalSeconds % 60;
+
     wchar_t info[128];
-
-    int totalSeconds = m_slotData[index].playTimeSeconds;
-
-    int hours = totalSeconds / 3600;
-    int minutes = (totalSeconds % 3600) / 60;
-    int seconds = totalSeconds % 60;
 
     swprintf_s(
         info,
@@ -510,11 +570,78 @@ void TitleScene::RenderSlotButton(const D2D1_RECT_F& rect, int slot, bool hover)
     GRAPHICS.DrawString(
         info,
         textX,
-        textY + 32.0f,
-        hover
-        ? D2D1::ColorF(0.05f, 0.05f, 0.05f)
-        : D2D1::ColorF(1.0f, 1.0f, 1.0f),
+        textY + 35.0f,
+        textColor,
         16.0f
+    );
+}
+
+void TitleScene::RenderSlotPanel()
+{
+    float width =m_slotPanel.right - m_slotPanel.left;
+    float height =m_slotPanel.bottom - m_slotPanel.top;
+
+    GRAPHICS.FillRoundedRect(
+        m_slotPanel.left,
+        m_slotPanel.top,
+        width,
+        height,
+        20.0f,
+        D2D1::ColorF(
+            0.03f,
+            0.03f,
+            0.03f,
+            0.85f
+        )
+    );
+
+    GRAPHICS.DrawRoundedRect(
+        m_slotPanel.left,
+        m_slotPanel.top,
+        width,
+        height,
+        20.0f,
+        D2D1::ColorF(
+            1.0f,
+            1.0f,
+            1.0f,
+            0.85f
+        ),
+        2.0f
+    );
+}
+
+void TitleScene::RenderSlotTitle()
+{
+    const wchar_t* title =
+        m_menuState == TitleMenuState::NewGameSlot
+        ? L"NEW GAME"
+        : L"LOAD GAME";
+
+    float fontSize = 32.0f;
+
+    float textWidth =
+        GRAPHICS.MeasureTextWidth(
+            title,
+            fontSize
+        );
+
+    float panelCenter =
+        (m_slotPanel.left + m_slotPanel.right) * 0.5f;
+
+    float textX =
+        panelCenter - textWidth * 0.5f;
+
+    GRAPHICS.DrawString(
+        title,
+        textX,
+        100.0f,
+        D2D1::ColorF(
+            1.0f,
+            1.0f,
+            1.0f
+        ),
+        fontSize
     );
 }
 

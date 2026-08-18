@@ -37,7 +37,8 @@ private:
 	void SelectSlot(int slot);
 
 	void RenderSlotButton(const D2D1_RECT_F& rect,int slot,bool hover);
-
+	void RenderSlotPanel();
+	void RenderSlotTitle();
 	void RenderConfirmWindow();
 
 	bool IsSlotOccupied(int slot);
@@ -57,13 +58,10 @@ private:
 	bool m_backHover;
 
 	// 슬롯 메뉴
-	D2D1_RECT_F m_slot1Button;
-	D2D1_RECT_F m_slot2Button;
-	D2D1_RECT_F m_slot3Button;
+	D2D1_RECT_F m_slotPanel;
+	D2D1_RECT_F m_slotButtons[3];
 
-	bool m_slot1Hover;
-	bool m_slot2Hover;
-	bool m_slot3Hover;
+	bool m_slotHover[3];
 
 	// 현재 타이틀 메뉴
 	TitleMenuState m_menuState;
