@@ -242,9 +242,9 @@ void TitleScene::Render(ID2D1DeviceContext* context)
 
     if (m_menuState == TitleMenuState::Main)
     {
-        RenderButton(m_startButton,L"NEW GAME",m_startHover);
-        RenderButton(m_loadButton, L"LOAD GAME", m_loadHover);
-        RenderButton(m_exitButton,L"EXIT",m_exitHover);
+        RenderButton(m_startButton,L"새 게임",m_startHover);
+        RenderButton(m_loadButton, L"불러오기", m_loadHover);
+        RenderButton(m_exitButton,L"종료",m_exitHover);
     }
     else
     {
@@ -258,7 +258,7 @@ void TitleScene::Render(ID2D1DeviceContext* context)
             RenderSlotButton(m_slotButtons[i],i + 1,m_slotHover[i]);
         }
 
-        RenderButton(m_backButton,L"BACK",m_backHover);
+        RenderButton(m_backButton,L"뒤로 가기",m_backHover);
     }
 
 }
@@ -563,7 +563,7 @@ void TitleScene::RenderSlotPanel()
 
 void TitleScene::RenderSlotTitle()
 {
-    const wchar_t* title =m_menuState == TitleMenuState::NewGameSlot? L"NEW GAME": L"LOAD GAME";
+    const wchar_t* title =m_menuState == TitleMenuState::NewGameSlot? L"새 게임": L"불러오기";
     float fontSize = 32.0f;
     float textWidth =GRAPHICS.MeasureTextWidth(title,fontSize);
     float panelCenter =(m_slotPanel.left + m_slotPanel.right) * 0.5f;
