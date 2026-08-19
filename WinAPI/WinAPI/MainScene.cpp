@@ -134,13 +134,6 @@ void MainScene::Init()
 		std::make_unique<PhysicsEngine::CircleCollider>(0.f, 0.f, 0.5f);
 
 	collider->SetCollider(std::move(circleCollider), 1.0f, false);
-	/*SaveData data;
-	bool hasSave = SaveManager::HasSaveFile();
-	if (hasSave)
-	{
-		SaveManager::Load(data);
-		m_collectedItemsIds.insert(data.collectedItemsIds.begin(), data.collectedItemsIds.end());
-	}*/
 	
 	SaveData data;
 
@@ -174,7 +167,7 @@ void MainScene::Init()
 
 		TimeManager::GetInstance().SetTime(data.day, data.hour, data.minute);
 
-		m_player->GetInventory()->SetAllItems(data.inventory);
+		me_player->GetInventory()->SetAllItems(data.inventory);
 	}*/
 	if (isLoadGame)
 	{
@@ -257,6 +250,16 @@ void MainScene::Update(float deltaTime)
 
 	if (InputManager::GetInstance().IsGetKeyDown(VK_ESCAPE))
 	{
+		if (UIManager::GetInstance().IsCraftingOpen())
+		{
+			UIManager::GetInstance().CloseCrafting();
+			return;
+		}
+		if (UIManager::GetInstance().IsPauseMenuOpen())
+		{
+			UIManager::GetInstance().TogglePauseMenu();
+			return;
+		}
 		UIManager::GetInstance().TogglePauseMenu();
 		return;
 	}
@@ -411,9 +414,6 @@ void MainScene::Update(float deltaTime)
 		//	}
 		//	}
 		//}
-
-		if (InputManager::GetInstance().IsGetKeyDown(VK_ESCAPE))
-			UIManager::GetInstance().CloseCrafting();
 
 		return;
 	}
@@ -760,15 +760,28 @@ void MainScene::CreateInteractableFire(float x, float y, InteractType type, cons
 	collider->SetCollider(std::move(rectCollider), 1.0f, true);
 }
 
-void MainScene::CreateItemPickUp(float x, float y, const string& itemId, int count)
+void MainScene::CreateItemPickUp(float x, float y, const string& itemId, int count, bool trackAsCollected)
 {
 	string posId = MakeItemPositionId(x, y);
 
-	if (m_collectedItemsIds.find(posId) != m_collectedItemsIds.end())
-	{
-		return; // 이미 주운 자리면 생성하지 않음
-	}
+	//if (m_collectedItemsIds.find(posId) != m_collectedItemsIds.end())
+	//{
+	//	return; // 이미 주운 자리면 생성하지 않음
+	//}
 
+	if (trackAsCollected)
+	{
+		posId = MakeItemPositionId(x, y);
+		if (m_collectedItemsIds.find(posId) != m_collectedItemsIds.end())
+		{
+			return; // 이미 주운 자리면 생성하지 않음
+		}
+	}
+	else
+	{
+		// 알처럼 반복 드랍되는 아이템은 매번 유니크한 posId 부여 (dedup 대상 아님)
+		posId = MakeItemPositionId(x, y) + "_" + to_string(m_transientPickupCounter++);
+	}
 	const ItemData* itemData = DataManager::GetInstance().FindItem(itemId);
 	if (itemData == nullptr) return;
 

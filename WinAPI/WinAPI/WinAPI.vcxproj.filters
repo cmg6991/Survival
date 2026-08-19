@@ -198,6 +198,9 @@
     <ClInclude Include="SoundManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Chicken.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="InputManager.cpp">
@@ -333,6 +336,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="SoundManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Chicken.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

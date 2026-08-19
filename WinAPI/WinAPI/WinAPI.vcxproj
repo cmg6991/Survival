@@ -129,6 +129,7 @@
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="CameraManager.h" />
     <ClInclude Include="CampFire.h" />
+    <ClInclude Include="Chicken.h" />
     <ClInclude Include="ChunkType.h" />
     <ClInclude Include="ColliderComponent.h" />
     <ClInclude Include="CollisionManager.h" />
@@ -187,6 +188,7 @@
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="CameraManager.cpp" />
     <ClCompile Include="CampFire.cpp" />
+    <ClCompile Include="Chicken.cpp" />
     <ClCompile Include="ColliderComponent.cpp" />
     <ClCompile Include="CollisionManager.cpp" />
     <ClCompile Include="CraftingManager.cpp" />

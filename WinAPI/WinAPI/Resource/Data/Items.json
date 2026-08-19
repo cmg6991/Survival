@@ -74,6 +74,13 @@
     "healAmount": 10
   },
   {
+    "id": "Item_Egg",
+    "name": "달걀",
+    "image": "Item_Egg",
+    "type": "Food",
+    "healAmount": 10
+  },
+  {
     "id": "Item_Sword",
     "name": "검",
     "image": "Item_Sword",

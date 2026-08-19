@@ -134,6 +134,9 @@ ImageKey DataManager::StringToImageKey(const string& str) const
 	if (str == "Item_Blueberry")  return ImageKey::Item_Blueberry;
 	if (str == "Item_Fish")  return ImageKey::Item_Fish;
 	if (str == "Item_Fish_Baked")  return ImageKey::Item_Fish_Baked;
+	if (str == "Item_Egg")  return ImageKey::Item_Egg;
+	if (str == "Chicken")  return ImageKey::Chicken;
+	if (str == "LightBrownChicken")  return ImageKey::LightBrownChicken;
 	if (str == "Bullet")  return ImageKey::Bullet;
 	if (str == "Monster")  return ImageKey::Monster;
 	if (str == "Monster2")  return ImageKey::Monster2;

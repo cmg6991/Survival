@@ -16,6 +16,7 @@ enum class ElementType
 	Weapon,
 	Bullet,
 	Monster,
+	Chicken,
 	AttackHitBox,
 	ResourceNode,
 	Collider,

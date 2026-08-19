@@ -9,6 +9,8 @@
 #include "Interactable.h"
 #include "ResourceNode.h"
 #include "DataManager.h"
+#include "Chicken.h"
+#include "Animator.h"
 #include "pch.h"
 
 ObjectSpawner::ObjectSpawner() : m_scene(nullptr), m_resourceManager(nullptr), m_tileMap(nullptr)
@@ -32,6 +34,7 @@ ObjectSpawner::ObjectSpawner() : m_scene(nullptr), m_resourceManager(nullptr), m
     m_grassImagePoolByChunk[ChunkType::Snow] = { { "Item_WinterGrass", 1.5f } };
 
     m_flowerImagePoolByChunk[ChunkType::Lake] = { {"Flower", 1.5f} };
+    m_chickenImagePoolByChunk[ChunkType::Lake] = {{ "Chicken", 1.f },{ "LightBrownChicken", 1.f }};
 }
 
 ObjectSpawner::~ObjectSpawner()
@@ -97,6 +100,8 @@ void ObjectSpawner::SpawnChunk(int chunkX,int chunkY,int chunkWidth,int chunkHei
                     SpawnObject(SpawnObjectType::Grass, x, y, chunkType, chunkKey);
                 else if(value <0.05f)
                     SpawnObject(SpawnObjectType::Flower, x, y, chunkType, chunkKey);
+                else if (value < 0.052f)
+                    SpawnObject(SpawnObjectType::Chicken, x, y, chunkType, chunkKey);
                 break;
             }
             case ChunkType::Snow:
@@ -250,6 +255,17 @@ void ObjectSpawner::SpawnObject(SpawnObjectType type, int x, int y, ChunkType ch
         }
         break;
     }
+    case SpawnObjectType::Chicken:
+    {
+        auto& pool = m_chickenImagePoolByChunk[chunkType];
+        if (!pool.empty())
+        {
+            int idx = m_random() % pool.size();
+            const auto& [imageKey, scale] = pool[idx];
+            obj = SpawnChicken(x, y, imageKey, scale);
+        }
+        break;
+    }
     }
 
     if (obj != nullptr)
@@ -329,6 +345,49 @@ GameObject* ObjectSpawner::SpawnResourceObject(const string& resourceId, int x, 
     obj->Init();
 
     return obj; // 추가
+}
+
+GameObject* ObjectSpawner::SpawnChicken(int x, int y, const string& imageKey, float scale)
+{
+    GameObject* obj =m_scene->CreateObject("Chicken");
+
+    if (obj == nullptr)
+        return nullptr;
+
+    Transform* tr = new Transform();
+    tr->SetPosition({ (float)x, (float)y });
+
+    SpriteRenderer* sprite = new SpriteRenderer(imageKey);
+    sprite->SetResourceManager(m_resourceManager);
+    sprite->SetPivot(16.0f, 32.0f);
+
+    sprite->SetScale(scale * 2.0f);
+
+
+    Animator* animator = new Animator();
+
+    ResourceNode* resource = new ResourceNode("Item_Egg", 1, 1);
+
+    // Chicken 엘리먼트 생성 및 콜백 연결
+    Chicken* chicken = new Chicken();
+    chicken->SetResourceNode(resource);
+
+    MainScene* scenePtr = m_scene;
+    chicken->SetEggDropCallback(
+        [scenePtr](const MathEngine::Vector2& pos, const string& itemId, int count)
+        {
+            scenePtr->CreateItemPickUp(pos.x, pos.y, itemId, count, false);
+        });
+
+    // GameObject 구성
+    obj->SetElement(tr, ElementType::Transform);
+    obj->SetElement(sprite, ElementType::SpriteRenderer);
+    obj->SetElement(animator, ElementType::Animator);
+    obj->SetElement(resource, ElementType::ResourceNode);
+    obj->SetElement(chicken, ElementType::Chicken);
+    obj->Init();
+
+    return obj;
 }
 
 //void ObjectSpawner::SpawnGrass(int x, int y, const string& imageKey, float scale)

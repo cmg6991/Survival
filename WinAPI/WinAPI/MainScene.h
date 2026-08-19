@@ -38,13 +38,13 @@ public:
 	void Release() override;
 	void SaveGame();
 
+	void CreateItemPickUp(float x, float y, const string& itemId, int count, bool trackAsCollected = true);
 private:
 	void RegisterTileHandlers();
 
 	void CreateWall(float x, float y, const string& imageName);
 	void CreateInteractableWorkTable(float x, float y, InteractType type, const string& imageKey);
 	void CreateInteractableFire(float x, float y, InteractType type, const string& imageKey);
-	void CreateItemPickUp(float x, float y, const string& itemId, int count);
 	void CreateBullet(const MathEngine::Vector2& startPos, const MathEngine::Vector2& dir,
 		int damage, float speed, float range);
 	//void CreateMonster(float x, float y, int health);
@@ -119,4 +119,5 @@ private:
 	const float m_monsterDespawnDistance = 20.0f;
 
 	float m_playTime = 0.0f;
+	int m_transientPickupCounter = 0;
 };
