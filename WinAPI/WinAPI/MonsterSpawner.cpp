@@ -127,13 +127,10 @@ string MonsterSpawner::ChooseMonsterId(int dayFactor) const
     {
         int roll = rand() % 10;
 
-        if (roll < 5)
+        if (roll < 7)
             return "Monster2";
 
-        if (roll < 9)
-            return "Monster";
-
-        return "Monster3";
+        return "Monster";
     }
 
     // 3ÀÏÂ÷

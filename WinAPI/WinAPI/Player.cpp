@@ -60,39 +60,51 @@ void Player::Update(float deltaTime)
     //    }
     //}
 
+    bool wasFishing =
+        (m_weapon != nullptr &&
+            m_weapon->GetWeaponType() == WeaponType::Fishing &&
+            m_fisingController.IsFishing());
 
-    bool isFishing =(m_weapon != nullptr &&m_weapon->GetWeaponType() == WeaponType::Fishing &&m_fisingController.IsFishing());
     m_fisingController.Update(deltaTime);
 
-    // 낚시가 끝났는지 확인
-    bool fishingAfterUpdate =(m_weapon != nullptr &&m_weapon->GetWeaponType() == WeaponType::Fishing &&m_fisingController.IsFishing());
+    bool isFishingNow =
+        (m_weapon != nullptr &&
+            m_weapon->GetWeaponType() == WeaponType::Fishing &&
+            m_fisingController.IsFishing());
 
-    if (isFishing && !fishingAfterUpdate)
+    // ==========================================
+    // 낚시 종료
+    // ==========================================
+    if (wasFishing && !isFishingNow)
     {
         m_isAttacking = false;
+        m_attackTimer = 0.0f;
 
         UpdateSpriteState();
     }
-    if (isFishing)
+
+    // ==========================================
+    // 낚시 중이면 플레이어 이동/공격 입력 무시
+    // ==========================================
+    if (isFishingNow)
     {
         return;
     }
+
+    // ==========================================
+    // 일반 공격 상태
+    // ==========================================
     if (m_isAttacking)
     {
-        bool fishing =(m_weapon != nullptr &&m_weapon->GetWeaponType() == WeaponType::Fishing);
-        if (!fishing)
+        m_attackTimer -= deltaTime;
+
+        if (m_attackTimer <= 0.0f)
         {
-            m_attackTimer -= deltaTime;
-
-
-            if (m_attackTimer <= 0.0f)
-            {
-                m_isAttacking = false;
-
-                UpdateSpriteState();
-            }
+            m_isAttacking = false;
+            UpdateSpriteState();
         }
     }
+
 
 
     /*if (m_isAttacking)
@@ -396,7 +408,21 @@ void Player::Attack()
     if (m_weapon != nullptr &&
         m_weapon->GetWeaponType() == WeaponType::Fishing)
     {
-        m_fisingController.TryStartFishing(m_transform->GetPostion());
+        bool started =
+            m_fisingController.TryStartFishing(
+                m_transform->GetPostion()
+            );
+
+        // ★ 물이 없거나 낚시를 시작하지 못했으면
+        // 공격 상태로 들어가지 않는다.
+        if (!started)
+        {
+            m_isAttacking = false;
+            UpdateSpriteState();
+            return;
+        }
+
+        // ★ 실제로 낚시가 시작된 경우에만 공격 상태
         m_isAttacking = true;
         UpdateSpriteState();
 
