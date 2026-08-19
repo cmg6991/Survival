@@ -39,6 +39,8 @@ namespace PhysicsEngine
 	{
 		for (Object* obj : m_objects)
 		{
+			if (!obj->isEnabled)
+				continue;
 			if (obj->isStatic)
 			{
 				obj->collider->center = obj->position;

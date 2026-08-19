@@ -70,13 +70,13 @@ void UIManager::Update(float deltaTime)
 		m_exitHover = false;
 	}
 	// ==========================================
-	if (InputManager::GetInstance().IsGetKeyDown(VK_LBUTTON))
+	/*if (InputManager::GetInstance().IsGetKeyDown(VK_LBUTTON))
 	{
 		HandleQuitSlotCilck(
 			mouse.x,
 			mouse.y
 		);
-	}
+	}*/
 
 	if (InputManager::GetInstance().IsGetKeyDown('1'))
 	{
@@ -253,10 +253,10 @@ bool UIManager::HandleCraftingInventoryClick(float mouseX, float mouseY)
 	return false;
 }
 
-void UIManager::HandleInventoryClick(float mouseX, float mouseY)
+bool UIManager::HandleInventoryClick(float mouseX, float mouseY)
 {
 	if (m_inventory == nullptr)
-		return;
+		return false;
 
 	vector<pair<string, int>> itemList(
 		m_inventory->GetAllItems().begin(),
@@ -294,7 +294,7 @@ void UIManager::HandleInventoryClick(float mouseX, float mouseY)
 					m_onItemUse(itemId);
 			}
 
-			return;
+			return true;
 		}
 	}
 
@@ -304,16 +304,17 @@ void UIManager::HandleInventoryClick(float mouseX, float mouseY)
 	{
 		if (m_onWeaponUnequip)
 			m_onWeaponUnequip();
-		return;
+		return true;
 	}
 
-	if (mouseX >= m_equipSlotX && mouseX <= m_equipSlotX + m_slotSize &&
+	if (mouseX >= m_equipShieldSlotX && mouseX <= m_equipShieldSlotX + m_slotSize &&
 		mouseY >= m_equipShieldSlotY && mouseY <= m_equipShieldSlotY + m_slotSize)
 	{
 		if (m_onShieldUnequip)
 			m_onShieldUnequip();
-		return;
+		return true;
 	}
+	return false;
 }
 
 bool UIManager::HandleCraftingRecipeClick(float mouseX, float mouseY)
@@ -426,10 +427,10 @@ void UIManager::ScrollCraftingRecipe(int direction)
 		m_craftRecipeScrollOffset = maxOffset;
 }
 
-void UIManager::HandleQuitSlotCilck(float mouseX, float mouseY)
+bool UIManager::HandleQuitSlotCilck(float mouseX, float mouseY)
 {
 	if (m_inventory == nullptr)
-		return;
+		return false;
 
 	const float startX = 40.0f;
 	const float startY = 90.0f;
@@ -456,9 +457,10 @@ void UIManager::HandleQuitSlotCilck(float mouseX, float mouseY)
 			// 클릭하면 바로 사용/장착
 			UseQuickSlot(i);
 
-			return;
+			return true;
 		}
 	}
+	return false;
 }
 
 void UIManager::UseQuickSlot(int slotIndex)
@@ -505,6 +507,38 @@ void UIManager::UseQuickSlot(int slotIndex)
 
 		return;
 	}
+}
+
+bool UIManager::HandleMouseClick(float mouseX, float mouseY)
+{
+	if (m_isInventoryOpen)
+	{
+		// 실제 아이템/장비 슬롯을 눌렀다면
+		if (HandleInventoryClick(mouseX, mouseY))
+			return true;
+
+		// 인벤토리 창 자체를 눌렀는지도 검사할 수 있음
+		float panelX = m_slotStartX - 30.0f;
+		float panelY = m_slotStartY - 70.0f;
+		float panelWidth = 800.0f;
+		float panelHeight = 420.0f;
+
+		if (mouseX >= panelX &&
+			mouseX <= panelX + panelWidth &&
+			mouseY >= panelY &&
+			mouseY <= panelY + panelHeight)
+		{
+			// 인벤토리 패널 안을 클릭했으므로 이동하지 않음
+			return true;
+		}
+	}
+
+	// 퀵슬롯 클릭
+	if (HandleQuitSlotCilck(mouseX, mouseY))
+		return true;
+
+	// UI가 클릭을 먹지 않음
+	return false;
 }
 
 void UIManager::TogglePauseMenu()

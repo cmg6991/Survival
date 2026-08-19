@@ -138,14 +138,19 @@ void Chicken::UpdateMovement(float deltaTime)
     if (m_transform == nullptr)
         return;
 
+
     static mt19937 rng(random_device{}());
 
     m_moveTimer -= deltaTime;
 
+    // ==========================================
+    // 이동 / 정지 상태 변경
+    // ==========================================
     if (m_moveTimer <= 0.0f)
     {
         if (m_isMoving)
         {
+            // 이동 -> 정지
             m_isMoving = false;
             m_moveDir = { 0.0f, 0.0f };
 
@@ -157,11 +162,13 @@ void Chicken::UpdateMovement(float deltaTime)
         }
         else
         {
+            // 정지 -> 이동
             m_isMoving = true;
 
             uniform_real_distribution<float> angleDist(
                 0.0f,
-                6.2831853f);
+                6.2831853f
+            );
 
             float angle = angleDist(rng);
 
@@ -173,7 +180,8 @@ void Chicken::UpdateMovement(float deltaTime)
 
             uniform_real_distribution<float> moveDist(
                 1.0f,
-                2.5f);
+                2.5f
+            );
 
             m_moveTimer = moveDist(rng);
 
@@ -181,7 +189,11 @@ void Chicken::UpdateMovement(float deltaTime)
                 m_moveDir.x - m_moveDir.y;
 
             if (m_sprite != nullptr)
-                m_sprite->SetFlip(screenDirX > 0.0f);
+            {
+                m_sprite->SetFlip(
+                    screenDirX > 0.0f
+                );
+            }
 
             if (m_animator != nullptr)
                 m_animator->Resume();
@@ -191,126 +203,128 @@ void Chicken::UpdateMovement(float deltaTime)
     if (!m_isMoving)
         return;
 
-    MathEngine::Vector2 pos =
+    // ==========================================
+    // 현재 위치
+    // ==========================================
+    MathEngine::Vector2 current =
         m_transform->GetPostion();
 
-    MathEngine::Vector2 nextPos = pos;
+    // ==========================================
+    // 다음 위치
+    // ==========================================
+    MathEngine::Vector2 nextPos =
+        current +
+        m_moveDir * m_moveSpeed * deltaTime;
 
-    nextPos.x +=
-        m_moveDir.x *
-        m_moveSpeed *
-        deltaTime;
+    // ==========================================
+    // 다음 타일
+    // ★ 몬스터와 완전히 동일한 방식
+    // ==========================================
+    int nextTileX =
+        (int)round(nextPos.x);
 
-    nextPos.y +=
-        m_moveDir.y *
-        m_moveSpeed *
-        deltaTime;
+    int nextTileY =
+        (int)round(nextPos.y);
 
     // ==========================================
     // 물 검사
     // ==========================================
-    if (m_tileMap != nullptr)
+    bool blockedByWater =
+        (m_tileMap != nullptr &&
+            m_tileMap->IsWater(nextTileX, nextTileY));
+
+    // ==========================================
+    // 물이면 이동 금지
+    // ==========================================
+    if (blockedByWater)
     {
-        int currentX =
-            static_cast<int>(floorf(pos.x));
+        uniform_real_distribution<float> angleDist(
+            0.0f,
+            6.2831853f
+        );
 
-        int currentY =
-            static_cast<int>(floorf(pos.y));
+        bool foundDirection = false;
 
-        int nextX =
-            static_cast<int>(floorf(nextPos.x));
-
-        int nextY =
-            static_cast<int>(floorf(nextPos.y));
-
-        TileType nextTile =
-            m_tileMap->GetTile(nextX, nextY);
-
-        // ==========================================
-        // 다음 위치가 물이면
-        // ==========================================
-        if (nextTile == TileType::WATER)
+        // ======================================
+        // 새로운 방향 여러 번 시도
+        // ======================================
+        for (int i = 0; i < 30; ++i)
         {
-            // 현재 이동 방향은 폐기
+            float angle = angleDist(rng);
+
+            MathEngine::Vector2 newDir =
+            {
+                cosf(angle),
+                sinf(angle)
+            };
+
+            if (newDir.Magnitude() > 0.01f)
+                newDir = newDir.Normalize();
+
+            // ==================================
+            // 새로운 위치
+            // ==================================
+            MathEngine::Vector2 testPos =
+                current +
+                newDir * m_moveSpeed * deltaTime;
+
+            int testTileX =
+                (int)round(testPos.x);
+
+            int testTileY =
+                (int)round(testPos.y);
+
+            // ==================================
+            // 물 검사
+            // ==================================
+            bool testBlockedByWater =
+                (m_tileMap != nullptr &&
+                    m_tileMap->IsWater(
+                        testTileX,
+                        testTileY
+                    ));
+
+            // 물이면 이 방향 버림
+            if (testBlockedByWater)
+                continue;
+
+            // ==================================
+            // 안전한 방향 발견
+            // ==================================
+            m_moveDir = newDir;
+
+            float screenDirX =
+                m_moveDir.x - m_moveDir.y;
+
+            if (m_sprite != nullptr)
+            {
+                m_sprite->SetFlip(
+                    screenDirX > 0.0f
+                );
+            }
+
+            foundDirection = true;
+            break;
+        }
+
+        // ======================================
+        // 안전한 방향을 못 찾음
+        // ======================================
+        if (!foundDirection)
+        {
+            m_isMoving = false;
             m_moveDir = { 0.0f, 0.0f };
 
-            // 새로운 방향을 여러 번 시도
-            uniform_real_distribution<float> angleDist(
-                0.0f,
-                6.2831853f);
-
-            bool foundDirection = false;
-
-            for (int i = 0; i < 20; ++i)
-            {
-                float angle = angleDist(rng);
-
-                MathEngine::Vector2 newDir =
-                {
-                    cosf(angle),
-                    sinf(angle)
-                };
-
-                MathEngine::Vector2 testPos = pos;
-
-                testPos.x +=
-                    newDir.x *
-                    m_moveSpeed *
-                    deltaTime;
-
-                testPos.y +=
-                    newDir.y *
-                    m_moveSpeed *
-                    deltaTime;
-
-                int testX =
-                    static_cast<int>(floorf(testPos.x));
-
-                int testY =
-                    static_cast<int>(floorf(testPos.y));
-
-                TileType testTile =
-                    m_tileMap->GetTile(testX, testY);
-
-                // 물이 아니면 이 방향 사용
-                if (testTile != TileType::WATER)
-                {
-                    m_moveDir = newDir;
-
-                    float screenDirX =
-                        m_moveDir.x -
-                        m_moveDir.y;
-
-                    if (m_sprite != nullptr)
-                        m_sprite->SetFlip(
-                            screenDirX > 0.0f);
-
-                    foundDirection = true;
-                    break;
-                }
-            }
-
-            // 새로운 방향을 찾았으면
-            // 이번 프레임에는 이동하지 않고
-            // 다음 프레임부터 이동
-            if (foundDirection)
-            {
-                return;
-            }
-
-            // 아무 방향도 못 찾았으면 정지
-            m_isMoving = false;
             m_moveTimer = 1.0f;
 
             if (m_animator != nullptr)
                 m_animator->Pause();
-
-            return;
         }
+        return;
     }
 
     // ==========================================
-    // 물이 아니면 정상 이동
+    // 최종 이동
     // ==========================================
     m_transform->SetPosition(nextPos);
 }

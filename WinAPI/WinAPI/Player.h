@@ -113,6 +113,6 @@ private:
 	bool m_isDying = false;
 
 	bool m_hasGlowRing = false;
-	//PhysicsEngine::PhysicsWorld* m_physicsWorld = nullptr;
-	//PhysicsEngine::Object* m_selfPhysicsObject = nullptr;
+
+	float m_shootCooldown = 0.f;
 };

@@ -1,0 +1,21 @@
+{
+    "collectedItemsIds": [
+        "",
+        "item_65_15_0"
+    ],
+    "currentWave": 1,
+    "day": 2,
+    "equippedShieldId": "Item_Shield",
+    "equippedWeaponId": "Item_Gun",
+    "hasGlowRing": false,
+    "hour": 14,
+    "inventory": {
+        "Item_Egg": 1,
+        "Item_Fishing": 1,
+        "Item_Wood": 5
+    },
+    "minute": 50,
+    "playTimeSeconds": 197,
+    "playerX": 35.96638488769531,
+    "playerY": 6.304363250732422
+}

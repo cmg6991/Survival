@@ -35,7 +35,7 @@ public:
 	bool IsInventoryWindowOpen() const { return m_isInventoryOpen; }
 
 	bool HandleCraftingInventoryClick(float mouseX, float mouseY);
-	void HandleInventoryClick(float mouseX, float mouseY);
+	bool HandleInventoryClick(float mouseX, float mouseY);
 	bool HandleCraftingRecipeClick(float mouseX, float mouseY);
 	void EquipItem(const string& itemId);
 	void EquipShield(const string& itemId);
@@ -50,9 +50,11 @@ public:
 
 	void ScrollCraftingRecipe(int direction);
 
-	void HandleQuitSlotCilck(float mouseX, float mouseY);
+	bool HandleQuitSlotCilck(float mouseX, float mouseY);
 	void UseQuickSlot(int slotIndex);
 	int GetSelectedQuickSlot() const { return m_selectedQuickSlot; }
+
+	bool HandleMouseClick(float mouseX, float mouseY);
 
 public:
 	void TogglePauseMenu();

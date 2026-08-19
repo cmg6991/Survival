@@ -19,4 +19,7 @@ struct SaveData
 	int playTimeSeconds = 0;
 
 	bool hasGlowRing = false;
+
+	string equippedWeaponId = "";
+	string equippedShieldId = "";
 };

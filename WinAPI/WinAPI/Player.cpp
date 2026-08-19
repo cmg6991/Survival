@@ -14,6 +14,7 @@
 #include "SpriteRenderer.h"
 #include "Weapon.h"
 #include "ColliderComponent.h"
+#include "UIManager.h"
 
 using namespace std;
 
@@ -119,19 +120,6 @@ void Player::Update(float deltaTime)
     }*/
     MathEngine::Vector2 current = m_transform->GetPostion();
 
-    wchar_t buf[256];
-
-    swprintf_s(
-        buf,
-        L"[PLAYER UPDATE] current=(%.2f, %.2f), target=(%.2f, %.2f), auto=%d\n",
-        current.x,
-        current.y,
-        m_targetPos.x,
-        m_targetPos.y,
-        m_isAutoMoving
-    );
-
-    OutputDebugStringW(buf);
 
     MathEngine::Vector2 freeDir = { 0,0 };
 
@@ -161,9 +149,17 @@ void Player::Update(float deltaTime)
 
     bool isKeyMoving = (freeDir.Magnitude() > 0.001f);
 
+    if (m_shootCooldown > 0.0f)
+        m_shootCooldown -= deltaTime;
+
     if (InputManager::GetInstance().IsGetKeyDown(VK_RBUTTON))
     {
-        Attack();
+        if (m_shootCooldown <= 0.0f)
+        {
+            Attack();
+
+            m_shootCooldown = 0.1f;
+        }
     }
 
     if (isKeyMoving)
@@ -176,6 +172,12 @@ void Player::Update(float deltaTime)
     if (InputManager::GetInstance().IsGetKeyDown(VK_LBUTTON))
     {
         MathEngine::Vector2 mousePos = InputManager::GetInstance().GetMousePosition();
+
+        if (UIManager::GetInstance().HandleMouseClick(mousePos.x, mousePos.y))
+        {
+            // UI가 처리한 클릭
+            return;
+        }
 
         MathEngine::Vector2 world =
         {
@@ -327,15 +329,6 @@ void Player::Update(float deltaTime)
         //m_weapon->SetFlip(!m_facingRight);
     }
     MathEngine::Vector2 endPos = m_transform->GetPostion();
-
-    swprintf_s(
-        buf,
-        L"[PLAYER UPDATE END] pos=(%.2f, %.2f)\n",
-        endPos.x,
-        endPos.y
-    );
-
-    OutputDebugStringW(buf);
 }
 
 void Player::LateUpdate()

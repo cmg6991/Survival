@@ -55,6 +55,7 @@ private:
 
 	void EquipShieldToPlayer(const string& shieldId);
 	void UnequipShieldFromPlayer();
+	void LoadEquipShield(const string& shieldId);
 
 	void CheckItemPickUps();
 	string MakeItemPositionId(float x, float y);

@@ -19,6 +19,8 @@ bool SaveManager::Save(const SaveData& data, const string& filePath)
 	// 웨이브
 	j["currentWave"] = data.currentWave;
 	j["hasGlowRing"] = data.hasGlowRing;
+	j["equippedWeaponId"] = data.equippedWeaponId;   // 추가
+	j["equippedShieldId"] = data.equippedShieldId;
 	// 인벤토리
 	json inventoryJson = json::object();
 	for (auto& pair : data.inventory)
@@ -97,6 +99,9 @@ bool SaveManager::Load(SaveData& outData, const string& filePath)
 
 	outData.currentWave = j.value("currentWave", 1);
 	outData.hasGlowRing = j.value("hasGlowRing", false);
+	outData.equippedWeaponId = j.value("equippedWeaponId", string(""));   // 추가
+	outData.equippedShieldId = j.value("equippedShieldId", string(""));
+
 	outData.inventory.clear();
 	if (j.contains("inventory") && j["inventory"].is_object())
 	{

@@ -29,6 +29,8 @@ void ColliderComponent::FixedUpdate()
 	if (!m_object || !m_transform)
 		return;
 
+	if (!m_object->isEnabled)
+		return;
 	//m_isCollision = m_object->isColliding;
 
 	if (m_syncMode == ColliderSyncMode::TransformDrivesPhysics)
@@ -40,7 +42,7 @@ void ColliderComponent::FixedUpdate()
 
 void ColliderComponent::Update(float deltaTime)
 {
-	if (m_object == nullptr || m_object->collider == nullptr) return;
+	if (m_object == nullptr || m_object->collider == nullptr|| !m_object->isEnabled) return;
 
 	if (m_syncMode == ColliderSyncMode::TransformDrivesPhysics)
 	{
@@ -94,12 +96,12 @@ void ColliderComponent::LateUpdate()
 
 	m_isCollision = m_object->isColliding;
 
-	m_transform->SetPosition(m_object->position);
+	//m_transform->SetPosition(m_object->position);
 	
-	//if (m_syncMode == ColliderSyncMode::PhysicsDrivesTransform)
-	//{
-	//	m_transform->SetPosition(m_object->position);
-	//}
+	if (m_syncMode == ColliderSyncMode::PhysicsDrivesTransform)
+	{
+		m_transform->SetPosition(m_object->position);
+	}
 }
 
 void ColliderComponent::PreRender()

@@ -187,6 +187,10 @@ void MainScene::Init()
 		m_player->GetInventory()->SetAllItems(data.inventory);
 		m_playTime = static_cast<float>(data.playTimeSeconds);
 		m_player->SetGlowRing(data.hasGlowRing);
+		if (!data.equippedWeaponId.empty())
+			EquipWeaponToPlayer(data.equippedWeaponId);
+
+		LoadEquipShield(data.equippedShieldId);
 	}
 
 	UIManager::GetInstance().SetInventory(m_player->GetInventory());
@@ -234,10 +238,17 @@ void MainScene::Init()
 		m_resourceManager);
 	Transform* playerTr = static_cast<Transform*>(m_player->GetGameObject()->GetElement(ElementType::Transform));
 	CameraManager::GetInstance().Follow(tr);
-	DWORD elapsed = GetTickCount64() - startTime;
-	wchar_t buf[64];
-	swprintf_s(buf, L"MainScene::Init took %lu ms\n", elapsed);
-	OutputDebugStringW(buf);
+	const int BULLET_POOL_SIZE = 20;
+
+	for (int i = 0; i < BULLET_POOL_SIZE; ++i)
+	{
+		GameObject* bullet = AcquireBullet();
+
+		if (bullet != nullptr)
+		{
+			m_bulletPool.push_back(bullet);
+		}
+	}
 }
 
 void MainScene::FixedUpdate()
@@ -617,6 +628,13 @@ void MainScene::SaveGame()
 	data.playTimeSeconds = static_cast<int>(m_playTime);
 	data.hasGlowRing = m_player->HasGlowRing();
 
+	if (m_player->GetWeapon() != nullptr)
+		data.equippedWeaponId = m_player->GetWeapon()->GetWeaponId();
+	else
+		data.equippedWeaponId = "";
+
+	data.equippedShieldId = m_player->GetEquippedShieldId();
+
 	int saveSlot = m_sceneManager->GetSaveSlot();
 	if (saveSlot < 1 || saveSlot > 3)
 	{
@@ -877,8 +895,8 @@ void MainScene::CreateBullet(const MathEngine::Vector2& startPos, const MathEngi
 		PhysicsEngine::Object* physObj = collider->GetPhysicsObject();
 		if (physObj != nullptr)
 		{
-			physObj->position = startPos;              // ★ 이게 빠져있었음
-			physObj->velocity = MathEngine::Vector2(0.f, 0.f);   // ★ 이전 생애의 속도 잔재 제거
+			physObj->position = startPos;           
+			physObj->velocity = MathEngine::Vector2(0.f, 0.f);  
 			physObj->collider->center = startPos;
 		}
 	}
@@ -1092,6 +1110,18 @@ void MainScene::UnequipShieldFromPlayer()
 	m_player->SetEquippedShieldId("");
 }
 
+void MainScene::LoadEquipShield(const string& shieldId)
+{
+	if (shieldId.empty()) return;
+
+	const ItemData* itemData = DataManager::GetInstance().FindItem(shieldId);
+	if (itemData == nullptr) return;
+
+	// 세이브 복원 시에는 인벤토리 차감/보유 체크 없이 상태만 복원
+	m_player->SetShield(itemData->weaponSpriteKey, itemData->defenseValue);
+	m_player->SetEquippedShieldId(shieldId);
+}
+
 void MainScene::CheckItemPickUps()
 {
 	Transform* playerTr = static_cast<Transform*>(m_player->GetGameObject()->GetElement(ElementType::Transform));
@@ -1226,53 +1256,147 @@ void MainScene::HarvestResource(ResourceNode* resource)
 
 GameObject* MainScene::AcquireBullet()
 {
+	//if (!m_bulletPool.empty())
+	//{
+	//	GameObject* obj = m_bulletPool.back();
+	//	m_bulletPool.pop_back();
+	//	return obj;
+	//}
+
+	//// 없으면 새로 생성 (최초 워밍업 또는 풀이 부족할 때만 여기로 옴)
+	//GameObject* obj = CreateObject("Bullet");
+
+	//Transform* tr = new Transform();
+	//Bullet* bullet = new Bullet({ 0, 0 }, 0.f, 0.f, 0);
+	//bullet->SetCollisionManager(m_collisionManager);
+
+	//SpriteRenderer* sprite = new SpriteRenderer("Bullet");
+	//sprite->SetResourceManager(m_resourceManager);
+	//sprite->SetPivot(1, 10);
+	//sprite->SetScale(2.f);
+
+	//ColliderComponent* collider = new ColliderComponent();
+	//collider->SetPhysicsWorld(m_physicsWorld);
+	//collider->SetSyncMode(ColliderSyncMode::TransformDrivesPhysics);
+
+	//obj->SetElement(tr, ElementType::Transform);
+	//obj->SetElement(bullet, ElementType::Bullet);
+	//obj->SetElement(sprite, ElementType::SpriteRenderer);
+	//obj->SetElement(collider, ElementType::Collider);
+	//obj->Init();
+
+	//auto circleCollider = std::make_unique<PhysicsEngine::CircleCollider>(0.f, 0.f, 0.2f);
+	//collider->SetCollider(std::move(circleCollider), 0.1f, false);
+	//collider->SetTrigger(true);
+
+	//collider->SetOnCollisionEnter([this, bullet](GameObject* other)
+	//	{
+	//		Monster* monster = static_cast<Monster*>(other->GetElement(ElementType::Monster));
+	//		if (monster != nullptr && !monster->IsDead())
+	//		{
+	//			monster->TakeDamage(bullet->GetDamage());
+	//			bullet->Despawn();
+	//		}
+	//		Interactable* interactable = static_cast<Interactable*>(other->GetElement(ElementType::Interactable));
+	//		if (interactable != nullptr)
+	//		{
+	//			bullet->Despawn();
+	//			return;
+	//		}
+	//	});
+
+	//return obj;
 	if (!m_bulletPool.empty())
 	{
 		GameObject* obj = m_bulletPool.back();
 		m_bulletPool.pop_back();
+
 		return obj;
 	}
 
-	// 없으면 새로 생성 (최초 워밍업 또는 풀이 부족할 때만 여기로 옴)
+	// 풀이 없을 때만 생성
 	GameObject* obj = CreateObject("Bullet");
 
+	if (obj == nullptr)
+		return nullptr;
+
 	Transform* tr = new Transform();
-	Bullet* bullet = new Bullet({ 0, 0 }, 0.f, 0.f, 0);
+
+	Bullet* bullet =
+		new Bullet({ 0, 0 }, 0.f, 0.f, 0);
+
 	bullet->SetCollisionManager(m_collisionManager);
 
-	SpriteRenderer* sprite = new SpriteRenderer("Bullet");
-	sprite->SetResourceManager(m_resourceManager);
-	sprite->SetScale(5.f);
+	SpriteRenderer* sprite =
+		new SpriteRenderer("Bullet");
 
-	ColliderComponent* collider = new ColliderComponent();
+	sprite->SetResourceManager(m_resourceManager);
+
+	// 10 x 3 이미지라면 중앙 기준
+	sprite->SetPivot(1.0f, 10.f);
+	sprite->SetScale(2.f);
+
+	ColliderComponent* collider =
+		new ColliderComponent();
+
 	collider->SetPhysicsWorld(m_physicsWorld);
-	collider->SetSyncMode(ColliderSyncMode::TransformDrivesPhysics);
+
+	collider->SetSyncMode(
+		ColliderSyncMode::TransformDrivesPhysics);
 
 	obj->SetElement(tr, ElementType::Transform);
 	obj->SetElement(bullet, ElementType::Bullet);
 	obj->SetElement(sprite, ElementType::SpriteRenderer);
 	obj->SetElement(collider, ElementType::Collider);
+
 	obj->Init();
 
-	auto circleCollider = std::make_unique<PhysicsEngine::CircleCollider>(0.f, 0.f, 0.15f);
-	collider->SetCollider(std::move(circleCollider), 0.1f, false);
+	auto circleCollider =
+		std::make_unique<PhysicsEngine::CircleCollider>(
+			0.f,
+			0.f,
+			0.2f);
+
+	collider->SetCollider(
+		std::move(circleCollider),
+		0.1f,
+		false);
+
 	collider->SetTrigger(true);
 
-	collider->SetOnCollisionEnter([this, bullet](GameObject* other)
+	collider->SetOnCollisionEnter(
+		[this, bullet](GameObject* other)
 		{
-			Monster* monster = static_cast<Monster*>(other->GetElement(ElementType::Monster));
+			if (other == nullptr)
+				return;
+
+			Monster* monster =
+				static_cast<Monster*>(
+					other->GetElement(ElementType::Monster));
+
 			if (monster != nullptr && !monster->IsDead())
 			{
-				monster->TakeDamage(bullet->GetDamage());
+				monster->TakeDamage(
+					bullet->GetDamage());
+
 				bullet->Despawn();
+				return;
 			}
-			Interactable* interactable = static_cast<Interactable*>(other->GetElement(ElementType::Interactable));
+
+			Interactable* interactable =
+				static_cast<Interactable*>(
+					other->GetElement(ElementType::Interactable));
+
 			if (interactable != nullptr)
 			{
 				bullet->Despawn();
 				return;
 			}
 		});
+
+	// 생성 직후에는 비활성
+	obj->SetActive(false);
+	collider->SetEnabled(false);
 
 	return obj;
 }

@@ -375,6 +375,7 @@ GameObject* ObjectSpawner::SpawnChicken(int x, int y, const string& imageKey, fl
     // Chicken 엘리먼트 생성 및 콜백 연결
     Chicken* chicken = new Chicken();
     chicken->SetResourceNode(resource);
+    chicken->SetTileMap(m_tileMap);
 
     MainScene* scenePtr = m_scene;
     chicken->SetEggDropCallback(
