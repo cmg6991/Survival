@@ -44,6 +44,7 @@ enum class ImageKey
 	Item_Fish,
 	Item_Fish_Baked,
 	Item_Egg,
+	Item_Egg_Baked,
 	Chicken,
 	LightBrownChicken,
 	Bullet,
@@ -75,7 +76,10 @@ enum class ImageKey
 	TitleLogo,
 	Dock,
 	Flower,
+	Flower2,
+	Flower3,
 	Item_Glow,
+	RandomBox,
 	Count
 };
 

@@ -196,6 +196,10 @@
 		"path": "Resource/Food/Egg_Icon.png"
 	},
 	{
+		"key": "Item_Egg_Baked",
+		"path": "Resource/Food/fried_egg_cutout_v2.png"
+	},
+	{
 		"key": "Chicken",
 		"path": "Resource/Animation/Chicken_Sprite_Sheet.png"
 	},
@@ -280,7 +284,19 @@
 		"path": "Resource/prop_flowers_pink.png"
 	},
 	{
+		"key": "Flower2",
+		"path": "Resource/prop_flowers_red.png"
+	},
+	{
+		"key": "Flower3",
+		"path": "Resource/prop_flowers_yellow.png"
+	},
+	{
 		"key": "Item_Glow",
 		"path": "Resource/Light.png"
+	},
+	{
+		"key": "RandomBox",
+		"path": "Resource/RandomBox.png"
 	}
 ]

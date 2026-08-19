@@ -28,6 +28,20 @@
     ]
   },
   {
+    "id": "Recipe_BakedEgg",
+    "result": "Item_Egg_Baked",
+    "resultCount": 1,
+    "station": "CampFire",
+    "isWeaponUpgrade": false,
+    "successRate": 1,
+    "ingredients": [
+      {
+        "id": "Item_Egg",
+        "count": 1
+      }
+    ]
+  },
+  {
     "id": "Recipe_Sword",
     "result": "Item_Sword",
     "resultCount": 1,
@@ -122,12 +136,12 @@
         "count": 3
       },
       {
-        "id" : "Item_Iron",
-        "count" : 10
+        "id": "Item_Iron",
+        "count": 10
       },
       {
-        "id" :"Item_Glow",
-        "count" : 1
+        "id": "Item_Glow",
+        "count": 1
       }
     ]
   }

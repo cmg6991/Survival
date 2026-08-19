@@ -135,6 +135,7 @@ ImageKey DataManager::StringToImageKey(const string& str) const
 	if (str == "Item_Fish")  return ImageKey::Item_Fish;
 	if (str == "Item_Fish_Baked")  return ImageKey::Item_Fish_Baked;
 	if (str == "Item_Egg")  return ImageKey::Item_Egg;
+	if (str == "Item_Egg_Baked")  return ImageKey::Item_Egg_Baked;
 	if (str == "Chicken")  return ImageKey::Chicken;
 	if (str == "LightBrownChicken")  return ImageKey::LightBrownChicken;
 	if (str == "Bullet")  return ImageKey::Bullet;
@@ -166,7 +167,10 @@ ImageKey DataManager::StringToImageKey(const string& str) const
 	if (str == "TitleLogo")  return ImageKey::TitleLogo;
 	if (str == "Dock")  return ImageKey::Dock;
 	if (str == "Flower")  return ImageKey::Flower;
+	if (str == "Flower2")  return ImageKey::Flower2;
+	if (str == "Flower3")  return ImageKey::Flower3;
 	if (str == "Item_Glow")  return ImageKey::Item_Glow;
+	if (str == "RandomBox")  return ImageKey::RandomBox;
 
 	return ImageKey::Count;
 }
