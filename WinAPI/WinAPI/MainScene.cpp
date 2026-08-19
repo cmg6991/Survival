@@ -89,7 +89,6 @@ MainScene::~MainScene()
 void MainScene::Init()
 {
 	DWORD startTime = GetTickCount64();
-	EnvironmentManager::GetInstance().Init();
 	/*m_resourceManager->Init();
 	for (const ImageData& img : DataManager::GetInstance().GetImageList())
 	{
@@ -129,7 +128,7 @@ void MainScene::Init()
 	playerObj->Init();
 	m_objects.push_back(playerObj);
 	m_player = player;
-
+	EnvironmentManager::GetInstance().Init(m_player);
 	std::unique_ptr<PhysicsEngine::Collider> circleCollider =
 		std::make_unique<PhysicsEngine::CircleCollider>(0.f, 0.f, 0.5f);
 
@@ -183,6 +182,7 @@ void MainScene::Init()
 
 		m_player->GetInventory()->SetAllItems(data.inventory);
 		m_playTime = static_cast<float>(data.playTimeSeconds);
+		m_player->SetGlowRing(data.hasGlowRing);
 	}
 
 	UIManager::GetInstance().SetInventory(m_player->GetInventory());
@@ -317,6 +317,20 @@ void MainScene::Update(float deltaTime)
 				{
 				case CraftResult::Success:
 				{
+					if (recipe.resultId == "Item_GlowRing")
+					{
+						if (m_player != nullptr)
+						{
+							m_player->SetGlowRing(true);
+
+							UIManager::GetInstance().ShowMessage(
+								L"발광석 반지를 제작하고 장착했습니다."
+							);
+						}
+
+						break;
+					}
+
 					const ItemData* resultItem =DataManager::GetInstance().FindItem(recipe.resultId);
 					bool isWeaponResult =resultItem != nullptr &&resultItem->type == "Weapon";
 					bool isShieldResult = resultItem != nullptr && resultItem->type == "Shield";
@@ -1003,7 +1017,7 @@ void MainScene::EquipWeaponToPlayer(const string& weaponId, bool returnInven)
 		weaponSprite = new SpriteRenderer(weaponId);
 		weaponSprite->SetResourceManager(m_resourceManager);
 		weaponSprite->SetScale(1.f);
-		weaponSprite->SetPivot(50.0f, 50.f);
+		weaponSprite->SetPivot(50.0f, 33.5f);
 	}
 	else if (itemData != nullptr && itemData->weaponType == "Fishing")
 	{
@@ -1511,16 +1525,28 @@ void MainScene::CheckAttackHitBoxes()
 
 void MainScene::RenderAimLine(ID2D1DeviceContext* context)
 {
-	Transform* playerTr = m_player->GetTransform();
-	MathEngine::Vector2 playerWorld = playerTr->GetPostion();
-	MathEngine::Vector2 playerScreen = TileManager::GetInstance().TileToScreen(playerWorld);
+	Weapon* weapon = m_player->GetWeapon();
+	//Transform* playerTr = m_player->GetTransform();
+	//MathEngine::Vector2 playerWorld = playerTr->GetPostion();
+
+	MathEngine::Vector2 startWorld;
+	if (weapon != nullptr && weapon->GetTransform() != nullptr)
+	{
+		startWorld = weapon->GetTransform()->GetPostion();
+	}
+	else
+	{
+		Transform* playerTr = m_player->GetTransform();
+		startWorld = playerTr->GetPostion();
+	}
+
+	MathEngine::Vector2 playerScreen = TileManager::GetInstance().TileToScreen(startWorld);
 
 	float startX = playerScreen.x - CameraManager::GetInstance().GetX();
 	float startY = playerScreen.y - CameraManager::GetInstance().GetY();
 
 	MathEngine::Vector2 mouseScreen = InputManager::GetInstance().GetMousePosition();
 
-	Weapon* weapon = m_player->GetWeapon();
 	bool isFlashing = (weapon != nullptr && weapon->IsMuzzleFlashActive());
 
 

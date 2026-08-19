@@ -74,5 +74,10 @@ private:
 	SaveData m_slotData[3];
 
 	bool m_slotExists[3] = { false,false,false };
+
+	D2D1_RECT_F m_deleteButtons[3];
+	bool m_deleteHover[3];
+
+	void DeleteSlot(int slot);
 };
 

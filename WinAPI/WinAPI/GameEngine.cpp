@@ -47,6 +47,9 @@ void GameEngine::Init(const HWND hwnd)
 	SoundManager::GetInstance().Init();
 
 	SoundManager::GetInstance().LoadSound("Button", "Resource/Sound/ButtonSound.wav");
+	SoundManager::GetInstance().LoadSound("DayBGM", "Resource/Sound/DayBGM.wav");
+	SoundManager::GetInstance().LoadSound("NightBGM", "Resource/Sound/NightBGM.mp3");
+	SoundManager::GetInstance().LoadSound("TitleBGM", "Resource/Sound/Title.wav");
 
 	m_resourceManager->Init();
 	for (const ImageData& img : DataManager::GetInstance().GetImageList())

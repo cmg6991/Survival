@@ -68,6 +68,7 @@ public:
 	void SetOnFish(std::function<void(const MathEngine::Vector2& pos)> callback) { m_onFish = callback; }
 
 	void SetFlip(bool flip);
+	void SetRotation(float degrees);
 private:
 	string m_weaponId;
 

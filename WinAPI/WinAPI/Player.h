@@ -69,6 +69,9 @@ public:
 
 	Animator* GetAnimator() { return m_animator; }
 
+	void SetGlowRing(bool equipped) { m_hasGlowRing = equipped; }
+	bool HasGlowRing() const { return m_hasGlowRing; }
+
 private:
 	bool m_isAutoMoving = false;
 
@@ -107,6 +110,7 @@ private:
 	int m_currentHealth = 100;
 	bool m_isDying = false;
 
+	bool m_hasGlowRing = false;
 	//PhysicsEngine::PhysicsWorld* m_physicsWorld = nullptr;
 	//PhysicsEngine::Object* m_selfPhysicsObject = nullptr;
 };

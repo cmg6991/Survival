@@ -67,6 +67,15 @@
     "scale": 1,
     "baseItemId": "Item_Iron",
     "baseMinCount": 1,
-    "baseMaxCount": 2
-  } 
+    "baseMaxCount": 2,
+    "bonusDrops": [
+      {
+        "itemId": "Item_Glow",
+        "chance": 0.15,
+        "minCount": 1,
+        "maxCount": 1
+      }
+  
+    ]
+  }
 ]

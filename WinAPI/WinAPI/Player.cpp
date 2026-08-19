@@ -302,7 +302,7 @@ void Player::Update(float deltaTime)
 
     if (m_weapon != nullptr)
     {
-        float k = m_facingRight ? 0.5f : -0.5f; 
+        float k = m_facingRight ? 0.2f : -0.2f; 
         MathEngine::Vector2 weaponPos =
         {
             m_transform->GetPostion().x + k,
@@ -310,7 +310,7 @@ void Player::Update(float deltaTime)
         };
         m_weapon->GetTransform()->SetPosition(weaponPos);
 
-        m_weapon->SetFlip(!m_facingRight);
+        //m_weapon->SetFlip(!m_facingRight);
     }
 }
 
@@ -557,4 +557,15 @@ void Player::ApplyFacing(const MathEngine::Vector2& faceDir)
     
     m_animator->SetAnimation(6, row, 0.1f);
     m_sprite->SetFlip(flip);
+
+    if (m_weapon != nullptr)
+    {
+        float angleDeg = angle * 180.0f / PI;
+
+        bool weaponFlip = screenDir.x < 0.0f; // 화면상 왼쪽 절반이면 반전
+        float weaponAngle = weaponFlip ? (180.0f - angleDeg) : angleDeg;
+
+        m_weapon->SetRotation(weaponAngle);
+        m_weapon->SetFlip(weaponFlip);
+    }
 }

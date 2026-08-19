@@ -278,5 +278,9 @@
 	{
 		"key": "Flower",
 		"path": "Resource/prop_flowers_pink.png"
+	},
+	{
+		"key": "Item_Glow",
+		"path": "Resource/Light.png"
 	}
 ]

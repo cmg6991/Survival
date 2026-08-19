@@ -943,6 +943,18 @@ void UIManager::RenderInventory(ID2D1DeviceContext* context)
 			continue;
 		ID2D1Bitmap* icon =m_resourceManager->GetImage(item->image);
 
+		if (icon == nullptr)
+		{
+			OutputDebugStringA(
+				("[ERROR] 아이템 아이콘 없음: " +
+					item->id +
+					" / image = " +
+					item->image +
+					"\n").c_str()
+			);
+
+			continue;
+		}
 		/*if (icon != nullptr)
 		{
 			GRAPHICS.DrawBitmapUI(
@@ -954,6 +966,7 @@ void UIManager::RenderInventory(ID2D1DeviceContext* context)
 			);
 		}*/
 		D2D1_SIZE_F imageSize = icon->GetSize();
+
 
 		// 슬롯보다 살짝 작게
 		float maxSize = slotSize - 6.0f;

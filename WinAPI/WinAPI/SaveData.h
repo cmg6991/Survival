@@ -17,4 +17,6 @@ struct SaveData
 	vector<string> collectedItemsIds;
 
 	int playTimeSeconds = 0;
+
+	bool hasGlowRing = false;
 };

@@ -112,3 +112,8 @@ void Weapon::SetFlip(bool flip)
     if (m_sprite != nullptr)
         m_sprite->SetFlip(flip);
 }
+
+void Weapon::SetRotation(float degrees)
+{
+    if (m_sprite) m_sprite->SetRotation(degrees);
+}

@@ -6,13 +6,17 @@
 #include "CameraManager.h"
 #include "GameObject.h"
 #include "Transform.h"
+#include "Player.h"
+#include "TileManager.h"
 
-void EnvironmentManager::Init()
+void EnvironmentManager::Init(Player* player)
 {
 	m_nightAlpha = 0.0f;
 	m_nightBrush = nullptr;
     m_fireLightBrush = nullptr;
+    m_ringLightBrush = nullptr;
     m_campFires.clear();
+    m_player = player;
 }
 
 void EnvironmentManager::Update(float deltaTime)
@@ -39,16 +43,42 @@ void EnvironmentManager::Update(float deltaTime)
 
 void EnvironmentManager::Render(ID2D1DeviceContext* context)
 {
-    // 1. 밤 오버레이 (낮엔 알파 0이라 사실상 안 그려지는 것과 같음)
+    if (context == nullptr)
+        return;
+
+    // =========================================================
+    // 1. 밤 오버레이
+    // =========================================================
     if (!m_nightBrush)
     {
-        context->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), &m_nightBrush);
+        context->CreateSolidColorBrush(
+            D2D1::ColorF(D2D1::ColorF::Black),
+            &m_nightBrush
+        );
     }
-    m_nightBrush->SetOpacity(m_nightAlpha);
-    context->FillRectangle(D2D1::RectF(0.0f, 0.0f, 1920.0f, 1080.0f), m_nightBrush);
 
-    // 2. 모닥불 불빛은 시간대와 무관하게, 켜져있는 애만 그림
+    if (m_nightBrush)
+    {
+        m_nightBrush->SetOpacity(m_nightAlpha);
+
+        context->FillRectangle(
+            D2D1::RectF(
+                0.0f,
+                0.0f,
+                1920.0f,
+                1080.0f
+            ),
+            m_nightBrush
+        );
+    }
+
+
+    // =========================================================
+    // 2. 모닥불 빛
+    // =========================================================
+
     bool hasLitFire = false;
+
     for (CampFire* fire : m_campFires)
     {
         if (fire != nullptr && fire->IsLit())
@@ -57,38 +87,66 @@ void EnvironmentManager::Render(ID2D1DeviceContext* context)
             break;
         }
     }
-    if (!hasLitFire)
-        return;
 
-    CreateFireLight(context);
-
-    float camX = CameraManager::GetInstance().GetX();
-    float camY = CameraManager::GetInstance().GetY();
-
-    for (CampFire* fire : m_campFires)
+    // 모닥불이 있을 때만 모닥불 빛 렌더링
+    if (hasLitFire)
     {
-        if (fire == nullptr || !fire->IsLit())
-            continue;
+        CreateFireLight(context);
 
-        GameObject* obj = fire->GetGameObject();
-        if (obj == nullptr) continue;
+        float camX =
+            CameraManager::GetInstance().GetX();
 
-        Transform* tr = static_cast<Transform*>(obj->GetElement(ElementType::Transform));
-        if (tr == nullptr) continue;
+        float camY =
+            CameraManager::GetInstance().GetY();
 
-        MathEngine::Vector2 worldTile = tr->GetPostion();
-        MathEngine::Vector2 screen = TileManager::GetInstance().TileToScreen(worldTile);
+        for (CampFire* fire : m_campFires)
+        {
+            if (fire == nullptr || !fire->IsLit())
+                continue;
 
-        float screenX = screen.x - camX;
-        float screenY = screen.y - camY;
+            GameObject* obj = fire->GetGameObject();
 
-        m_fireLightBrush->SetCenter(D2D1::Point2F(screenX, screenY));
-        context->FillEllipse(
-            D2D1::Ellipse(D2D1::Point2F(screenX, screenY), m_fireLightRadius, m_fireLightRadius),
-            m_fireLightBrush
-        );
+            if (obj == nullptr)
+                continue;
+
+            Transform* tr =
+                static_cast<Transform*>(
+                    obj->GetElement(ElementType::Transform)
+                    );
+
+            if (tr == nullptr)
+                continue;
+
+            MathEngine::Vector2 worldTile =
+                tr->GetPostion();
+
+            MathEngine::Vector2 screen =
+                TileManager::GetInstance().TileToScreen(worldTile);
+
+            float screenX = screen.x - camX;
+            float screenY = screen.y - camY;
+
+            m_fireLightBrush->SetCenter(
+                D2D1::Point2F(screenX, screenY)
+            );
+
+            context->FillEllipse(
+                D2D1::Ellipse(
+                    D2D1::Point2F(screenX, screenY),
+                    m_fireLightRadius,
+                    m_fireLightRadius
+                ),
+                m_fireLightBrush
+            );
+        }
     }
 
+
+    // =========================================================
+    // 3. 발광석 반지 빛
+    // =========================================================
+    // 모닥불이 없어도 반드시 실행되어야 함
+    RenderRingLight(context);
 }
 
 void EnvironmentManager::RegisterCampFire(CampFire* fire)
@@ -145,6 +203,164 @@ void EnvironmentManager::CreateFireLight(ID2D1DeviceContext* context)
     );
 
     gradientStops->Release();
+}
+
+void EnvironmentManager::CreateRingLight(ID2D1DeviceContext* context)
+{
+    if (m_ringLightBrush != nullptr)
+        return;
+
+    ID2D1GradientStopCollection* gradientStops = nullptr;
+
+    D2D1_GRADIENT_STOP stops[] =
+    {
+        // 중심
+        {
+            0.0f,
+            D2D1::ColorF(
+                1.0f,
+                1.0f,
+                1.0f,
+                0.55f
+            )
+        },
+
+        // 중간
+        {
+            0.30f,
+            D2D1::ColorF(
+                0.95f,
+                0.98f,
+                1.0f,
+                0.30f
+            )
+        },
+
+        // 외곽
+        {
+            0.65f,
+            D2D1::ColorF(
+                0.85f,
+                0.92f,
+                1.0f,
+                0.10f
+            )
+        },
+
+        // 완전 투명
+        {
+            1.0f,
+            D2D1::ColorF(
+                0.8f,
+                0.9f,
+                1.0f,
+                0.0f
+            )
+        }
+    };
+
+    HRESULT hr =
+        context->CreateGradientStopCollection(
+            stops,
+            ARRAYSIZE(stops),
+            D2D1_GAMMA_2_2,
+            D2D1_EXTEND_MODE_CLAMP,
+            &gradientStops
+        );
+
+    if (FAILED(hr) || gradientStops == nullptr)
+        return;
+
+    D2D1_RADIAL_GRADIENT_BRUSH_PROPERTIES props =
+    {
+        D2D1::Point2F(0.0f, 0.0f),
+        D2D1::Point2F(0.0f, 0.0f),
+
+        m_ringLightRadius,
+        m_ringLightRadius
+    };
+
+    hr =
+        context->CreateRadialGradientBrush(
+            props,
+            gradientStops,
+            &m_ringLightBrush
+        );
+
+    gradientStops->Release();
+
+    if (FAILED(hr))
+    {
+        m_ringLightBrush = nullptr;
+    }
+}
+
+void EnvironmentManager::RenderRingLight(ID2D1DeviceContext* context)
+{
+    if (context == nullptr)
+        return;
+
+    if (m_player == nullptr)
+        return;
+
+    // 발광석 반지를 장착하지 않았다면 빛 없음
+    if (!m_player->HasGlowRing())
+        return;
+
+    if (m_ringLightBrush == nullptr)
+    {
+        CreateRingLight(context);
+    }
+
+    if (m_ringLightBrush == nullptr)
+        return;
+
+    GameObject* playerObject =
+        m_player->GetGameObject();
+
+    if (playerObject == nullptr)
+        return;
+
+    Transform* transform =
+        static_cast<Transform*>(
+            playerObject->GetElement(
+                ElementType::Transform
+            )
+            );
+
+    if (transform == nullptr)
+        return;
+
+    MathEngine::Vector2 playerPos =
+        transform->GetPostion();
+
+    // 월드 좌표 → 화면 좌표
+    MathEngine::Vector2 screenPos =
+        TileManager::GetInstance().TileToScreen(playerPos);
+
+
+    // CameraManager 적용
+    screenPos.x -= CameraManager::GetInstance().GetX();
+    screenPos.y -= CameraManager::GetInstance().GetY();
+
+    m_ringLightBrush->SetCenter(
+        D2D1::Point2F(
+            screenPos.x,
+            screenPos.y
+        )
+    );
+
+    context->FillEllipse(
+        D2D1::Ellipse(
+            D2D1::Point2F(
+                screenPos.x,
+                screenPos.y
+            ),
+            m_ringLightRadius,
+            m_ringLightRadius
+        ),
+        m_ringLightBrush
+    );
 }
 
 float EnvironmentManager::GetNightAlpha()

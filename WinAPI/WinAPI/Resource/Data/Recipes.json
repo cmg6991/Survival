@@ -108,5 +108,27 @@
         "count": 3
       }
     ]
+  },
+  {
+    "id": "Recipe_GlowRing",
+    "result": "Item_GlowRing",
+    "resultCount": 1,
+    "station": "WorkTable",
+    "isWeaponUpgrade": false,
+    "successRate": 1,
+    "ingredients": [
+      {
+        "id": "Item_Stone",
+        "count": 3
+      },
+      {
+        "id" : "Item_Iron",
+        "count" : 10
+      },
+      {
+        "id" :"Item_Glow",
+        "count" : 1
+      }
+    ]
   }
 ]

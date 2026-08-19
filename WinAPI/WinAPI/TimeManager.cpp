@@ -1,5 +1,6 @@
 #include "TimeManager.h"
 #include "pch.h"
+#include "SoundManager.h"
 
 void TimeManager::Init()
 {
@@ -18,6 +19,14 @@ void TimeManager::Init()
 
     m_currentPhase = GetTimePhase();
     m_previousPhase = m_currentPhase;
+    if (IsNight())
+    {
+        SoundManager::GetInstance().PlayBGM("NightBGM");
+    }
+    else
+    {
+        SoundManager::GetInstance().PlayBGM("DayBGM");
+    }
 }
 
 void TimeManager::Update(float deltaTime)
@@ -107,21 +116,25 @@ void TimeManager::OnTimePhaseChanged(TimePhase phase)
     {
     case TimePhase::Morning:
         OutputDebugString(L"æ∆ƒß Ω√¿€\n");
+        SoundManager::GetInstance().PlayBGM("DayBGM");
         break;
 
 
     case TimePhase::Day:
         OutputDebugString(L"≥∑ Ω√¿€\n");
+        //SoundManager::GetInstance().PlayBGM("DayBGM");
         break;
 
 
     case TimePhase::Evening:
         OutputDebugString(L"¿˙≥· Ω√¿€\n");
+        SoundManager::GetInstance().PlayBGM("NightBGM");
         break;
 
 
     case TimePhase::Night:
         OutputDebugString(L"π„ Ω√¿€\n");
+        //SoundManager::GetInstance().PlayBGM("NightBGM");
         break;
 
     }
@@ -158,4 +171,5 @@ void TimeManager::SetTime(int day, int hour, int minute)
 
     m_currentPhase = GetTimePhase();
     m_previousPhase = m_currentPhase;
+
 }

@@ -125,5 +125,11 @@
     "type": "Weapon",
     "weaponType": "Fishing",
     "weaponSpriteKey": "Player_Fishing"
+  },
+  {
+    "id": "Item_Glow",
+    "name": "발광석",
+    "image": "Item_Glow",
+    "type": "Material"
   }
 ]

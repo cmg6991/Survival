@@ -75,6 +75,7 @@ enum class ImageKey
 	TitleLogo,
 	Dock,
 	Flower,
+	Item_Glow,
 	Count
 };
 

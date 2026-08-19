@@ -18,7 +18,7 @@ bool SaveManager::Save(const SaveData& data, const string& filePath)
 
 	// 웨이브
 	j["currentWave"] = data.currentWave;
-
+	j["hasGlowRing"] = data.hasGlowRing;
 	// 인벤토리
 	json inventoryJson = json::object();
 	for (auto& pair : data.inventory)
@@ -96,7 +96,7 @@ bool SaveManager::Load(SaveData& outData, const string& filePath)
 	outData.playTimeSeconds = j.value("playTimeSeconds", 0);
 
 	outData.currentWave = j.value("currentWave", 1);
-
+	outData.hasGlowRing = j.value("hasGlowRing", false);
 	outData.inventory.clear();
 	if (j.contains("inventory") && j["inventory"].is_object())
 	{

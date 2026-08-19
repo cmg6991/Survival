@@ -326,6 +326,10 @@ GameObject* ObjectSpawner::SpawnResourceObject(const string& resourceId, int x, 
     SpriteRenderer* sprite = new SpriteRenderer(data->image);
     sprite->SetResourceManager(m_resourceManager);
     sprite->SetScale(data->scale);
+    if (data->interactType == "Iron")
+    {
+        sprite->SetPivot(149, 253);
+    }
 
     InteractType interactType = InteractType::Tree;
     if (data->interactType == "Rock") interactType = InteractType::Rock;

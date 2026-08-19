@@ -45,7 +45,14 @@ CraftResult CraftingManager::Craft(const string& recipeId, Inventory* inventory,
 		if (!success)
 			return CraftResult::Failed; // 재료는 이미 소모됐지만 결과물은 안 나옴
 
-		inventory->AddItem(recipe.resultId, recipe.resultCount);
+		if (recipe.resultId != "Item_GlowRing")
+		{
+			inventory->AddItem(
+				recipe.resultId,
+				recipe.resultCount
+			);
+		}
+
 		return CraftResult::Success;
 	}
 	return CraftResult::None;
