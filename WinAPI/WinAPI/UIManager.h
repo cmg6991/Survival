@@ -50,6 +50,10 @@ public:
 
 	void ScrollCraftingRecipe(int direction);
 
+	void HandleQuitSlotCilck(float mouseX, float mouseY);
+	void UseQuickSlot(int slotIndex);
+	int GetSelectedQuickSlot() const { return m_selectedQuickSlot; }
+
 public:
 	void TogglePauseMenu();
 	bool IsPauseMenuOpen() const { return m_isPauseMenuOpen; }
@@ -138,6 +142,9 @@ private:
 
 	bool m_saveHover = false;
 	bool m_exitHover = false;
+
+	int m_selectedQuickSlot = 0;
+
 private:
 	UIManager() {}
 	~UIManager() {}

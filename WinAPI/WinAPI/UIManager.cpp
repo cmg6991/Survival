@@ -69,6 +69,32 @@ void UIManager::Update(float deltaTime)
 		m_saveHover = false;
 		m_exitHover = false;
 	}
+	// ==========================================
+	if (InputManager::GetInstance().IsGetKeyDown(VK_LBUTTON))
+	{
+		HandleQuitSlotCilck(
+			mouse.x,
+			mouse.y
+		);
+	}
+
+	if (InputManager::GetInstance().IsGetKeyDown('1'))
+	{
+		m_selectedQuickSlot = 0;
+		UseQuickSlot(0);
+	}
+
+	if (InputManager::GetInstance().IsGetKeyDown('2'))
+	{
+		m_selectedQuickSlot = 1;
+		UseQuickSlot(1);
+	}
+
+	if (InputManager::GetInstance().IsGetKeyDown('3'))
+	{
+		m_selectedQuickSlot = 2;
+		UseQuickSlot(2);
+	}
 }
 
 void UIManager::Render(ID2D1DeviceContext* context)
@@ -398,6 +424,87 @@ void UIManager::ScrollCraftingRecipe(int direction)
 		m_craftRecipeScrollOffset = 0;
 	if (m_craftRecipeScrollOffset > maxOffset)
 		m_craftRecipeScrollOffset = maxOffset;
+}
+
+void UIManager::HandleQuitSlotCilck(float mouseX, float mouseY)
+{
+	if (m_inventory == nullptr)
+		return;
+
+	const float startX = 40.0f;
+	const float startY = 90.0f;
+
+	const float slotSize = 60.0f;
+	const float slotX = startX + 10.0f;
+
+	const float slotY[3] =
+	{
+		startY + 10.0f,
+		startY + 90.0f,
+		startY + 170.0f
+	};
+
+	for (int i = 0; i < 3; ++i)
+	{
+		if (mouseX >= slotX &&
+			mouseX <= slotX + slotSize &&
+			mouseY >= slotY[i] &&
+			mouseY <= slotY[i] + slotSize)
+		{
+			m_selectedQuickSlot = i;
+
+			// 클릭하면 바로 사용/장착
+			UseQuickSlot(i);
+
+			return;
+		}
+	}
+}
+
+void UIManager::UseQuickSlot(int slotIndex)
+{
+	if(m_inventory == nullptr)
+		return;
+
+	vector<pair<string, int>> items(
+		m_inventory->GetAllItems().begin(),
+		m_inventory->GetAllItems().end()
+	);
+
+	if (slotIndex < 0 ||
+		slotIndex >= 3 ||
+		slotIndex >= static_cast<int>(items.size()))
+	{
+		return;
+	}
+
+	const string& itemId = items[slotIndex].first;
+
+	const ItemData* item =
+		DataManager::GetInstance().FindItem(itemId);
+
+	if (item == nullptr)
+		return;
+	if (item->type == "Weapon")
+	{
+		EquipItem(itemId);
+		return;
+	}
+	if (item->type == "Shield")
+	{
+		EquipShield(itemId);
+		return;
+	}
+	if (item->type == "Food" ||
+		item->healAmount > 0)
+	{
+		if (m_onItemUse)
+		{
+			m_onItemUse(itemId);
+		}
+
+		return;
+	}
 }
 
 void UIManager::TogglePauseMenu()
@@ -803,15 +910,30 @@ void UIManager::RenderInventory(ID2D1DeviceContext* context)
 			6.0f,
 			D2D1::ColorF(0.97f,0.94f,0.85f,1.0f));
 
-		GRAPHICS.DrawRoundedRect(
-			slotX,
-			slotY[i],
-			slotSize,
-			slotSize,
-			6.0f,
-			D2D1::ColorF::Black,
-			2.0f
-		);
+		if (i == m_selectedQuickSlot)
+		{
+			GRAPHICS.DrawRoundedRect(
+				slotX,
+				slotY[i],
+				slotSize,
+				slotSize,
+				6.0f,
+				D2D1::ColorF::Gold,
+				4.0f
+			);
+		}
+		else
+		{
+			GRAPHICS.DrawRoundedRect(
+				slotX,
+				slotY[i],
+				slotSize,
+				slotSize,
+				6.0f,
+				D2D1::ColorF::Black,
+				2.0f
+			);
+		}
 
 		if (i >= static_cast<int>(items.size()))
 			continue;
