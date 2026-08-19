@@ -1,0 +1,24 @@
+{
+    "collectedItemsIds": [
+        "item_60_71_1",
+        ""
+    ],
+    "currentWave": 1,
+    "day": 4,
+    "hasGlowRing": false,
+    "hour": 2,
+    "inventory": {
+        "Item_Banana": 2,
+        "Item_Fishing": 1,
+        "Item_Glow": 3,
+        "Item_Iron": 3,
+        "Item_Mushroom": 1,
+        "Item_Mushroom_Baked": 2,
+        "Item_Stone": 12,
+        "Item_Wood": 22
+    },
+    "minute": 10,
+    "playTimeSeconds": 409,
+    "playerX": 40.0,
+    "playerY": 5.0
+}

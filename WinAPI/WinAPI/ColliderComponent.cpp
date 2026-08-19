@@ -95,6 +95,7 @@ void ColliderComponent::LateUpdate()
 	m_isCollision = m_object->isColliding;
 
 	m_transform->SetPosition(m_object->position);
+	
 	//if (m_syncMode == ColliderSyncMode::PhysicsDrivesTransform)
 	//{
 	//	m_transform->SetPosition(m_object->position);

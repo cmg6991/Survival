@@ -44,6 +44,6 @@ private:
 	//int m_tileX;
 	//int m_tileY;
 
-	MathEngine::Vector2 m_position;
+	MathEngine::Vector2 m_position = { 0,0 };
 };
 

@@ -119,6 +119,20 @@ void Player::Update(float deltaTime)
     }*/
     MathEngine::Vector2 current = m_transform->GetPostion();
 
+    wchar_t buf[256];
+
+    swprintf_s(
+        buf,
+        L"[PLAYER UPDATE] current=(%.2f, %.2f), target=(%.2f, %.2f), auto=%d\n",
+        current.x,
+        current.y,
+        m_targetPos.x,
+        m_targetPos.y,
+        m_isAutoMoving
+    );
+
+    OutputDebugStringW(buf);
+
     MathEngine::Vector2 freeDir = { 0,0 };
 
     if (InputManager::GetInstance().IsGetKey('W'))
@@ -312,6 +326,16 @@ void Player::Update(float deltaTime)
 
         //m_weapon->SetFlip(!m_facingRight);
     }
+    MathEngine::Vector2 endPos = m_transform->GetPostion();
+
+    swprintf_s(
+        buf,
+        L"[PLAYER UPDATE END] pos=(%.2f, %.2f)\n",
+        endPos.x,
+        endPos.y
+    );
+
+    OutputDebugStringW(buf);
 }
 
 void Player::LateUpdate()
@@ -341,6 +365,16 @@ void Player::Release()
 ElementType Player::GetElementType() const
 {
     return ElementType::Player;
+}
+
+void Player::SetPosition(const MathEngine::Vector2& position)
+{
+    if (m_transform == nullptr)
+        return;
+
+    m_transform->SetPosition(position);
+    m_targetPos = position;
+    m_isAutoMoving = false;
 }
 
 GameObject* Player::GetGameObject() const

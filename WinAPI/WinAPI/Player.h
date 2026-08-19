@@ -34,6 +34,8 @@ public:
 
 	virtual ElementType GetElementType() const override;
 
+	void SetPosition(const MathEngine::Vector2& position);
+
 	virtual GameObject* GetGameObject() const override;
 	virtual void SetGameObject(GameObject* gameObject) override;
 

@@ -125,6 +125,28 @@ void MainScene::Init()
 	playerObj->SetElement(animator, ElementType::Animator);
 	playerObj->SetElement(collider, ElementType::Collider);
 	sprite->SetResourceManager(m_resourceManager);
+	SaveData data;
+
+	bool isLoadGame = m_sceneManager->GetGameStartType() == GameStartType::LoadGame;
+
+	int saveSlot = m_sceneManager->GetSaveSlot();
+	bool hasSave = false;
+
+	if (isLoadGame)
+	{
+		hasSave = SaveManager::HasSaveSlot(saveSlot);
+
+		if (hasSave)
+		{
+			SaveManager::LoadSlot(data, saveSlot);
+			m_collectedItemsIds.insert(data.collectedItemsIds.begin(), data.collectedItemsIds.end());
+			tr->SetPosition({ data.playerX, data.playerY });
+			wchar_t buf[256];
+			swprintf_s(buf, L"[LOAD DEBUG] isLoadGame=%d saveSlot=%d hasSave=%d loadedX=%.2f loadedY=%.2f\n",
+				isLoadGame, saveSlot, hasSave, data.playerX, data.playerY);
+			OutputDebugStringW(buf);
+		}
+	}
 	playerObj->Init();
 	m_objects.push_back(playerObj);
 	m_player = player;
@@ -133,24 +155,6 @@ void MainScene::Init()
 		std::make_unique<PhysicsEngine::CircleCollider>(0.f, 0.f, 0.5f);
 
 	collider->SetCollider(std::move(circleCollider), 1.0f, false);
-	
-	SaveData data;
-
-	bool isLoadGame =m_sceneManager->GetGameStartType() == GameStartType::LoadGame;
-
-	int saveSlot =m_sceneManager->GetSaveSlot();
-	bool hasSave = false;
-
-	if (isLoadGame)
-	{
-		hasSave =SaveManager::HasSaveSlot(saveSlot);
-
-		if (hasSave)
-		{
-			SaveManager::LoadSlot(data,saveSlot);
-			m_collectedItemsIds.insert(data.collectedItemsIds.begin(),data.collectedItemsIds.end());
-		}
-	}
 
 	RegisterTileHandlers();
 	const vector<string>& mapData = DataManager::GetInstance().GetMap("MainMap");
@@ -168,11 +172,11 @@ void MainScene::Init()
 
 		me_player->GetInventory()->SetAllItems(data.inventory);
 	}*/
-	if (isLoadGame)
+	if (isLoadGame && hasSave)
 	{
-		Transform* playerTr =static_cast<Transform*>(m_player->GetGameObject()->GetElement(ElementType::Transform));
+		//Transform* playerTr =static_cast<Transform*>(m_player->GetGameObject()->GetElement(ElementType::Transform));
 
-		playerTr->SetPosition({data.playerX,data.playerY});
+		//playerTr->SetPosition({data.playerX,data.playerY});
 
 		TimeManager::GetInstance().SetTime(
 			data.day,
@@ -229,7 +233,7 @@ void MainScene::Init()
 		m_player,
 		m_resourceManager);
 	Transform* playerTr = static_cast<Transform*>(m_player->GetGameObject()->GetElement(ElementType::Transform));
-	CameraManager::GetInstance().Follow(playerTr);
+	CameraManager::GetInstance().Follow(tr);
 	DWORD elapsed = GetTickCount64() - startTime;
 	wchar_t buf[64];
 	swprintf_s(buf, L"MainScene::Init took %lu ms\n", elapsed);
@@ -567,7 +571,7 @@ void MainScene::Release()
 	delete m_miniMap;
 	m_miniMap = nullptr;
 
-	for (GameObject* obj : m_bulletPool)
+	/*for (GameObject* obj : m_bulletPool)
 	{
 		delete obj;
 	}
@@ -580,8 +584,7 @@ void MainScene::Release()
 		}
 
 		pair.second.clear();
-	}
-
+	}*/
 	m_monsterPool.clear();
 
 	m_bulletPool.clear();
@@ -612,6 +615,7 @@ void MainScene::SaveGame()
 	data.collectedItemsIds.assign(m_collectedItemsIds.begin(), m_collectedItemsIds.end());
 
 	data.playTimeSeconds = static_cast<int>(m_playTime);
+	data.hasGlowRing = m_player->HasGlowRing();
 
 	int saveSlot = m_sceneManager->GetSaveSlot();
 	if (saveSlot < 1 || saveSlot > 3)
