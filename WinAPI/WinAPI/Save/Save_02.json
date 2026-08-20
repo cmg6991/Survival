@@ -1,8 +1,8 @@
 {
     "collectedItemsIds": [
         "",
-        "item_12_33_8",
         "item_25_19_2",
+        "item_12_33_8",
         "item_17_23_1",
         "item_19_20_7",
         "item_24_11_11",
@@ -10,11 +10,11 @@
         "item_30_17_12"
     ],
     "currentWave": 1,
-    "day": 3,
+    "day": 4,
     "equippedShieldId": "Item_Shield",
     "equippedWeaponId": "Item_Gun",
     "hasGlowRing": false,
-    "hour": 8,
+    "hour": 6,
     "inventory": {
         "Item_Apple": 2,
         "Item_Banana": 2,
@@ -26,8 +26,8 @@
         "Item_Stone": 1,
         "Item_Wood": 44
     },
-    "minute": 40,
-    "playTimeSeconds": 304,
-    "playerX": 129.20936584472656,
-    "playerY": 8.34040641784668
+    "minute": 30,
+    "playTimeSeconds": 435,
+    "playerX": 123.61918640136719,
+    "playerY": 7.942751884460449
 }
