@@ -9,8 +9,19 @@
 #include <functional>
 #include <unordered_set>
 
+
 namespace PhysicsEngine
 {
+	using CollisionLayer = uint32_t;
+
+	namespace CollisionLayers
+	{
+		constexpr CollisionLayer Player = 1 << 0;
+		constexpr CollisionLayer Monster = 1 << 1;
+		constexpr CollisionLayer Bullet = 1 << 2;
+		constexpr CollisionLayer World = 1 << 3;
+	}
+
 	struct Object
 	{
 		Object(
@@ -53,5 +64,8 @@ namespace PhysicsEngine
 
 		std::unordered_set<Object*> currentCollisions;
 		std::unordered_set<Object*> previousCollisions;
+
+		CollisionLayer collisionLayer = CollisionLayers::World;
+		CollisionLayer collisionMask = 0xFFFFFFFF;
 	};
 }

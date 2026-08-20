@@ -3,6 +3,8 @@
 #include "GameObject.h"
 #include <algorithm>
 #include "Transform.h"
+#include "CameraManager.h"
+#include "TileManager.h"
 
 Scene::Scene(string sceneName)
 {
@@ -60,10 +62,20 @@ void Scene::PreRender()
 void Scene::Render(ID2D1DeviceContext* context)
 {
 	SortObjects();
+
 	size_t count = m_objects.size();
+
 	for (size_t i = 0; i < count; i++)
 	{
-		m_objects[i]->Render(context);
+		GameObject* obj = m_objects[i];
+
+		if (obj == nullptr)
+			continue;
+
+		if (!IsVisible(obj))
+			continue;
+
+		obj->Render(context);
 	}
 }
 void Scene::PostRender(ID2D1DeviceContext* context)
@@ -140,4 +152,45 @@ bool Compare(GameObject* a, GameObject* b)
 void Scene::SortObjects()
 {
 	sort(m_objects.begin(), m_objects.end(), Compare);
+}
+
+bool Scene::IsVisible(GameObject* obj)
+{
+	if (obj == nullptr)
+		return false;
+
+	Transform* tr =
+		static_cast<Transform*>(obj->GetElement(ElementType::Transform));
+
+	if (tr == nullptr)
+		return false;
+
+	MathEngine::Vector2 worldPos = tr->GetPostion();
+
+	// 월드 좌표 → 화면 좌표
+	MathEngine::Vector2 screen =
+		TileManager::GetInstance().TileToScreen(worldPos);
+
+	float screenX =
+		screen.x - CameraManager::GetInstance().GetX();
+
+	float screenY =
+		screen.y - CameraManager::GetInstance().GetY();
+
+	// 화면 크기
+	const float SCREEN_W = 1280.0f;
+	const float SCREEN_H = 720.0f;
+
+	// 오브젝트가 화면 밖으로 완전히 나간 경우
+	const float MARGIN = 150.0f;
+
+	if (screenX < -MARGIN ||
+		screenX > SCREEN_W + MARGIN ||
+		screenY < -MARGIN ||
+		screenY > SCREEN_H + MARGIN)
+	{
+		return false;
+	}
+
+	return true;
 }

@@ -69,7 +69,7 @@ private:
 
 	//몬스터 오브젝트 풀
 	GameObject* AcquireMonster(const string& monsterId);
-	void ReleaseMonster(GameObject* obj,const string& monsterId);
+	void ReleaseMonster(GameObject* ob);
 
 	void ClearAllMonsters();
 
@@ -121,4 +121,8 @@ private:
 
 	float m_playTime = 0.0f;
 	int m_transientPickupCounter = 0;
+
+	private:
+		bool m_isRestarting = false;
+		float m_restartTimer = 0.0f;
 };

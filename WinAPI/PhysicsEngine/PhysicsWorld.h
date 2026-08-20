@@ -48,6 +48,9 @@ namespace PhysicsEngine
 
 		MathEngine::Vector2 GetPushAwayVector(const MathEngine::Vector2& pos, float selfRadius, float checkRadius, const Object* ignoreObj = nullptr) const;
 		void PushDynamicObjects(const Collider& testCollider, const MathEngine::Vector2& pusherCenter, float pushStrengthRadius, const Object* ignoreObj = nullptr);
+
+		bool CanCollide(const Object* a, const Object* b) const;
+
 	private:
 		std::vector<Object*> m_objects;
 		std::vector<Solver*> m_solvers;

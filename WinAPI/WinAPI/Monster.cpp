@@ -46,7 +46,15 @@ void Monster::Update(float deltaTime)
 
         if (m_sprite != nullptr)
             m_sprite->SetAlpha(t);
+        if (m_deathTimer <= 0.0f)
+        {
+            m_isDying = false;
 
+            if (m_onDeathFinished)
+            {
+                m_onDeathFinished(m_gameObject);
+            }
+        }
         return;
     }
 

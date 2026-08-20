@@ -74,6 +74,7 @@ public:
 	void SetGlowRing(bool equipped) { m_hasGlowRing = equipped; }
 	bool HasGlowRing() const { return m_hasGlowRing; }
 
+	bool IsDying() const { return m_isDying; }
 private:
 	bool m_isAutoMoving = false;
 

@@ -40,6 +40,13 @@ ObjectSpawner::ObjectSpawner() : m_scene(nullptr), m_resourceManager(nullptr), m
 
 ObjectSpawner::~ObjectSpawner()
 {
+    OutputDebugStringA(
+        ("[ObjectSpawner] chunks = " +
+            to_string(m_chunkObjects.size()) + "\n").c_str());
+
+    OutputDebugStringA(
+        ("[ObjectSpawner] spawnedPositions = " +
+            to_string(m_spawnedPositions.size()) + "\n").c_str());
 }
 
 void ObjectSpawner::Init(MainScene* scene, ResourceManager* resourceManager, TileMap* tileMap)
@@ -83,45 +90,50 @@ void ObjectSpawner::SpawnChunk(int chunkX,int chunkY,int chunkWidth,int chunkHei
 
             float value = chance(m_random);
 
+            GameObject* spawnedObj = nullptr;
+
             switch (chunkType)
             {
             case ChunkType::GrassLand:
             {
                 if (value < 0.04f)
-                    SpawnObject(SpawnObjectType::Tree, x, y, chunkType,chunkKey);
+                    spawnedObj= SpawnObject(SpawnObjectType::Tree, x, y, chunkType,chunkKey);
                 else if (value < 0.06f)
-                    SpawnObject(SpawnObjectType::Rock, x, y, chunkType, chunkKey);
+                    spawnedObj = SpawnObject(SpawnObjectType::Rock, x, y, chunkType, chunkKey);
                 else if (value < 0.13f)
-                    SpawnObject(SpawnObjectType::Grass, x, y, chunkType, chunkKey);
+                    spawnedObj = SpawnObject(SpawnObjectType::Grass, x, y, chunkType, chunkKey);
                 break;
             }
             case ChunkType::Lake:
             {
                 if (value < 0.02f)
-                    SpawnObject(SpawnObjectType::Grass, x, y, chunkType, chunkKey);
+                    spawnedObj = SpawnObject(SpawnObjectType::Grass, x, y, chunkType, chunkKey);
                 else if(value <0.05f)
-                    SpawnObject(SpawnObjectType::Flower, x, y, chunkType, chunkKey);
+                    spawnedObj = SpawnObject(SpawnObjectType::Flower, x, y, chunkType, chunkKey);
                 else if (value < 0.055f)
-                    SpawnObject(SpawnObjectType::Chicken, x, y, chunkType, chunkKey);
+                    spawnedObj = SpawnObject(SpawnObjectType::Chicken, x, y, chunkType, chunkKey);
                 break;
             }
             case ChunkType::Snow:
             {
                 if (value < 0.03f)
-                    SpawnObject(SpawnObjectType::Tree, x, y, chunkType, chunkKey);
+                    spawnedObj = SpawnObject(SpawnObjectType::Tree, x, y, chunkType, chunkKey);
                 else if (value < 0.05f)
-                    SpawnObject(SpawnObjectType::Grass, x, y, chunkType, chunkKey);
+                    spawnedObj = SpawnObject(SpawnObjectType::Grass, x, y, chunkType, chunkKey);
                 break;
             }
             case ChunkType::Rock:
             {
                 if (value < 0.01f)
-                    SpawnObject(SpawnObjectType::Iron, x, y, chunkType, chunkKey);
+                    spawnedObj = SpawnObject(SpawnObjectType::Iron, x, y, chunkType, chunkKey);
                 break;
             }
             }
-            m_spawnedPositions.insert(key);
-            m_chunkObjects[chunkKey].positionKeys.push_back(key);
+            if (spawnedObj != nullptr)
+            {
+                m_spawnedPositions.insert(key);
+                m_chunkObjects[chunkKey].positionKeys.push_back(key);
+            }
         }
     }
 }
@@ -153,6 +165,12 @@ void ObjectSpawner::UnloadChunk(int chunkX, int chunkY)
     }
 
     m_chunkObjects.erase(it);
+}
+
+void ObjectSpawner::Release()
+{
+    m_chunkObjects.clear();
+    m_spawnedPositions.clear();
 }
 
 bool ObjectSpawner::CanSpawnAt(int x, int y) const
@@ -219,7 +237,7 @@ bool ObjectSpawner::CanSpawnAt(int x, int y) const
 //    }
 //}
 
-void ObjectSpawner::SpawnObject(SpawnObjectType type, int x, int y, ChunkType chunkType, const string& chunkKey)
+GameObject* ObjectSpawner::SpawnObject(SpawnObjectType type, int x, int y, ChunkType chunkType, const string& chunkKey)
 {
     GameObject* obj = nullptr;
 
@@ -271,6 +289,7 @@ void ObjectSpawner::SpawnObject(SpawnObjectType type, int x, int y, ChunkType ch
 
     if (obj != nullptr)
         m_chunkObjects[chunkKey].objects.push_back(obj);
+    return obj;
 }
 string ObjectSpawner::PickResourceId(const vector<string>& pool)
 {

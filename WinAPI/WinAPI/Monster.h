@@ -93,5 +93,16 @@ private:
     const float m_deathDuration = 0.6f;
 
     const float m_detailedAvoidRange = 15.0f;
+
+
+    std::function<void(GameObject*)> m_onDeathFinished;
+
+public:
+
+    void SetOnDeathFinished(
+        std::function<void(GameObject*)> callback)
+    {
+        m_onDeathFinished = callback;
+    }
 };
 

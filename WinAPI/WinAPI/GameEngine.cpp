@@ -24,7 +24,6 @@
 #include "MainScene.h"
 #include "TitleScene.h"
 
-
 GameEngine::GameEngine()/* : m_tileMap(nullptr),m_resourceManager(nullptr), m_tree(nullptr),m_collisionManager(nullptr)*/
 {
 	//m_tileMap = new TileMap;

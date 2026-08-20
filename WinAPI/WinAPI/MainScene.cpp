@@ -299,15 +299,21 @@ void MainScene::Update(float deltaTime)
 		UIManager::GetInstance().ToggleInventoryWindow();
 	}
 
-	/*if (UIManager::GetInstance().IsInventoryWindowOpen())
+	if (UIManager::GetInstance().IsInventoryWindowOpen())
 	{
 		if (InputManager::GetInstance().IsGetKeyDown(VK_LBUTTON))
 		{
 			MathEngine::Vector2 mousePos =InputManager::GetInstance().GetMousePosition();
 
-			UIManager::GetInstance().HandleInventoryClick(mousePos.x,mousePos.y);
+			bool uiHandled =
+				UIManager::GetInstance().HandleMouseClick(
+					mousePos.x,
+					mousePos.y);
+
+			if (uiHandled)
+				return;
 		}
-	}*/
+	}
 
 	if (UIManager::GetInstance().IsCraftingOpen())
 	{
@@ -528,6 +534,22 @@ void MainScene::Update(float deltaTime)
 	CheckAttackHitBoxes();
 
 	EnvironmentManager::GetInstance().Update(deltaTime);
+
+	if (m_player != nullptr && m_player->IsDying())
+	{
+		m_restartTimer += deltaTime;
+
+		if (m_restartTimer >= 1.0f)
+		{
+			// ★ 저장 게임이 아니라 새 게임으로 시작
+			m_sceneManager->SetGameStartType(GameStartType::NewGame);
+
+			// ★ MainScene 다시 생성
+			m_sceneManager->LoadScene("Main");
+
+			return;
+		}
+	}
 }
 
 void MainScene::LateUpdate()
@@ -571,17 +593,18 @@ void MainScene::Release()
 		SaveGame();
 	}
 
-	delete m_tileMap;
-	m_tileMap = nullptr;
-
 	delete m_collisionManager;
 	m_collisionManager = nullptr;
 
 	delete m_monsterSpawner;
 	m_monsterSpawner = nullptr;
 
-	delete m_objectSpawner;
-	m_objectSpawner = nullptr;
+	if (m_objectSpawner != nullptr)
+	{
+		m_objectSpawner->Release();
+		delete m_objectSpawner;
+		m_objectSpawner = nullptr;
+	}
 
 	delete m_miniMap;
 	m_miniMap = nullptr;
@@ -608,6 +631,10 @@ void MainScene::Release()
 
 	delete m_physicsWorld; // 추가
 	m_physicsWorld = nullptr;
+
+	delete m_tileMap;
+	m_tileMap = nullptr;
+
 	OutputDebugStringW(
 		L"========== MainScene::Release END ==========\n"
 	);
@@ -910,54 +937,6 @@ void MainScene::CreateBullet(const MathEngine::Vector2& startPos, const MathEngi
 
 void MainScene::CreateMonster(const string& monsterId, float x, float y)
 {
-	//GameObject* obj = CreateObject("Monster");
-
-	//Transform* tr = new Transform();
-	//tr->SetPosition({ x, y });
-
-	//SpriteRenderer* sprite = new SpriteRenderer("Monster"); // 이미지 키 등록 필요
-	//sprite->SetResourceManager(m_resourceManager);
-
-	//sprite->SetPivot(23, 30);
-
-	//Animator* animator = new Animator();
-	//Monster* monster = new Monster(health);
-
-	//ColliderComponent* collider = new ColliderComponent();
-	//collider->SetPhysicsWorld(m_physicsWorld);
-	//collider->SetSyncMode(ColliderSyncMode::TransformDrivesPhysics);
-
-	//obj->SetElement(tr, ElementType::Transform);
-	//obj->SetElement(sprite, ElementType::SpriteRenderer);
-	//obj->SetElement(animator, ElementType::Animator);
-	//obj->SetElement(monster, ElementType::Monster);
-	//obj->SetElement(collider, ElementType::Collider);
-	//obj->Init();
-
-	//auto circleCollider = std::make_unique<PhysicsEngine::CircleCollider>(0.f, 0.f, 0.4f);
-	//collider->SetCollider(std::move(circleCollider), 1.0f, false);
-	//collider->SetTrigger(true);
-
-	//monster->SetTarget(m_player->GetTransform());
-	//monster->SetCollisionManager(m_collisionManager);
-	//monster->SetFlowField(&m_flowField);
-	//monster->SetStats(1.5f, 5);   // 이동속도, 접촉 데미지
-
-	//ColliderComponent* playerCollider =
-	//	static_cast<ColliderComponent*>(m_player->GetGameObject()->GetElement(ElementType::Collider));
-	//monster->SetTargetCollider(playerCollider);
-
-	//auto contactDamage = [this, monster](GameObject* other)
-	//	{
-	//		if (other == m_player->GetGameObject() && monster->CanDealDamage())
-	//		{
-	//			m_player->TakeDamage(monster->GetContactDamage());
-	//			monster->ResetDamageCooldown();
-	//		}
-	//	};
-
-	//collider->SetOnCollisionEnter(contactDamage);
-	//collider->SetOnCollisionStay(contactDamage);
 	const MonsterData* data = DataManager::GetInstance().FindMonster(monsterId);
 	if (data == nullptr) return;
 	// 몬스터가 생성될 타일
@@ -974,6 +953,10 @@ void MainScene::CreateMonster(const string& monsterId, float x, float y)
 	GameObject* obj = AcquireMonster(monsterId);
 	if (obj == nullptr) return;
 	Transform* tr = static_cast<Transform*>(obj->GetElement(ElementType::Transform));
+	Monster* monster =static_cast<Monster*>(obj->GetElement(ElementType::Monster));
+	ColliderComponent* collider =static_cast<ColliderComponent*>(obj->GetElement(ElementType::Collider));
+	if (tr == nullptr || monster == nullptr)
+		return;
 	tr->SetPosition({ x, y });
 
 	//날짜에 따른 몬스터 체력이랑 데미지가 점점 올라감 
@@ -982,18 +965,21 @@ void MainScene::CreateMonster(const string& monsterId, float x, float y)
 	float healthScale = 1.0f + dayFactor * 0.12f;
 	float damageScale = 1.0f + dayFactor * 0.08f;
 
-	Monster* monster = static_cast<Monster*>(obj->GetElement(ElementType::Monster));
 	monster->Reset(data->health, data->cellWidth, data->cellHeight, data->animColumn);
 	monster->SetStats(data->moveSpeed, data->contactDamage);
 	monster->SetTarget(m_player->GetTransform());
 	monster->SetTileMap(m_tileMap);
-	ColliderComponent* collider = static_cast<ColliderComponent*>(obj->GetElement(ElementType::Collider));
+	monster->SetCollisionManager(m_collisionManager);
+
+	monster->SetFlowField(&m_flowField);
+
 	if (collider != nullptr)
 	{
 		collider->SetEnabled(true);
 		PhysicsEngine::Object* physObj = collider->GetPhysicsObject();
 		if (physObj != nullptr)
 		{
+			physObj->isEnabled = true;
 			physObj->position = { x, y };
 			physObj->velocity = MathEngine::Vector2(0.f, 0.f);
 			if (physObj->collider != nullptr)
@@ -1430,6 +1416,19 @@ GameObject* MainScene::AcquireMonster(const string& monsterId)
 	{
 		GameObject* obj = pool.back();
 		pool.pop_back();
+		Transform* checkTr = static_cast<Transform*>(obj->GetElement(ElementType::Transform));
+		Monster* checkMonster = static_cast<Monster*>(obj->GetElement(ElementType::Monster));
+		ColliderComponent* collider =static_cast<ColliderComponent*>(obj->GetElement(ElementType::Collider));
+
+		if (checkTr == nullptr || checkMonster == nullptr)
+		{
+			wchar_t buf[256];
+			swprintf_s(buf,
+				L"[ACQUIRE 오류] monsterId=%S obj=0x%p tr=0x%p monster=0x%p - 손상된 오브젝트!\n",
+				monsterId.c_str(), (void*)obj, (void*)checkTr, (void*)checkMonster);
+			OutputDebugStringW(buf);
+			__debugbreak(); // 여기서 멈추면 콜스택이 진짜 원인
+		}
 		return obj;
 	}
 
@@ -1464,6 +1463,19 @@ GameObject* MainScene::AcquireMonster(const string& monsterId)
 	auto circleCollider = std::make_unique<PhysicsEngine::CircleCollider>(0.f, 0.f, data->colliderRadius);
 	collider->SetCollider(std::move(circleCollider), 1.0f, false);
 	collider->SetTrigger(true);
+	PhysicsEngine::Object* physObj =
+		collider->GetPhysicsObject();
+
+	if (physObj != nullptr)
+	{
+		physObj->collisionLayer =
+			PhysicsEngine::CollisionLayers::Monster;
+
+		physObj->collisionMask =
+			PhysicsEngine::CollisionLayers::Player |
+			PhysicsEngine::CollisionLayers::Bullet |
+			PhysicsEngine::CollisionLayers::World;
+	}
 
 	monster->SetMonsterId(monsterId);   // ★ 자기 id 기억 (반납 시 필요)
 	monster->SetCollisionManager(m_collisionManager);
@@ -1473,6 +1485,12 @@ GameObject* MainScene::AcquireMonster(const string& monsterId)
 		static_cast<ColliderComponent*>(m_player->GetGameObject()->GetElement(ElementType::Collider));
 	monster->SetTargetCollider(playerCollider);
 	monster->SetTarget(m_player->GetTransform());
+
+	monster->SetOnDeathFinished([this](GameObject* obj)
+		{
+			ReleaseMonster(obj);
+		}
+	);
 
 	auto contactDamage = [this, monster](GameObject* other)
 		{
@@ -1488,14 +1506,43 @@ GameObject* MainScene::AcquireMonster(const string& monsterId)
 	return obj;
 }
 
-void MainScene::ReleaseMonster(GameObject* obj, const string& monsterId)
+void MainScene::ReleaseMonster(GameObject* obj)
 {
+	if (obj == nullptr)
+		return;
+	Monster* monster = static_cast<Monster*>(obj->GetElement(ElementType::Monster));
+
+	if (monster == nullptr)
+		return;
+
+	const string& monsterId = monster->GetMonsterId();
+
+	auto& pool = m_monsterPool[monsterId];
+	auto it = std::find(pool.begin(), pool.end(), obj);
+	if (it != pool.end())
+	{
+		wchar_t buf[256];
+		swprintf_s(buf,
+			L"[RELEASE 오류] monsterId=%S obj=0x%p 이미 풀에 있는데 또 반납됨! (중복)\n",
+			monsterId.c_str(), (void*)obj);
+		OutputDebugStringW(buf);
+		__debugbreak();
+		return; // 중복 반납 막기
+	}
 	obj->SetActive(false);
 
 	ColliderComponent* collider = static_cast<ColliderComponent*>(obj->GetElement(ElementType::Collider));
 	if (collider != nullptr)
 	{
 		collider->SetEnabled(false);
+
+		PhysicsEngine::Object* physObj =collider->GetPhysicsObject();
+
+		if (physObj != nullptr)
+		{
+			physObj->velocity =MathEngine::Vector2(0.f, 0.f);
+			physObj->force =MathEngine::Vector2(0.f, 0.f);
+		}
 	}
 
 	m_monsterPool[monsterId].push_back(obj);
@@ -1503,10 +1550,11 @@ void MainScene::ReleaseMonster(GameObject* obj, const string& monsterId)
 
 void MainScene::ClearAllMonsters()
 {
-	for (GameObject* obj : m_objects)
+	size_t count = m_objects.size();
+	for (size_t i = 0; i < count; i++)
 	{
+		GameObject* obj = m_objects[i];
 		if (!obj->GetActive()) continue;
-
 		Monster* monster = static_cast<Monster*>(obj->GetElement(ElementType::Monster));
 		if (monster != nullptr)
 		{
@@ -1587,47 +1635,42 @@ void MainScene::ApplyMeleeDamage(const MathEngine::Vector2& startPos, const Math
 void MainScene::CheckBullets()
 {
 	vector<GameObject*> toRelease;
-
-	for (GameObject* obj : m_objects)
+	size_t count = m_objects.size();
+	for (size_t i = 0; i < count; i++)
 	{
-		if (!obj->GetActive()) continue;   // 이미 비활성(풀에 있는) 건 건너뜀
-
+		GameObject* obj = m_objects[i];
+		if (!obj->GetActive()) continue;
 		Bullet* bullet = static_cast<Bullet*>(obj->GetElement(ElementType::Bullet));
 		if (bullet == nullptr) continue;
-
 		if (bullet->IsDead())
 		{
 			toRelease.push_back(obj);
 		}
 	}
-
 	for (GameObject* obj : toRelease)
 	{
-		ReleaseBullet(obj);   // DeletePObject 대신 풀로 반납
+		ReleaseBullet(obj);
 	}
 }
 
 void MainScene::CheckMonsters()
 {
 	vector<pair<GameObject*, string>> toRelease;
-
 	Transform* playerTr = m_player->GetTransform();
 	MathEngine::Vector2 playerPos = playerTr->GetPostion();
 
-	for (GameObject* obj : m_objects)
+	size_t count = m_objects.size();
+	for (size_t i = 0; i < count; i++)
 	{
+		GameObject* obj = m_objects[i];
 		if (!obj->GetActive()) continue;
-
 		Monster* monster = static_cast<Monster*>(obj->GetElement(ElementType::Monster));
 		if (monster == nullptr) continue;
-
 		if (monster->IsReadyToRemove())
 		{
 			toRelease.push_back({ obj, monster->GetMonsterId() });
 			continue;
 		}
-
-		//플레이어에게서 너무 멀어지면 즉시 회수
 		Transform* monsterTr = monster->GetTransform();
 		if (monsterTr != nullptr)
 		{
@@ -1638,10 +1681,9 @@ void MainScene::CheckMonsters()
 			}
 		}
 	}
-
 	for (auto& [obj, id] : toRelease)
 	{
-		ReleaseMonster(obj, id);
+		ReleaseMonster(obj);
 	}
 }
 

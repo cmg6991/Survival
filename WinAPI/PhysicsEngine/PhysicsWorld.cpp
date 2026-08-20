@@ -140,6 +140,9 @@ namespace PhysicsEngine
 				if (!b || !b->collider||!b->isEnabled) continue;
 				if (a->isStatic && b->isStatic) continue;
 
+				if (!CanCollide(a, b))
+					continue;
+
 				CollisionPoints points = a->collider->TestCollision(*b->collider);
 				if (points.hasCollision)
 				{
@@ -328,6 +331,20 @@ namespace PhysicsEngine
 				obj->collider->center = obj->position;
 			}
 		}
+	}
+
+	bool PhysicsWorld::CanCollide(const Object* a,const Object* b) const
+	{
+		if (a == nullptr || b == nullptr)
+			return false;
+
+		if ((a->collisionMask & b->collisionLayer) == 0)
+			return false;
+
+		if ((b->collisionMask & a->collisionLayer) == 0)
+			return false;
+
+		return true;
 	}
 
 	//void PhysicsWorld::TestResolve(

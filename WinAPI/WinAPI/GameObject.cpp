@@ -102,6 +102,7 @@ void GameObject::Release()
 		{
 			m_elements[i]->Release();
 			delete m_elements[i];
+			m_elements[i] = nullptr;
 		}
 	}
 }

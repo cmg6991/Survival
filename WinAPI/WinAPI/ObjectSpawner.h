@@ -30,10 +30,11 @@ public:
 
     void UnloadChunk(int chunkX, int chunkY);
 
+    void Release();
 private:
     bool CanSpawnAt(int x,int y) const;
 
-    void SpawnObject(SpawnObjectType type,int x,int y, ChunkType chunkType, const string& chunkKey);
+    GameObject* SpawnObject(SpawnObjectType type,int x,int y, ChunkType chunkType, const string& chunkKey);
 
     /*void SpawnTree(int x,int y);
 

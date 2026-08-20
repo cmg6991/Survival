@@ -43,6 +43,7 @@ public:
     bool GetIsDraw() const { return m_isDraw; }
     void SetIsDraw(bool val) { m_isDraw = val; }
 
+
 private:
     string m_name;
     vector<ElementBase*> m_elements;
