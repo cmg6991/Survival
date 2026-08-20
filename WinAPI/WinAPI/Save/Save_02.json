@@ -41,7 +41,7 @@
     "equippedShieldId": "Item_Shield",
     "equippedWeaponId": "Item_Gun",
     "hasGlowRing": true,
-    "hour": 11,
+    "hour": 12,
     "inventory": {
         "Item_Apple": 1,
         "Item_Egg": 33,
@@ -53,7 +53,7 @@
         "Item_Wood": 6
     },
     "minute": 20,
-    "playTimeSeconds": 320,
-    "playerX": 19.0,
-    "playerY": 29.0
+    "playTimeSeconds": 326,
+    "playerX": 13.97966480255127,
+    "playerY": 24.329652786254883
 }

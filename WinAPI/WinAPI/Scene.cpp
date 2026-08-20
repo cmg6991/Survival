@@ -107,11 +107,19 @@ void Scene::AddObject(GameObject* gameObject)
 
 void Scene::DeleteObject(string name)
 {
-	vector<GameObject*>::iterator findObject = find_if(m_objects.begin(), m_objects.end(), [=](GameObject* gameObject) {return gameObject->GetName() == name; });
+	/*vector<GameObject*>::iterator findObject = find_if(m_objects.begin(), m_objects.end(), [=](GameObject* gameObject) {return gameObject->GetName() == name; });
 	GameObject* deleteObject = *findObject;
 
 	m_objects.erase(std::remove_if(m_objects.begin(), m_objects.end(), [=](GameObject* gameObject) {return gameObject->GetName() == name; }), m_objects.end());
-	delete deleteObject;
+	delete deleteObject;*/
+	auto it = find_if(m_objects.begin(), m_objects.end(),
+		[&](GameObject* obj) { return obj->GetName() == name; });
+
+	if (it == m_objects.end())
+		return; // 못 찾았으면 아무것도 안 함 (원래 find_if 실패 시 *end() 역참조하는 버그도 같이 고침)
+
+	delete* it;
+	m_objects.erase(it);
 }
 
 void Scene::DeletePObject(GameObject* target)

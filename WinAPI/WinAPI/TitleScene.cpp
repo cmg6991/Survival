@@ -440,6 +440,7 @@ void TitleScene::PostRender(ID2D1DeviceContext* context)
 void TitleScene::Release()
 {
     m_resourceManager = nullptr;
+    Scene::Release();
 }
 
 void TitleScene::RenderButton(const D2D1_RECT_F& rect, const wchar_t* text, bool hover)
