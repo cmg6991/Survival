@@ -145,7 +145,7 @@
 	},
 	{
 		"key": "Monster5",
-		"path": "Resource/Animation/Slimes/chomp_idle.png"
+		"path": "Resource/Animation/chomp_idle.png"
 	},
 	{
 		"key": "Fire",
@@ -206,6 +206,14 @@
 	{
 		"key": "LightBrownChicken",
 		"path": "Resource/Animation/Chicken_Sprite_Sheet_Light_Brown.png"
+	},
+	{
+		"key": "DarkBrownChicken",
+		"path": "Resource/Animation/Chicken_Sprite_Sheet_Dark_Brown.png"
+	},
+	{
+		"key": "BlackChicken",
+		"path": "Resource/Animation/Chicken_Sprite_Sheet_Black.png"
 	},
 	{
 		"key": "CrossHair",

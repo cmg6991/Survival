@@ -24,48 +24,54 @@ void Scene::Init()
 
 void Scene::FixedUpdate()
 {
-	for (auto& object : m_objects)
+	size_t count = m_objects.size();
+	for (size_t i = 0; i < count; i++)
 	{
-		object->FixedUpdate();
+		m_objects[i]->FixedUpdate();
 	}
 }
 
 void Scene::Update(float deltaTime)
 {
-	for (auto& object : m_objects)
+	size_t count = m_objects.size(); // 이번 프레임 시작 시점 크기만 순회
+	for (size_t i = 0; i < count; i++)
 	{
-		object->Update(deltaTime);
+		m_objects[i]->Update(deltaTime);
 	}
 }
 
 void Scene::LateUpdate()
 {
-	for (auto& object : m_objects)
+	size_t count = m_objects.size();
+	for (size_t i = 0; i < count; i++)
 	{
-		object->LateUpdate();
+		m_objects[i]->LateUpdate();
 	}
 }
 
 void Scene::PreRender()
 {
-	for (auto& object : m_objects)
+	size_t count = m_objects.size();
+	for (size_t i = 0; i < count; i++)
 	{
-		object->PreRender();
+		m_objects[i]->PreRender();
 	}
 }
 void Scene::Render(ID2D1DeviceContext* context)
 {
 	SortObjects();
-	for (auto& object : m_objects)
+	size_t count = m_objects.size();
+	for (size_t i = 0; i < count; i++)
 	{
-		object->Render(context);
+		m_objects[i]->Render(context);
 	}
 }
 void Scene::PostRender(ID2D1DeviceContext* context)
 {
-	for (auto& object : m_objects)
+	size_t count = m_objects.size();
+	for (size_t i = 0; i < count; i++)
 	{
-		object->PostRender(context);
+		m_objects[i]->PostRender(context);
 	}
 }
 

@@ -34,7 +34,8 @@ ObjectSpawner::ObjectSpawner() : m_scene(nullptr), m_resourceManager(nullptr), m
     m_grassImagePoolByChunk[ChunkType::Snow] = { { "Item_WinterGrass", 1.5f } };
 
     m_flowerImagePoolByChunk[ChunkType::Lake] = { {"Flower", 1.5f},{"Flower2",2.f},{"Flower3", 1.5f} };
-    m_chickenImagePoolByChunk[ChunkType::Lake] = {{ "Chicken", 1.f },{ "LightBrownChicken", 1.f }};
+    m_chickenImagePoolByChunk[ChunkType::Lake] = { { "Chicken", 1.f },{ "LightBrownChicken", 1.f },
+        {"DarkBrownChicken", 1.f}, {"BlackChicken", 1.f} };
 }
 
 ObjectSpawner::~ObjectSpawner()
@@ -100,7 +101,7 @@ void ObjectSpawner::SpawnChunk(int chunkX,int chunkY,int chunkWidth,int chunkHei
                     SpawnObject(SpawnObjectType::Grass, x, y, chunkType, chunkKey);
                 else if(value <0.05f)
                     SpawnObject(SpawnObjectType::Flower, x, y, chunkType, chunkKey);
-                else if (value < 0.052f)
+                else if (value < 0.055f)
                     SpawnObject(SpawnObjectType::Chicken, x, y, chunkType, chunkKey);
                 break;
             }

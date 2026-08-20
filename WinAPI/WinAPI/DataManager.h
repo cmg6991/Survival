@@ -47,6 +47,8 @@ enum class ImageKey
 	Item_Egg_Baked,
 	Chicken,
 	LightBrownChicken,
+	DarkBrownChicken,
+	BlackChicken,
 	Bullet,
 	Monster,
 	Monster2,

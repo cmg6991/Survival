@@ -223,7 +223,7 @@ void MainScene::Init()
 	UIManager::GetInstance().SetOnTitle([this](){m_sceneManager->LoadScene("Title");});
 	m_flowField.Init(m_collisionManager, 100, 100);
 	m_monsterSpawner->Init(m_collisionManager, 100, 100);
-	m_monsterSpawner->SetSpawnPool({ "Monster2", "Monster", "Monster3" });  // ★ 추가
+	m_monsterSpawner->SetSpawnPool({ "Monster2", "Monster", "Monster3","Monster4", "Monster5"});  // ★ 추가
 
 	m_monsterSpawner->SetOnSpawnRequest([this](const string& monsterId, float x, float y)   // ★ 시그니처 변경
 		{
@@ -299,7 +299,7 @@ void MainScene::Update(float deltaTime)
 		UIManager::GetInstance().ToggleInventoryWindow();
 	}
 
-	if (UIManager::GetInstance().IsInventoryWindowOpen())
+	/*if (UIManager::GetInstance().IsInventoryWindowOpen())
 	{
 		if (InputManager::GetInstance().IsGetKeyDown(VK_LBUTTON))
 		{
@@ -307,7 +307,7 @@ void MainScene::Update(float deltaTime)
 
 			UIManager::GetInstance().HandleInventoryClick(mousePos.x,mousePos.y);
 		}
-	}
+	}*/
 
 	if (UIManager::GetInstance().IsCraftingOpen())
 	{
@@ -972,7 +972,7 @@ void MainScene::CreateMonster(const string& monsterId, float x, float y)
 	}
 
 	GameObject* obj = AcquireMonster(monsterId);
-
+	if (obj == nullptr) return;
 	Transform* tr = static_cast<Transform*>(obj->GetElement(ElementType::Transform));
 	tr->SetPosition({ x, y });
 
@@ -996,7 +996,10 @@ void MainScene::CreateMonster(const string& monsterId, float x, float y)
 		{
 			physObj->position = { x, y };
 			physObj->velocity = MathEngine::Vector2(0.f, 0.f);
-			physObj->collider->center = { x, y };
+			if (physObj->collider != nullptr)
+			{
+				physObj->collider->center = { x, y };
+			}
 		}
 	}
 
@@ -1645,8 +1648,10 @@ void MainScene::CheckMonsters()
 void MainScene::CheckAttackHitBoxes()
 {
 	vector<GameObject*> toRemove;
-	for (GameObject* obj : m_objects)
+	size_t count = m_objects.size();
+	for (size_t i = 0; i < count; i++)
 	{
+		GameObject* obj = m_objects[i];
 		AttackHitBox* hitbox = static_cast<AttackHitBox*>(obj->GetElement(ElementType::AttackHitBox));
 		if (hitbox != nullptr && hitbox->IsExpired())
 		{
