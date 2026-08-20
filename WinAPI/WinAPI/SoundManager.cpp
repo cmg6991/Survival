@@ -80,6 +80,7 @@ void SoundManager::Update()
 
 void SoundManager::Release()
 {
+    OutputDebugStringA("========== SoundManager::Release START ==========\n");
     if (m_system == nullptr)
         return;
 

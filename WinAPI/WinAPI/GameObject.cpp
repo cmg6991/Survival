@@ -8,6 +8,9 @@ GameObject::GameObject(std::string name) :m_name(name), m_elements((int)ElementT
 
 GameObject::~GameObject()
 {
+	OutputDebugStringA(
+		("DELETE GameObject: " + m_name + "\n").c_str()
+	);
 	Release();
 }
 

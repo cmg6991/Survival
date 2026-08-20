@@ -277,6 +277,14 @@ bool UIManager::HandleInventoryClick(float mouseX, float mouseY)
 		{
 			string itemId = itemList[i].first;
 
+			// ★ Shift + 좌클릭 → 해당 슬롯 아이템 전체 삭제
+			if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
+			{
+				m_inventory->DropItem(itemId);
+
+				return true;
+			}
+
 			const ItemData* item =
 				DataManager::GetInstance().FindItem(itemId);
 

@@ -16,6 +16,8 @@ public:
 	int GetSlotCount() const { return (int)m_items.size(); }
 	int GetMaxSlotCount() const { return m_maxSlotCount; }
 
+	void DropItem(const string& itemId);
+
 	const unordered_map<string, int>& GetAllItems() const { return m_items; }
 	void SetAllItems(const unordered_map<string, int>& items) { m_items = items; }
 

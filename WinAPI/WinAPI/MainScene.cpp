@@ -1540,6 +1540,7 @@ void MainScene::ReleaseMonster(GameObject* obj)
 
 		if (physObj != nullptr)
 		{
+			physObj->isEnabled = false;
 			physObj->velocity =MathEngine::Vector2(0.f, 0.f);
 			physObj->force =MathEngine::Vector2(0.f, 0.f);
 		}

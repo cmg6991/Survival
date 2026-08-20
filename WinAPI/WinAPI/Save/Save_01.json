@@ -1,20 +1,20 @@
 {
     "collectedItemsIds": [
-        "",
         "item_60_87_43",
         "item_55_49_23",
         "item_13_29_1",
+        "",
         "item_22_24_11",
         "item_42_18_3",
-        "item_18_23_5",
         "item_13_32_6",
-        "item_24_34_7",
+        "item_18_23_5",
         "item_18_35_30",
+        "item_24_34_7",
         "item_21_25_2",
         "item_14_33_4",
-        "item_5_27_0",
-        "item_52_46_41",
         "item_48_19_48",
+        "item_52_46_41",
+        "item_5_27_0",
         "item_15_40_9",
         "item_9_34_10",
         "item_13_36_14",
@@ -29,8 +29,8 @@
         "item_50_13_13",
         "item_51_11_29",
         "item_13_41_50",
-        "item_137_21_7",
         "item_19_45_71",
+        "item_137_21_7",
         "item_13_45_73",
         "item_22_52_53",
         "item_29_46_98",
@@ -42,7 +42,7 @@
     "equippedShieldId": "Item_Shield",
     "equippedWeaponId": "Item_Gun",
     "hasGlowRing": false,
-    "hour": 7,
+    "hour": 14,
     "inventory": {
         "Item_Banana": 1,
         "Item_Egg": 1,
@@ -52,7 +52,7 @@
         "Item_Wood": 3
     },
     "minute": 50,
-    "playTimeSeconds": 549,
-    "playerX": 145.80401611328125,
-    "playerY": 22.7307186126709
+    "playTimeSeconds": 591,
+    "playerX": 20.31517219543457,
+    "playerY": 19.449857711791992
 }

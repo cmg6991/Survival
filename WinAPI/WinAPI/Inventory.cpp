@@ -64,3 +64,13 @@ bool Inventory::IsFull() const
 {
 	return (int)m_items.size() >= m_maxSlotCount;
 }
+
+void Inventory::DropItem(const string& itemId)
+{
+	auto it = m_items.find(itemId);
+
+	if (it == m_items.end())
+		return;
+
+	m_items.erase(it);
+}

@@ -145,6 +145,7 @@ void ColliderComponent::Release()
 {
 	if (m_world != nullptr && m_object != nullptr)
 	{
+		OutputDebugStringW(L"[Physics] RemoveObject\n");
 		m_world->RemoveObject(m_object); // World가 delete까지 처리 (Object 소멸자가 collider도 정리)
 		m_object = nullptr;
 	}
