@@ -7,6 +7,7 @@
 #include "TileMap.h"
 #include "SpriteRenderer.h"
 #include "ColliderComponent.h"
+#include "SoundManager.h"
 
 Monster::Monster(int maxHealth) :m_health(maxHealth)
 {
@@ -442,6 +443,7 @@ void Monster::TakeDamage(int amount)
 {
     if (m_isDying) return;
 
+    SoundManager::GetInstance().PlaySFX("SlimeDamage", 0.5f);
     m_health -= amount;
     if (m_health < 0) m_health = 0;
 

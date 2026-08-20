@@ -21,11 +21,11 @@ void TimeManager::Init()
     m_previousPhase = m_currentPhase;
     if (IsNight())
     {
-        SoundManager::GetInstance().PlayBGM("NightBGM");
+        SoundManager::GetInstance().PlayBGM("NightBGM",0.5f);
     }
     else
     {
-        SoundManager::GetInstance().PlayBGM("DayBGM");
+        SoundManager::GetInstance().PlayBGM("DayBGM",0.2f);
     }
 }
 

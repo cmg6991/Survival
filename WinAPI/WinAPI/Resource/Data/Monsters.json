@@ -9,7 +9,8 @@
     "cellWidth": 46,
     "cellHeight": 33,
     "animColumn": 6,
-    "colliderRadius": 0.3
+    "colliderRadius": 0.3,
+    "scale": 1.2
   },
   {
     "id": "Monster",
@@ -21,7 +22,8 @@
     "cellWidth": 46,
     "cellHeight": 33,
     "animColumn": 6,
-    "colliderRadius": 0.3
+    "colliderRadius": 0.3,
+    "scale": 1.2
   },
   {
     "id": "Monster3",

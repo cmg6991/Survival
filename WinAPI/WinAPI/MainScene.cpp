@@ -44,6 +44,8 @@
 #include "../PhysicsEngine/Positionsolver.h"
 #include "../PhysicsEngine/ImpulseSolver.h"
 
+#include "SoundManager.h"
+
 wstring UTF8ToWString(const string& str)
 {
 	if (str.empty())
@@ -229,6 +231,7 @@ void MainScene::Init()
 		});
 	m_monsterSpawner->SetOnClearAllMonsters([this]()
 		{
+			SoundManager::GetInstance().PlaySFX("AllMonsterDie");
 			ClearAllMonsters();
 		});
 	m_miniMap = new MiniMap();
@@ -285,7 +288,7 @@ void MainScene::Update(float deltaTime)
 		if (InputManager::GetInstance().IsGetKeyDown(VK_LBUTTON))
 		{
 			MathEngine::Vector2 mousePos = InputManager::GetInstance().GetMousePosition();
-
+			SoundManager::GetInstance().PlaySFX("InventoryClick", 0.5f);
 			UIManager::GetInstance().HandlePauseMenuClick(mousePos.x, mousePos.y);
 		}
 		return;
@@ -313,6 +316,7 @@ void MainScene::Update(float deltaTime)
 
 		if (InputManager::GetInstance().IsGetKeyDown(VK_LBUTTON))
 		{
+			SoundManager::GetInstance().PlaySFX("InventoryClick", 0.5f);
 			MathEngine::Vector2 mousePos = InputManager::GetInstance().GetMousePosition();
 			//UIManager::GetInstance().HandleCraftingInventoryClick(mousePos.x, mousePos.y);
 
@@ -1139,6 +1143,7 @@ void MainScene::CheckItemPickUps()
 
 		if (diff.Magnitude() < 1.0f)
 		{
+			SoundManager::GetInstance().PlaySFX("Item", 0.5f);
 			int added = m_player->GetInventory()->AddItem(pickup->GetItemId(), pickup->GetCount());
 			if (added > 0)
 			{
@@ -1192,7 +1197,7 @@ void MainScene::OnInteract(Interactable* target)
 				UIManager::GetInstance().ShowMessage(L"나무가 없습니다");
 				return;
 			}
-
+			SoundManager::GetInstance().PlaySFX("Fire");
 			m_player->GetInventory()->RemoveItem("Item_Wood", 1);
 			campFire->AddFuel(1);
 			UIManager::GetInstance().ShowMessage(L"모닥불에 불을 붙였습니다");
@@ -1653,157 +1658,289 @@ void MainScene::CheckAttackHitBoxes()
 
 void MainScene::RenderAimLine(ID2D1DeviceContext* context)
 {
-	Weapon* weapon = m_player->GetWeapon();
-	//Transform* playerTr = m_player->GetTransform();
-	//MathEngine::Vector2 playerWorld = playerTr->GetPostion();
+	//Weapon* weapon = m_player->GetWeapon();
 
-	MathEngine::Vector2 startWorld;
-	if (weapon != nullptr && weapon->GetTransform() != nullptr)
-	{
-		startWorld = weapon->GetTransform()->GetPostion();
-	}
-	else
-	{
-		Transform* playerTr = m_player->GetTransform();
-		startWorld = playerTr->GetPostion();
-	}
+	//MathEngine::Vector2 startWorld;
+	//if (weapon != nullptr && weapon->GetTransform() != nullptr)
+	//{
+	//	startWorld = weapon->GetTransform()->GetPostion();
+	//}
+	//else
+	//{
+	//	Transform* playerTr = m_player->GetTransform();
+	//	startWorld = playerTr->GetPostion();
+	//}
 
-	MathEngine::Vector2 playerScreen = TileManager::GetInstance().TileToScreen(startWorld);
+	//MathEngine::Vector2 playerScreen = TileManager::GetInstance().TileToScreen(startWorld);
 
-	float startX = playerScreen.x - CameraManager::GetInstance().GetX();
-	float startY = playerScreen.y - CameraManager::GetInstance().GetY();
+	//float startX = playerScreen.x - CameraManager::GetInstance().GetX();
+	//float startY = playerScreen.y - CameraManager::GetInstance().GetY();
 
-	MathEngine::Vector2 mouseScreen = InputManager::GetInstance().GetMousePosition();
+	//MathEngine::Vector2 mouseScreen = InputManager::GetInstance().GetMousePosition();
 
-	bool isFlashing = (weapon != nullptr && weapon->IsMuzzleFlashActive());
+	//bool isFlashing = (weapon != nullptr && weapon->IsMuzzleFlashActive());
 
 
-	static float glowTime = 0.0f;
-	glowTime += 0.016f;
-	// 0 ~ 1 사이로 부드럽게 반복
-	float pulse =
-		(sinf(glowTime * 8.0f) + 1.0f) * 0.5f;
+	//static float glowTime = 0.0f;
+	//glowTime += 0.016f;
+	//// 0 ~ 1 사이로 부드럽게 반복
+	//float pulse =
+	//	(sinf(glowTime * 8.0f) + 1.0f) * 0.5f;
 
-	D2D1_COLOR_F glowColor =
-		D2D1::ColorF(
-			1.0f,
-			0.05f,
-			0.1f,
-			0.15f + pulse * 0.15f
-		);
+	//D2D1_COLOR_F glowColor =
+	//	D2D1::ColorF(
+	//		1.0f,
+	//		0.05f,
+	//		0.1f,
+	//		0.15f + pulse * 0.15f
+	//	);
 
-	D2D1_COLOR_F midColor =
-		D2D1::ColorF(
-			1.0f,
-			0.1f,
-			0.15f,
-			0.35f + pulse * 0.2f
-		);
+	//D2D1_COLOR_F midColor =
+	//	D2D1::ColorF(
+	//		1.0f,
+	//		0.1f,
+	//		0.15f,
+	//		0.35f + pulse * 0.2f
+	//	);
 
-	D2D1_COLOR_F coreColor =
-		D2D1::ColorF(
-			1.0f,
-			0.35f,
-			0.35f,
-			0.8f + pulse * 0.2f
-		);
+	//D2D1_COLOR_F coreColor =
+	//	D2D1::ColorF(
+	//		1.0f,
+	//		0.35f,
+	//		0.35f,
+	//		0.8f + pulse * 0.2f
+	//	);
 
-	if (isFlashing)
-	{
-		glowColor = D2D1::ColorF(
-			1.0f,
-			0.05f,
-			0.1f,
-			0.35f
-		);
+	//if (isFlashing)
+	//{
+	//	glowColor = D2D1::ColorF(
+	//		1.0f,
+	//		0.05f,
+	//		0.1f,
+	//		0.35f
+	//	);
 
-		midColor = D2D1::ColorF(
-			1.0f,
-			0.1f,
-			0.15f,
-			0.75f
-		);
+	//	midColor = D2D1::ColorF(
+	//		1.0f,
+	//		0.1f,
+	//		0.15f,
+	//		0.75f
+	//	);
 
-		coreColor = D2D1::ColorF(
-			1.0f,
-			0.4f,
-			0.4f,
-			1.0f
-		);
-	}
+	//	coreColor = D2D1::ColorF(
+	//		1.0f,
+	//		0.4f,
+	//		0.4f,
+	//		1.0f
+	//	);
+	//}
 
-	ID2D1SolidColorBrush* brush = nullptr;
+	//ID2D1SolidColorBrush* brush = nullptr;
 
-	context->CreateSolidColorBrush(glowColor,&brush);
+	//context->CreateSolidColorBrush(glowColor,&brush);
 
-	if (brush != nullptr)
-	{
-		context->DrawLine(
-			D2D1::Point2F(startX, startY),
-			D2D1::Point2F(
-				mouseScreen.x,
-				mouseScreen.y
-			),
-			brush,
-			10.0f + pulse * 4.0f
-		);
+	//if (brush != nullptr)
+	//{
+	//	context->DrawLine(
+	//		D2D1::Point2F(startX, startY),
+	//		D2D1::Point2F(
+	//			mouseScreen.x,
+	//			mouseScreen.y
+	//		),
+	//		brush,
+	//		10.0f + pulse * 4.0f
+	//	);
 
-		brush->Release();
-	}
-	context->CreateSolidColorBrush(midColor,&brush);
+	//	brush->Release();
+	//}
+	//context->CreateSolidColorBrush(midColor,&brush);
 
-	if (brush != nullptr)
-	{
-		context->DrawLine(
-			D2D1::Point2F(startX, startY),
-			D2D1::Point2F(
-				mouseScreen.x,
-				mouseScreen.y
-			),
-			brush,
-			5.0f + pulse * 2.0f
-		);
+	//if (brush != nullptr)
+	//{
+	//	context->DrawLine(
+	//		D2D1::Point2F(startX, startY),
+	//		D2D1::Point2F(
+	//			mouseScreen.x,
+	//			mouseScreen.y
+	//		),
+	//		brush,
+	//		5.0f + pulse * 2.0f
+	//	);
 
-		brush->Release();
-	}
+	//	brush->Release();
+	//}
 
 
-	context->CreateSolidColorBrush(coreColor,&brush);
+	//context->CreateSolidColorBrush(coreColor,&brush);
 
-	if (brush != nullptr)
-	{
-		context->DrawLine(
-			D2D1::Point2F(startX, startY),
-			D2D1::Point2F(
-				mouseScreen.x,
-				mouseScreen.y
-			),
-			brush,
-			1.5f
-		);
+	//if (brush != nullptr)
+	//{
+	//	context->DrawLine(
+	//		D2D1::Point2F(startX, startY),
+	//		D2D1::Point2F(
+	//			mouseScreen.x,
+	//			mouseScreen.y
+	//		),
+	//		brush,
+	//		1.5f
+	//	);
 
-		brush->Release();
-	}
+	//	brush->Release();
+	//}
 
-	ID2D1Bitmap* crosshair = m_resourceManager->GetImage("CrossHair");
+	//ID2D1Bitmap* crosshair = m_resourceManager->GetImage("CrossHair");
 
-	if (crosshair != nullptr)
-	{
-		const float size = 32.0f;
+	//if (crosshair != nullptr)
+	//{
+	//	const float size = 32.0f;
 
-		D2D1_RECT_F destRect =
-		{
-			mouseScreen.x - size*2.f,
-			mouseScreen.y - size*2.f,
-			mouseScreen.x + size*2.f,
-			mouseScreen.y + size*2.f
-		};
+	//	D2D1_RECT_F destRect =
+	//	{
+	//		mouseScreen.x - size*2.f,
+	//		mouseScreen.y - size*2.f,
+	//		mouseScreen.x + size*2.f,
+	//		mouseScreen.y + size*2.f
+	//	};
 
-		D2D1_SIZE_F bitmapSize = crosshair->GetSize();
-		D2D1_RECT_F srcRect ={0.0f,0.0f,bitmapSize.width,bitmapSize.height};
+	//	D2D1_SIZE_F bitmapSize = crosshair->GetSize();
+	//	D2D1_RECT_F srcRect ={0.0f,0.0f,bitmapSize.width,bitmapSize.height};
 
-		DrawBitmap(context,crosshair,destRect,srcRect,false);
-	}
+	//	DrawBitmap(context,crosshair,destRect,srcRect,false);
+	//}
+Weapon* weapon = m_player->GetWeapon();
+
+    MathEngine::Vector2 startWorld;
+    if (weapon != nullptr && weapon->GetTransform() != nullptr)
+    {
+        startWorld = weapon->GetTransform()->GetPostion();
+    }
+    else
+    {
+        Transform* playerTr = m_player->GetTransform();
+        startWorld = playerTr->GetPostion();
+    }
+
+    MathEngine::Vector2 mouseScreen = InputManager::GetInstance().GetMousePosition();
+
+    // 마우스 스크린 좌표 -> 월드(타일) 좌표
+    MathEngine::Vector2 mouseWorldScreen =
+    {
+        mouseScreen.x + CameraManager::GetInstance().GetX(),
+        mouseScreen.y + CameraManager::GetInstance().GetY()
+    };
+    MathEngine::Vector2 targetWorld = TileManager::GetInstance().ScreenToTile(mouseWorldScreen);
+
+    // ── 레이캐스트: startWorld -> targetWorld 사이를 짧은 간격으로 전진하며 충돌 체크 ──
+    MathEngine::Vector2 rayDir = targetWorld - startWorld;
+    float rayLength = rayDir.Magnitude();
+    MathEngine::Vector2 hitWorld = targetWorld; // 기본값: 안 막히면 마우스 위치까지
+    bool hit = false;
+
+    if (rayLength > 0.001f)
+    {
+        MathEngine::Vector2 rayDirNorm = rayDir.Normalize();
+        const float step = 0.1f;         // 체크 간격 (타일 단위)
+        const float rayRadius = 0.1f;    // 레이 자체의 두께 (물리 콜라이더 체크용)
+
+        for (float t = step; t <= rayLength; t += step)
+        {
+            MathEngine::Vector2 checkPos = startWorld + rayDirNorm * t;
+
+            // 타일 충돌 체크
+            int tileX = (int)round(checkPos.x);
+            int tileY = (int)round(checkPos.y);
+            bool blockedByTile = (m_collisionManager != nullptr && m_collisionManager->IsBlocked(tileX, tileY));
+
+            // 물리 콜라이더 충돌 체크 (정적 오브젝트만)
+            bool blockedByPhysics = false;
+            if (m_physicsWorld != nullptr)
+            {
+                PhysicsEngine::CircleCollider testCollider(0.f, 0.f, rayRadius);
+                testCollider.center = checkPos;
+                blockedByPhysics = m_physicsWorld->IsColliderBlocked(testCollider, nullptr, true);
+            }
+
+            if (blockedByTile || blockedByPhysics)
+            {
+                hitWorld = checkPos;
+                hit = true;
+                break;
+            }
+        }
+    }
+
+    MathEngine::Vector2 startScreenPos = TileManager::GetInstance().TileToScreen(startWorld);
+    float startX = startScreenPos.x - CameraManager::GetInstance().GetX();
+    float startY = startScreenPos.y - CameraManager::GetInstance().GetY();
+
+    // 선의 끝점: 막혔으면 hitWorld를 화면좌표로, 안 막혔으면 기존처럼 마우스 스크린 좌표 그대로
+    float endX, endY;
+    if (hit)
+    {
+        MathEngine::Vector2 hitScreenPos = TileManager::GetInstance().TileToScreen(hitWorld);
+        endX = hitScreenPos.x - CameraManager::GetInstance().GetX();
+        endY = hitScreenPos.y - CameraManager::GetInstance().GetY();
+    }
+    else
+    {
+        endX = mouseScreen.x;
+        endY = mouseScreen.y;
+    }
+
+    bool isFlashing = (weapon != nullptr && weapon->IsMuzzleFlashActive());
+    static float glowTime = 0.0f;
+    glowTime += 0.016f;
+    float pulse = (sinf(glowTime * 8.0f) + 1.0f) * 0.5f;
+
+    D2D1_COLOR_F glowColor = D2D1::ColorF(1.0f, 0.05f, 0.1f, 0.15f + pulse * 0.15f);
+    D2D1_COLOR_F midColor  = D2D1::ColorF(1.0f, 0.1f, 0.15f, 0.35f + pulse * 0.2f);
+    D2D1_COLOR_F coreColor = D2D1::ColorF(1.0f, 0.35f, 0.35f, 0.8f + pulse * 0.2f);
+
+    if (isFlashing)
+    {
+        glowColor = D2D1::ColorF(1.0f, 0.05f, 0.1f, 0.35f);
+        midColor  = D2D1::ColorF(1.0f, 0.1f, 0.15f, 0.75f);
+        coreColor = D2D1::ColorF(1.0f, 0.4f, 0.4f, 1.0f);
+    }
+
+    ID2D1SolidColorBrush* brush = nullptr;
+
+    context->CreateSolidColorBrush(glowColor, &brush);
+    if (brush != nullptr)
+    {
+        context->DrawLine(D2D1::Point2F(startX, startY), D2D1::Point2F(endX, endY), brush, 10.0f + pulse * 4.0f);
+        brush->Release();
+    }
+    context->CreateSolidColorBrush(midColor, &brush);
+    if (brush != nullptr)
+    {
+        context->DrawLine(D2D1::Point2F(startX, startY), D2D1::Point2F(endX, endY), brush, 5.0f + pulse * 2.0f);
+        brush->Release();
+    }
+    context->CreateSolidColorBrush(coreColor, &brush);
+    if (brush != nullptr)
+    {
+        context->DrawLine(D2D1::Point2F(startX, startY), D2D1::Point2F(endX, endY), brush, 1.5f);
+        brush->Release();
+    }
+
+    // 크로스헤어는 기존처럼 마우스 위치에 그대로 표시
+    ID2D1Bitmap* crosshair = m_resourceManager->GetImage("CrossHair");
+    if (crosshair != nullptr)
+    {
+        const float size = 32.0f;
+        D2D1_RECT_F destRect =
+        {
+            mouseScreen.x - size * 2.f,
+            mouseScreen.y - size * 2.f,
+            mouseScreen.x + size * 2.f,
+            mouseScreen.y + size * 2.f
+        };
+        D2D1_SIZE_F bitmapSize = crosshair->GetSize();
+        D2D1_RECT_F srcRect = { 0.0f, 0.0f, bitmapSize.width, bitmapSize.height };
+        DrawBitmap(context, crosshair, destRect, srcRect, false);
+    }
+
 }
 
 void MainScene::UpdateMonsterSeparation()

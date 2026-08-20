@@ -6,6 +6,7 @@
 #include "InputManager.h"
 #include "CameraManager.h"
 #include "TileManager.h"
+#include "SoundManager.h"
 
 Weapon::Weapon(string weaponId) 
 	: m_weaponId(weaponId), m_transform(nullptr),m_sprite(nullptr), m_damage(10), m_attackRange(1.5f)
@@ -97,6 +98,8 @@ void Weapon::Attack()
         if (m_onFire)
         {
             m_onFire(startPos, dir, m_damage, m_bulletSpeed, m_bulletRange);
+            SoundManager::GetInstance().PlaySFX("Gun");
+
             m_timeSinceFire = 0.0f;
         }
     }
@@ -104,6 +107,7 @@ void Weapon::Attack()
     {
         if (m_onMeleeAttack)
             m_onMeleeAttack(startPos, dir, m_damage, m_attackRange);
+        SoundManager::GetInstance().PlaySFX("Sword",0.5f);
     }
 }
 

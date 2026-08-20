@@ -15,6 +15,7 @@
 #include "Weapon.h"
 #include "ColliderComponent.h"
 #include "UIManager.h"
+#include "SoundManager.h"
 
 using namespace std;
 
@@ -82,18 +83,10 @@ void Player::Update(float deltaTime)
 
         UpdateSpriteState();
     }
-
-    // ==========================================
-    // 낚시 중이면 플레이어 이동/공격 입력 무시
-    // ==========================================
     if (isFishingNow)
     {
         return;
     }
-
-    // ==========================================
-    // 일반 공격 상태
-    // ==========================================
     if (m_isAttacking)
     {
         m_attackTimer -= deltaTime;
@@ -105,31 +98,6 @@ void Player::Update(float deltaTime)
         }
     }
 
-
-
-    /*if (m_isAttacking)
-    {
-        bool isFishing =(m_weapon != nullptr &&m_weapon->GetWeaponType() == WeaponType::Fishing);
-
-        if (isFishing)
-        {
-            if (!m_fisingController.IsFishing())
-            {
-                m_isAttacking = false;
-                UpdateSpriteState();
-            }
-        }
-        else
-        {
-            m_attackTimer -= deltaTime;
-
-            if (m_attackTimer <= 0.0f)
-            {
-                m_isAttacking = false;
-                UpdateSpriteState();
-            }
-        }
-    }*/
     MathEngine::Vector2 current = m_transform->GetPostion();
 
 
@@ -180,9 +148,9 @@ void Player::Update(float deltaTime)
         m_targetPos = current; // 목표점 개념을 현재 위치로 리셋해서 자동이동 잔재 제거
     }
 
-    // 마우스 좌클릭 이동
     if (InputManager::GetInstance().IsGetKeyDown(VK_LBUTTON))
     {
+        SoundManager::GetInstance().PlaySFX("InventoryClick", 0.5f);
         MathEngine::Vector2 mousePos = InputManager::GetInstance().GetMousePosition();
 
         if (UIManager::GetInstance().HandleMouseClick(mousePos.x, mousePos.y))
@@ -264,6 +232,23 @@ void Player::Update(float deltaTime)
         UpdateSpriteState();
     }
 
+    if (isMoving)
+    {
+        m_footstepTimer += deltaTime;
+
+        if (m_footstepTimer >= m_footstepInterval)
+        {
+            SoundManager::GetInstance().PlaySFX("PlayerFoot",1.f);
+
+            m_footstepTimer = 0.0f;
+        }
+    }
+    else
+    {
+        // 멈추면 타이머 초기화
+        m_footstepTimer = 0.0f;
+    }
+
     bool isRangedEquipped = (m_weapon != nullptr && m_weapon->GetWeaponType() == WeaponType::Ranged);
 
     if (isMoving)
@@ -286,31 +271,12 @@ void Player::Update(float deltaTime)
 
     if (isKeyMoving || m_isAutoMoving)
     {
-        //int tileX = (int)round(nextPos.x);
-        //int tileY = (int)round(nextPos.y);
-
-        //if (!m_collisionManager->IsBlocked(tileX, tileY))
-        //{
-        //    current = nextPos;
-        //    m_transform->SetPosition(current);
-        //}
-        //else if (m_isAutoMoving)
-        //{
-        //    m_targetPos = current; // 자동이동 중 벽 만나면 멈춤
-        //    m_isAutoMoving = false;
-        //}
         int tileX = (int)round(nextPos.x);
         int tileY = (int)round(nextPos.y);
 
         bool blockedByTile = m_collisionManager->IsBlocked(tileX, tileY);
         bool blockedByWater =(m_tileMap != nullptr &&m_tileMap->IsWater(tileX, tileY)&& !m_tileMap->IsDock(tileX, tileY));
         bool blockedByPhysics = false;
-        /*if (!blockedByTile && m_physicsWorld != nullptr)
-        {
-            PhysicsEngine::CircleCollider testCollider(0.f, 0.f, 0.5f);
-            testCollider.center = nextPos;
-            blockedByPhysics = m_physicsWorld->IsColliderBlocked(testCollider, m_selfPhysicsObject);
-        }*/
         if (!blockedByTile && !blockedByWater && m_collider != nullptr)
         {
             blockedByPhysics = m_collider->IsPositionBlocked(nextPos, 0.5f, nullptr, true); // static만 차단
@@ -496,6 +462,7 @@ void Player::TakeDamage(int rawDamage)
 
 void Player::Heal(int amount)
 {
+    SoundManager::GetInstance().PlaySFX("Eating");
     if (IsDead()) return;
     m_currentHealth += amount;
     if (m_currentHealth > m_maxHealth)

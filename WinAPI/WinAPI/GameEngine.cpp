@@ -50,6 +50,16 @@ void GameEngine::Init(const HWND hwnd)
 	SoundManager::GetInstance().LoadSound("DayBGM", "Resource/Sound/DayBGM.wav");
 	SoundManager::GetInstance().LoadSound("NightBGM", "Resource/Sound/NightBGM.mp3");
 	SoundManager::GetInstance().LoadSound("TitleBGM", "Resource/Sound/Title.wav");
+	SoundManager::GetInstance().LoadSound("PlayerFoot", "Resource/Sound/PlayerFoot.mp3");
+	SoundManager::GetInstance().LoadSound("Gun", "Resource/Sound/Gun.mp3");
+	SoundManager::GetInstance().LoadSound("Sword", "Resource/Sound/Sword.mp3");
+	SoundManager::GetInstance().LoadSound("SlimeDamage", "Resource/Sound/SlimeDamage.mp3");
+	SoundManager::GetInstance().LoadSound("Item", "Resource/Sound/Item.wav");
+	SoundManager::GetInstance().LoadSound("Fishing", "Resource/Sound/Fishing.mp3");
+	SoundManager::GetInstance().LoadSound("InventoryClick", "Resource/Sound/InventoryClick.mp3");
+	SoundManager::GetInstance().LoadSound("Eating", "Resource/Sound/Eating.mp3");
+	SoundManager::GetInstance().LoadSound("AllMonsterDie", "Resource/Sound/AllMonsterDie.mp3");
+	SoundManager::GetInstance().LoadSound("Fire", "Resource/Sound/Fire.mp3");
 
 	m_resourceManager->Init();
 	for (const ImageData& img : DataManager::GetInstance().GetImageList())

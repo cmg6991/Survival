@@ -5,6 +5,7 @@
 #include "UIManager.h"
 #include "DataManager.h"
 #include "Animator.h"
+#include "SoundManager.h"
 
 void FishingController::Init(TileMap* tileMap, Player* player)
 {
@@ -14,6 +15,7 @@ void FishingController::Init(TileMap* tileMap, Player* player)
 
 bool FishingController::TryStartFishing(const MathEngine::Vector2& playerPos)
 {
+    SoundManager::GetInstance().PlaySFX("Fishing");
     if (m_state != FishingState::Idle) return false;   // ¿ÃπÃ ≥¨Ω√ ¡ﬂ
 
     if (!IsNearWater(playerPos))
@@ -82,6 +84,7 @@ void FishingController::Update(float deltaTime)
 
             if (m_player != nullptr)
             {
+                SoundManager::GetInstance().PlaySFX("Fishing");
                 int added = m_player->GetInventory()->AddItem(fishId, count);
                 if (added > 0)
                 {
@@ -95,6 +98,7 @@ void FishingController::Update(float deltaTime)
         }
         else
         {
+            SoundManager::GetInstance().PlaySFX("Fishing");
             UIManager::GetInstance().ShowMessage(L"≥ı√∆Ω¿¥œ¥Ÿ...");
         }
 

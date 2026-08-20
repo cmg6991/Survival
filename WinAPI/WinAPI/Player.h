@@ -115,4 +115,7 @@ private:
 	bool m_hasGlowRing = false;
 
 	float m_shootCooldown = 0.f;
+
+	float m_footstepTimer = 0.f;
+	float m_footstepInterval = 0.32f;
 };
