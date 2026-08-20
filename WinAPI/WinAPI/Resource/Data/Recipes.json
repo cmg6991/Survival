@@ -9,7 +9,7 @@
     "ingredients": [
       {
         "id": "Item_Mushroom",
-        "count": 1
+        "count": 2
       }
     ]
   },
@@ -23,7 +23,7 @@
     "ingredients": [
       {
         "id": "Item_Fish",
-        "count": 1
+        "count": 2
       }
     ]
   },
@@ -37,7 +37,7 @@
     "ingredients": [
       {
         "id": "Item_Egg",
-        "count": 1
+        "count": 5
       }
     ]
   },
@@ -51,11 +51,15 @@
     "ingredients": [
       {
         "id": "Item_Wood",
-        "count": 2
+        "count": 5
       },
       {
         "id": "Item_Stone",
-        "count": 3
+        "count": 10
+      },
+      {
+        "id": "Item_Iron",
+        "count": 5
       }
     ]
   },
@@ -90,8 +94,8 @@
     "successRate": 1,
     "ingredients": [
       {
-        "id": "Item_Wood",
-        "count": 1
+        "id": "Item_Iron",
+        "count": 5
       }
     ]
   },
@@ -105,7 +109,11 @@
     "ingredients": [
       {
         "id": "Item_Stone",
-        "count": 1
+        "count": 10
+      },
+      {
+        "id": "Item_Iron",
+        "count": 5
       }
     ]
   },
@@ -118,7 +126,11 @@
     "successRate": 1,
     "ingredients": [
       {
-        "id": "Item_Stone",
+        "id": "Item_Wood",
+        "count": 10
+      },
+      {
+        "id": "Item_Iron",
         "count": 3
       }
     ]
@@ -133,15 +145,15 @@
     "ingredients": [
       {
         "id": "Item_Stone",
-        "count": 3
+        "count": 5
       },
       {
         "id": "Item_Iron",
-        "count": 10
+        "count": 20
       },
       {
         "id": "Item_Glow",
-        "count": 1
+        "count": 3
       }
     ]
   }

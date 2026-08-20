@@ -77,7 +77,7 @@ void FishingController::Update(float deltaTime)
         static std::mt19937 rng(std::random_device{}());
         std::uniform_real_distribution<float> chance(0.0f, 1.0f);
 
-        if (chance(rng) < 0.75f) 
+        if (chance(rng) < 0.55f) 
         {
             const string fishId = "Item_Fish";  
             int count = 1;

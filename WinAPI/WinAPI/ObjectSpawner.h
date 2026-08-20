@@ -34,7 +34,7 @@ public:
 private:
     bool CanSpawnAt(int x,int y) const;
 
-    GameObject* SpawnObject(SpawnObjectType type,int x,int y, ChunkType chunkType, const string& chunkKey);
+    GameObject* SpawnObject(SpawnObjectType type,int x,int y, ChunkType chunkType, long long chunkKey);
 
     /*void SpawnTree(int x,int y);
 
@@ -56,7 +56,7 @@ private:
     mt19937 m_random;
 
     // 중복 생성 방지
-    unordered_set<string> m_spawnedPositions;
+    unordered_set<long long> m_spawnedPositions;
 
     unordered_map<ChunkType, vector<string>> m_treePoolByChunk;
     unordered_map<ChunkType, vector<string>> m_rockPoolByChunk;
@@ -70,7 +70,7 @@ private:
     struct ChunkData
     {
         vector<GameObject*> objects;
-        vector<string> positionKeys;
+        vector<long long> positionKeys;
     };
-    unordered_map<string, ChunkData> m_chunkObjects;
+    unordered_map<long long,ChunkData> m_chunkObjects;
 };

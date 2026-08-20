@@ -35,6 +35,8 @@ public:
 	string GetName() const { return m_name; }
 
 	bool IsVisible(GameObject* obj);
+
+	void DetachObject(GameObject* target);
 protected:
 	string m_name;
 	vector<GameObject*> m_objects;

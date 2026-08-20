@@ -296,17 +296,23 @@ void Player::Update(float deltaTime)
 
     if (m_weapon != nullptr)
     {
-        float k = m_facingRight ? 0.2f : -0.2f; 
-        MathEngine::Vector2 weaponPos =
-        {
-            m_transform->GetPostion().x + k,
-            m_transform->GetPostion().y - k
-        };
-        m_weapon->GetTransform()->SetPosition(weaponPos);
+        Transform* weaponTransform = m_weapon->GetTransform();
 
-        //m_weapon->SetFlip(!m_facingRight);
+        if (weaponTransform != nullptr)
+        {
+            float k = m_facingRight ? 0.2f : -0.2f;
+
+            MathEngine::Vector2 playerPos = m_transform->GetPostion();
+
+            MathEngine::Vector2 weaponPos =
+            {
+                playerPos.x + k,
+                playerPos.y - k
+            };
+
+            weaponTransform->SetPosition(weaponPos);
+        }
     }
-    MathEngine::Vector2 endPos = m_transform->GetPostion();
 }
 
 void Player::LateUpdate()

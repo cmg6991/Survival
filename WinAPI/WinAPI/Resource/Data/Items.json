@@ -29,7 +29,7 @@
     "name": "바나나",
     "image": "Item_Banana",
     "type": "Food",
-    "healAmount": 5
+    "healAmount": 3
   },
   {
     "id": "Item_Grape",
@@ -50,21 +50,21 @@
     "name": "버섯",
     "image": "Item_Mushroom",
     "type": "Food",
-    "healAmount": 1
+    "healAmount": 2
   },
   {
     "id": "Item_Mushroom_Baked",
     "name": "구운 버섯",
     "image": "Item_Mushroom_Baked",
     "type": "Food",
-    "healAmount": 5
+    "healAmount": 6
   },
   {
     "id": "Item_Fish",
     "name": "물고기",
     "image": "Item_Fish",
     "type": "Food",
-    "healAmount": 5
+    "healAmount": 3
   },
   {
     "id": "Item_Fish_Baked",
@@ -78,14 +78,14 @@
     "name": "달걀",
     "image": "Item_Egg",
     "type": "Food",
-    "healAmount": 2
+    "healAmount": 1
   },
   {
     "id": "Item_Egg_Baked",
     "name": "달걀프라이",
     "image": "Item_Egg_Baked",
     "type": "Food",
-    "healAmount": 6
+    "healAmount": 7
   },
   {
     "id": "Item_Sword",

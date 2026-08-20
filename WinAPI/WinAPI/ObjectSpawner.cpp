@@ -13,6 +13,8 @@
 #include "Animator.h"
 #include "pch.h"
 
+long long MakeChunkKey(int chunkX, int chunkY);
+long long MakeTileKey(int x, int y);
 ObjectSpawner::ObjectSpawner() : m_scene(nullptr), m_resourceManager(nullptr), m_tileMap(nullptr)
 {
     random_device rd;
@@ -58,9 +60,8 @@ void ObjectSpawner::Init(MainScene* scene, ResourceManager* resourceManager, Til
 
 void ObjectSpawner::SpawnChunk(int chunkX,int chunkY,int chunkWidth,int chunkHeight)
 {
-    string chunkKey = to_string(chunkX) + "_" + to_string(chunkY);
+    long long chunkKey = MakeChunkKey(chunkX, chunkY);
 
-    // 이미 스폰된 청크면 스킵
     if (m_chunkObjects.find(chunkKey) != m_chunkObjects.end())
         return;
     int startX = chunkX * chunkWidth;
@@ -75,14 +76,10 @@ void ObjectSpawner::SpawnChunk(int chunkX,int chunkY,int chunkWidth,int chunkHei
     {
         for (int x = startX;x < startX + chunkWidth;x++)
         {
-            // 이미 생성된 자리면 무시
-            string key =to_string(x) + "_" +to_string(y);
+            long long key = MakeTileKey(x, y);
 
-            if (m_spawnedPositions.find(key)
-                != m_spawnedPositions.end())
-            {
+            if (m_spawnedPositions.find(key) != m_spawnedPositions.end())
                 continue;
-            }
 
             // 물/도로 등에는 생성하지 않음
             if (!CanSpawnAt(x, y))
@@ -110,7 +107,7 @@ void ObjectSpawner::SpawnChunk(int chunkX,int chunkY,int chunkWidth,int chunkHei
                     spawnedObj = SpawnObject(SpawnObjectType::Grass, x, y, chunkType, chunkKey);
                 else if(value <0.05f)
                     spawnedObj = SpawnObject(SpawnObjectType::Flower, x, y, chunkType, chunkKey);
-                else if (value < 0.055f)
+                else if (value < 0.053f)
                     spawnedObj = SpawnObject(SpawnObjectType::Chicken, x, y, chunkType, chunkKey);
                 break;
             }
@@ -148,7 +145,7 @@ ChunkType ObjectSpawner::GetChunkType(int chunkX, int chunkY) const
 
 void ObjectSpawner::UnloadChunk(int chunkX, int chunkY)
 {
-    string chunkKey = to_string(chunkX) + "_" + to_string(chunkY);
+    long long chunkKey = MakeChunkKey(chunkX, chunkY);
 
     auto it = m_chunkObjects.find(chunkKey);
     if (it == m_chunkObjects.end())
@@ -159,11 +156,10 @@ void ObjectSpawner::UnloadChunk(int chunkX, int chunkY)
         m_scene->DeletePObject(obj);
     }
 
-    for (const string& posKey : it->second.positionKeys)
+    for (long long posKey : it->second.positionKeys)
     {
         m_spawnedPositions.erase(posKey);
     }
-
     m_chunkObjects.erase(it);
 }
 
@@ -237,7 +233,7 @@ bool ObjectSpawner::CanSpawnAt(int x, int y) const
 //    }
 //}
 
-GameObject* ObjectSpawner::SpawnObject(SpawnObjectType type, int x, int y, ChunkType chunkType, const string& chunkKey)
+GameObject* ObjectSpawner::SpawnObject(SpawnObjectType type, int x, int y, ChunkType chunkType, long long chunkKey)
 {
     GameObject* obj = nullptr;
 

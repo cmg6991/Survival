@@ -249,6 +249,7 @@ void MainScene::Init()
 
 		if (bullet != nullptr)
 		{
+			DetachObject(bullet);
 			m_bulletPool.push_back(bullet);
 		}
 	}
@@ -550,6 +551,11 @@ void MainScene::Update(float deltaTime)
 			return;
 		}
 	}
+	for (GameObject* obj : m_pendingReleaseMonsters)
+	{
+		ReleaseMonster(obj);
+	}
+	m_pendingReleaseMonsters.clear();
 }
 
 void MainScene::LateUpdate()
@@ -609,7 +615,7 @@ void MainScene::Release()
 	delete m_miniMap;
 	m_miniMap = nullptr;
 
-	/*for (GameObject* obj : m_bulletPool)
+	for (GameObject* obj : m_bulletPool)
 	{
 		delete obj;
 	}
@@ -622,7 +628,7 @@ void MainScene::Release()
 		}
 
 		pair.second.clear();
-	}*/
+	}
 	m_monsterPool.clear();
 
 	m_bulletPool.clear();
@@ -732,6 +738,19 @@ void MainScene::RegisterTileHandlers()
 void MainScene::CreateWall(float x, float y, const string& imageName)
 {
 	GameObject* wallObj = CreateObject("Wall");
+	
+	char buffer[256];
+
+	sprintf_s(
+		buffer,
+		"CREATE WALL obj=%p pos=(%.0f, %.0f) image=%s\n",
+		wallObj,
+		x,
+		y,
+		imageName.c_str()
+	);
+
+	OutputDebugStringA(buffer);
 
 	Transform* tr = new Transform();
 	tr->SetPosition({ x, y });
@@ -908,6 +927,9 @@ void MainScene::CreateBullet(const MathEngine::Vector2& startPos, const MathEngi
 	//	});
 
 	GameObject* obj = AcquireBullet();
+
+	if (obj == nullptr)
+		return;
 
 	Transform* tr = static_cast<Transform*>(obj->GetElement(ElementType::Transform));
 	tr->SetPosition(startPos);
@@ -1305,6 +1327,8 @@ GameObject* MainScene::AcquireBullet()
 		GameObject* obj = m_bulletPool.back();
 		m_bulletPool.pop_back();
 
+		AddObject(obj);
+
 		return obj;
 	}
 
@@ -1397,14 +1421,29 @@ GameObject* MainScene::AcquireBullet()
 
 void MainScene::ReleaseBullet(GameObject* obj)
 {
+	if(obj == nullptr)
+		return;
 	obj->SetActive(false);   // Update/Render 멈춤
 
 	ColliderComponent* collider = static_cast<ColliderComponent*>(obj->GetElement(ElementType::Collider));
 	if (collider != nullptr)
 	{
-		collider->SetEnabled(false);   // 물리 충돌 검사에서 제외
+		collider->SetEnabled(false);
+
+		PhysicsEngine::Object* physObj =
+			collider->GetPhysicsObject();
+
+		if (physObj != nullptr)
+		{
+			physObj->isEnabled = false;
+			physObj->velocity =
+				MathEngine::Vector2(0.f, 0.f);
+			physObj->force =
+				MathEngine::Vector2(0.f, 0.f);
+		}
 	}
 
+	DetachObject(obj);
 	m_bulletPool.push_back(obj);   // delete 대신 풀로 반납
 }
 
@@ -1429,6 +1468,7 @@ GameObject* MainScene::AcquireMonster(const string& monsterId)
 			OutputDebugStringW(buf);
 			__debugbreak(); // 여기서 멈추면 콜스택이 진짜 원인
 		}
+		AddObject(obj);
 		return obj;
 	}
 
@@ -1488,7 +1528,8 @@ GameObject* MainScene::AcquireMonster(const string& monsterId)
 
 	monster->SetOnDeathFinished([this](GameObject* obj)
 		{
-			ReleaseMonster(obj);
+			//ReleaseMonster(obj);
+			m_pendingReleaseMonsters.push_back(obj);
 		}
 	);
 
@@ -1530,6 +1571,7 @@ void MainScene::ReleaseMonster(GameObject* obj)
 		return; // 중복 반납 막기
 	}
 	obj->SetActive(false);
+	DetachObject(obj);
 
 	ColliderComponent* collider = static_cast<ColliderComponent*>(obj->GetElement(ElementType::Collider));
 	if (collider != nullptr)

@@ -202,3 +202,10 @@ bool Scene::IsVisible(GameObject* obj)
 
 	return true;
 }
+
+void Scene::DetachObject(GameObject* target)
+{
+	auto it = std::find(m_objects.begin(), m_objects.end(), target);
+	if (it != m_objects.end())
+		m_objects.erase(it);
+}

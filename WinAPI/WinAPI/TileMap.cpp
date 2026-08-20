@@ -12,7 +12,17 @@ long long MakeChunkKey(int chunkX,int chunkY)
 }
 long long MakeTileKey(int x,int y)
 {
-    return(static_cast<long long>(x) << 32) ^static_cast<unsigned int>(y);
+    return(static_cast<long long>(x) << 32) ^ static_cast<unsigned int>(y);
+}
+
+TileMap::TileMap()
+{
+    OutputDebugStringA("========== TileMap CONSTRUCTOR ==========\n");
+}
+
+TileMap::~TileMap()
+{
+    OutputDebugStringA("========== TileMap DESTRUCTOR ==========\n");
 }
 
 void TileMap::Init()
@@ -125,33 +135,7 @@ void TileMap::LoadFromMapData(const vector<string>& mapData)
             }
         }
     }
-    //int maxChunkX = (m_width - 1) / CHUNK_SIZE;
-    //int maxChunkY = (m_height - 1) / CHUNK_SIZE;
 
-    //for (int cy = 0; cy <= maxChunkY; cy++)
-    //{
-    //    for (int cx = 0; cx <= maxChunkX; cx++)
-    //    {
-    //        int startX = cx * CHUNK_SIZE;
-    //        int startY = cy * CHUNK_SIZE;
-
-    //        // 맵 데이터 영역은 이미 타일이 존재하므로
-    //        // 여기서는 오브젝트만 생성
-    //        if (m_objectSpawner != nullptr)
-    //        {
-    //            m_objectSpawner->SpawnChunk(
-    //                startX,
-    //                startY,
-    //                CHUNK_SIZE,
-    //                CHUNK_SIZE
-    //            );
-    //        }
-
-    //        m_generatedChunks.insert(
-    //            MakeChunkKey(cx, cy)
-    //        );
-    //    }
-    //}
 }
 
 void TileMap::Render(ID2D1DeviceContext* context,ResourceManager* resourceManager)
@@ -679,7 +663,9 @@ void TileMap::GenerateChunk(int chunkX, int chunkY)
 
             TileType type =GenerateProceduralTile(worldX,worldY,chunkX,chunkY);
 
-            m_proceduralTiles[MakeTileKey(worldX,worldY)] = type;
+            long long key = MakeTileKey(worldX, worldY);
+
+            m_proceduralTiles[key] = type;
         }
     }
     GenerateDockForChunk(chunkX, chunkY);
@@ -744,6 +730,7 @@ void TileMap::UnloadFarChunks(int centerChunkX, int centerChunkY, int keepRadius
             {
                 m_proceduralTiles.erase(
                     MakeTileKey(startX + localX, startY + localY));
+                m_dockTiles.erase(MakeTileKey(startX + localX, startY + localY));
             }
         }
 

@@ -39,6 +39,8 @@ class TileMap
 public :
     static constexpr int CHUNK_SIZE = 16;
 public:
+    TileMap();
+    ~TileMap();
     void Init();
 
     void LoadFromMapData(const vector<string>& mapData);

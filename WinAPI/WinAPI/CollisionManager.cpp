@@ -51,41 +51,41 @@ void CollisionManager::SetBlocked(int x, int y, bool blocked)
 
 void CollisionManager::RenderDebug(ID2D1DeviceContext* context)
 {
-    ID2D1SolidColorBrush* pen = nullptr;
-    context->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Red), &pen);
-    if (pen == nullptr) return;
+    //ID2D1SolidColorBrush* pen = nullptr;
+    //context->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Red), &pen);
+    //if (pen == nullptr) return;
 
-    const int TILE_W = TileManager::GetInstance().GetTileWidth();
-    const int TILE_H = TileManager::GetInstance().GetTileHeight();
+    //const int TILE_W = TileManager::GetInstance().GetTileWidth();
+    //const int TILE_H = TileManager::GetInstance().GetTileHeight();
 
-    for (int y = 0; y < HEIGHT; y++)
-    {
-        for (int x = 0; x < WIDTH; x++)
-        {
-            if (!m_blockMap[y][x])
-                continue;
+    //for (int y = 0; y < HEIGHT; y++)
+    //{
+    //    for (int x = 0; x < WIDTH; x++)
+    //    {
+    //        if (!m_blockMap[y][x])
+    //            continue;
 
-            // SpriteRenderer와 완전히 동일한 변환 함수 사용
-            MathEngine::Vector2 screen = TileManager::GetInstance().TileToScreen({ (float)x, (float)y });
+    //        // SpriteRenderer와 완전히 동일한 변환 함수 사용
+    //        MathEngine::Vector2 screen = TileManager::GetInstance().TileToScreen({ (float)x, (float)y });
 
-            float screenX = screen.x - CameraManager::GetInstance().GetX();
-            float screenY = screen.y - CameraManager::GetInstance().GetY();
-            screenY += TILE_H / 2.0f; // SpriteRenderer의 오프셋과 동일하게 맞춤
+    //        float screenX = screen.x - CameraManager::GetInstance().GetX();
+    //        float screenY = screen.y - CameraManager::GetInstance().GetY();
+    //        screenY += TILE_H / 2.0f; // SpriteRenderer의 오프셋과 동일하게 맞춤
 
-            D2D1_POINT_2F pts[4] =
-            {
-                D2D1::Point2F(screenX,                 screenY - TILE_H / 2.0f),
-                D2D1::Point2F(screenX + TILE_W / 2.0f, screenY),
-                D2D1::Point2F(screenX,                 screenY + TILE_H / 2.0f),
-                D2D1::Point2F(screenX - TILE_W / 2.0f, screenY)
-            };
+    //        D2D1_POINT_2F pts[4] =
+    //        {
+    //            D2D1::Point2F(screenX,                 screenY - TILE_H / 2.0f),
+    //            D2D1::Point2F(screenX + TILE_W / 2.0f, screenY),
+    //            D2D1::Point2F(screenX,                 screenY + TILE_H / 2.0f),
+    //            D2D1::Point2F(screenX - TILE_W / 2.0f, screenY)
+    //        };
 
-            context->DrawLine(pts[0], pts[1], pen, 2.0f);
-            context->DrawLine(pts[1], pts[2], pen, 2.0f);
-            context->DrawLine(pts[2], pts[3], pen, 2.0f);
-            context->DrawLine(pts[3], pts[0], pen, 2.0f);
-        }
-    }
+    //        context->DrawLine(pts[0], pts[1], pen, 2.0f);
+    //        context->DrawLine(pts[1], pts[2], pen, 2.0f);
+    //        context->DrawLine(pts[2], pts[3], pen, 2.0f);
+    //        context->DrawLine(pts[3], pts[0], pen, 2.0f);
+    //    }
+    //}
 
-    pen->Release();
+    //pen->Release();
 }

@@ -108,6 +108,7 @@ private:
 	//오브젝트 풀
 	vector<GameObject*> m_bulletPool;
 	map<string, vector<GameObject*>> m_monsterPool;
+	vector<GameObject*> m_pendingReleaseMonsters;
 
 	int m_lastPlayerTileX = -9999;
 	int m_lastPlayerTileY = -9999;
