@@ -1,33 +1,33 @@
 {
     "collectedItemsIds": [
         "",
-        "item_25_19_2",
-        "item_12_33_8",
-        "item_17_23_1",
-        "item_19_20_7",
-        "item_24_11_11",
-        "item_24_14_6",
-        "item_30_17_12"
+        "item_35_44_2",
+        "item_20_20_0",
+        "item_24_42_4",
+        "item_26_25_1",
+        "item_9_41_3",
+        "item_34_55_5",
+        "item_28_30_6",
+        "item_21_27_11"
     ],
     "currentWave": 1,
-    "day": 4,
-    "equippedShieldId": "Item_Shield",
-    "equippedWeaponId": "Item_Gun",
+    "day": 2,
+    "equippedShieldId": "",
+    "equippedWeaponId": "Item_Fishing",
     "hasGlowRing": false,
-    "hour": 6,
+    "hour": 8,
     "inventory": {
-        "Item_Apple": 2,
-        "Item_Banana": 2,
-        "Item_Blueberry": 3,
-        "Item_Egg": 2,
-        "Item_Egg_Baked": 1,
-        "Item_Fish_Baked": 8,
-        "Item_Fishing": 1,
-        "Item_Stone": 1,
-        "Item_Wood": 44
+        "Item_Banana": 3,
+        "Item_Egg": 8,
+        "Item_Glow": 1,
+        "Item_Gun": 1,
+        "Item_Iron": 3,
+        "Item_Mushroom": 3,
+        "Item_Stone": 9,
+        "Item_Wood": 23
     },
-    "minute": 30,
-    "playTimeSeconds": 435,
-    "playerX": 123.61918640136719,
-    "playerY": 7.942751884460449
+    "minute": 50,
+    "playTimeSeconds": 216,
+    "playerX": 37.811767578125,
+    "playerY": 9.805889129638672
 }

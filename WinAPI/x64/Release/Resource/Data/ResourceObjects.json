@@ -1,0 +1,81 @@
+﻿[
+  {
+    "id": "Tree_Normal",
+    "name": "나무",
+    "image": "Item_NormalTree",
+    "interactType": "Tree",
+    "scale": 1.0,
+    "baseItemId": "Item_Wood",
+    "baseMinCount": 1,
+    "baseMaxCount": 3,
+    "bonusDrops": [
+      {
+        "itemId": "Item_Apple",
+        "chance": 0.15,
+        "minCount": 1,
+        "maxCount": 2
+      },
+      {
+        "itemId": "Item_Banana",
+        "chance": 0.10,
+        "minCount": 1,
+        "maxCount": 2
+      }
+    ]
+  },
+  {
+    "id": "Tree_Winter",
+    "name": "겨울나무",
+    "image": "Item_WinterTree",
+    "interactType": "Tree",
+    "scale": 3.0,
+    "baseItemId": "Item_Wood",
+    "baseMinCount": 1,
+    "baseMaxCount": 2,
+    "bonusDrops": [
+      {
+        "itemId": "Item_Blueberry",
+        "chance": 0.1,
+        "minCount": 1,
+        "maxCount": 3
+      }
+    ]
+  },
+  {
+    "id": "Rock_Normal",
+    "name": "바위",
+    "image": "Item_Stone",
+    "interactType": "Rock",
+    "scale": 1.5,
+    "baseItemId": "Item_Stone",
+    "baseMinCount": 1,
+    "baseMaxCount": 2,
+    "bonusDrops": [
+      {
+        "itemId": "Item_Mushroom",
+        "chance": 0.15,
+        "minCount": 1,
+        "maxCount": 2
+      }
+    ]
+  },
+  {
+    "id": "IronBox",
+    "name": "철광석",
+    "image": "IronBox",
+    "interactType": "Iron",
+    "scale": 1,
+    "baseItemId": "Item_Iron",
+    "baseMinCount": 1,
+    "baseMaxCount": 2,
+    "bonusDrops": [
+      {
+        "itemId": "Item_Glow",
+        "chance": 0.15,
+        "minCount": 1,
+        "maxCount": 1
+      }
+  
+    ]
+  }
+]

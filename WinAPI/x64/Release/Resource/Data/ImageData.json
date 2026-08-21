@@ -1,0 +1,310 @@
+[
+	{
+		"key": "Player_Idle",
+		"path": "Resource/Animation/Character0_Idle.png"
+	},
+	{
+		"key": "Player_Walk",
+		"path": "Resource/Animation/Character0_Walk.png"
+	},
+	{
+		"key": "Player_Attack",
+		"path": "Resource/Animation/Character0_Swing.png"
+	},
+	{
+		"key": "Player_Die",
+		"path": "Resource/Animation/Character0_Die.png"
+	},
+	{
+		"key": "Player_Gun_Idle",
+		"path": "Resource/Animation/Character0_IdleHoldingTool.png"
+	},
+	{
+		"key": "Player_Gun_Walk",
+		"path": "Resource/Animation/Character0_WalkHoldingTool.png"
+	},
+	{
+		"key": "Player_Gun_Attack",
+		"path": "Resource/Animation/Character0_WalkHoldingTool.png"
+	},
+	{
+		"key": "Player_Sword_Idle",
+		"path": "Resource/Animation/Character0_IdleHoldingTool_Sword.png"
+	},
+	{
+		"key": "Player_Sword_Walk",
+		"path": "Resource/Animation/Character0_WalkHoldingTool_Sword.png"
+	},
+	{
+		"key": "Player_Sword_Attack",
+		"path": "Resource/Animation/Character0_SwordAttack_Sword.png"
+	},
+	{
+		"key": "Player_Fishing_Idle",
+		"path": "Resource/Animation/Character0_IdleHoldingTool_Fishingpole.png"
+	},
+	{
+		"key": "Player_Fishing_Walk",
+		"path": "Resource/Animation/Character0_WalkHoldingTool_Fishingpole.png"
+	},
+	{
+		"key": "Player_Fishing_Attack",
+		"path": "Resource/Animation/Character0_Fish_Fishingpole.png"
+	},
+	{
+		"key": "Player_Shield_Idle",
+		"path": "Resource/Animation/Character0_IdleHoldingTool_Shield.png"
+	},
+	{
+		"key": "Player_Shield_Walk",
+		"path": "Resource/Animation/Character0_WalkHoldingTool_Silver.png"
+	},
+	{
+		"key": "Wall_E",
+		"path": "Resource/prop_fence_wood_a.png"
+	},
+	{
+		"key": "Wall_N",
+		"path": "Resource/prop_fence_wood_b.png"
+	},
+	{
+		"key": "Wall_S",
+		"path": "Resource/prop_fence_wood_a.png"
+	},
+	{
+		"key": "Wall_W",
+		"path": "Resource/prop_fence_wood_b.png"
+	},
+	{
+		"key": "Tile_W",
+		"path": "Resource/grass.png"
+	},
+	{
+		"key": "WorkTable",
+		"path": "Resource/bld_construction_b.png"
+	},
+	{
+		"key": "CampFire",
+		"path": "Resource/structure_low_N.png"
+	},
+	{
+		"key": "Item_Wood",
+		"path": "Resource/wood.png"
+	},
+	{
+		"key": "Item_Stone",
+		"path": "Resource/stone(4).png"
+	},
+	{
+		"key": "Item_Iron",
+		"path": "Resource/Iron.png"
+	},
+	{
+		"key": "Item_Sword",
+		"path": "Resource/Sword.png"
+	},
+	{
+		"key": "Item_Sword_Refined",
+		"path": "Resource/UpgradeSword.png"
+	},
+	{
+		"key": "Item_Gun",
+		"path": "Resource/gun2.png"
+	},
+	{
+		"key": "Item_Shield",
+		"path": "Resource/Shield.png"
+	},
+	{
+		"key": "Item_Fishing",
+		"path": "Resource/Fishing.png"
+	},
+	{
+		"key": "SideBarUI",
+		"path": "Resource/vertical_type_1.png"
+	},
+	{
+		"key": "Bullet",
+		"path": "Resource/6.png"
+	},
+	{
+		"key": "Monster",
+		"path": "Resource/Animation/slimes_pink.png"
+	},
+	{
+		"key": "Monster2",
+		"path": "Resource/Animation/Slimes/slimes_white.png"
+	},
+	{
+		"key": "Monster3",
+		"path": "Resource/Animation/Slimes/slimes_dark.png"
+	},
+	{
+		"key": "Monster4",
+		"path": "Resource/Animation/Slimes/slimes_yellow.png"
+	},
+	{
+		"key": "Monster5",
+		"path": "Resource/Animation/chomp_idle.png"
+	},
+	{
+		"key": "Fire",
+		"path": "Resource/Animation/Group 6 - 5.png"
+	},
+	{
+		"key": "GrassRoad",
+		"path": "Resource/grass_road.png"
+	},
+	{
+		"key": "WaterTile",
+		"path": "Resource/Tile_WaterAuto_deep.png"
+	},
+	{
+		"key": "Grass",
+		"path": "Resource/grass_detail(6).png"
+	},
+	{
+		"key": "Item_Apple",
+		"path": "Resource/Food/Apple_Icon.png"
+	},
+	{
+		"key": "Item_Banana",
+		"path": "Resource/Food/Banana_Icon.png"
+	},
+	{
+		"key": "Item_Grape",
+		"path": "Resource/Food/Grape_Icon.png"
+	},
+	{
+		"key": "Item_Mushroom",
+		"path": "Resource/Food/Mushroom_Icon copy.png"
+	},
+	{
+		"key": "Item_Mushroom_Baked",
+		"path": "Resource/Food/bakedmushroom.png"
+	},
+	{
+		"key": "Item_Fish",
+		"path": "Resource/Food/Fish_Icon.png"
+	},
+	{
+		"key": "Item_Fish_Baked",
+		"path": "Resource/Food/Fish_Icon copy.png"
+	},
+	{
+		"key": "Item_Egg",
+		"path": "Resource/Food/Egg_Icon.png"
+	},
+	{
+		"key": "Item_Egg_Baked",
+		"path": "Resource/Food/fried_egg_cutout_v2.png"
+	},
+	{
+		"key": "Chicken",
+		"path": "Resource/Animation/Chicken_Sprite_Sheet.png"
+	},
+	{
+		"key": "LightBrownChicken",
+		"path": "Resource/Animation/Chicken_Sprite_Sheet_Light_Brown.png"
+	},
+	{
+		"key": "DarkBrownChicken",
+		"path": "Resource/Animation/Chicken_Sprite_Sheet_Dark_Brown.png"
+	},
+	{
+		"key": "BlackChicken",
+		"path": "Resource/Animation/Chicken_Sprite_Sheet_Black.png"
+	},
+	{
+		"key": "CrossHair",
+		"path": "Resource/crosshair086.png"
+	},
+	{
+		"key": "bubbleText",
+		"path": "Resource/UI/BubbleText.png"
+	},
+	{
+		"key": "Text",
+		"path": "Resource/UI/BubbleInteract.png"
+	},
+	{
+		"key": "Night",
+		"path": "Resource/UI/NightUI.png"
+	},
+	{
+		"key": "Day",
+		"path": "Resource/UI/DayUI.png"
+	},
+	{
+		"key": "MiniMapFrame",
+		"path": "Resource/UI/MinimapFrame.png"
+	},
+	{
+		"key": "HPUI",
+		"path": "Resource/UI/HP.png"
+	},
+	{
+		"key": "TimeUI",
+		"path": "Resource/UI/TimeUI.png"
+	},
+	{
+		"key": "Snow",
+		"path": "Resource/snowTile.png"
+	},
+	{
+		"key": "Item_WinterTree",
+		"path": "Resource/Winter/tree(3).png"
+	},
+	{
+		"key": "Item_NormalTree",
+		"path": "Resource/tree_single_S.png"
+	},
+	{
+		"key": "Item_WinterGrass",
+		"path": "Resource/Winter/snow_detail(4).png"
+	},
+	{
+		"key": "Item_Blueberry",
+		"path": "Resource/Food/Blueberry_Icon.png"
+	},
+	{
+		"key": "StoneTile",
+		"path": "Resource/StoneTile.png"
+	},
+	{
+		"key": "IronBox",
+		"path": "Resource/IronBox.png"
+	},
+	{
+		"key": "TitleBackGround",
+		"path": "Resource/Title/titleScene.png"
+	},
+	{
+		"key": "TitleLogo",
+		"path": "Resource/Title/titleScenelogo.png"
+	},
+	{
+		"key": "Dock",
+		"path": "Resource/BridgeTile.png"
+	},
+	{
+		"key": "Flower",
+		"path": "Resource/prop_flowers_pink.png"
+	},
+	{
+		"key": "Flower2",
+		"path": "Resource/prop_flowers_red.png"
+	},
+	{
+		"key": "Flower3",
+		"path": "Resource/prop_flowers_yellow.png"
+	},
+	{
+		"key": "Item_Glow",
+		"path": "Resource/Light.png"
+	},
+	{
+		"key": "RandomBox",
+		"path": "Resource/RandomBox.png"
+	}
+]

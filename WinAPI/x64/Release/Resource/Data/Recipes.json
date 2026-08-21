@@ -1,0 +1,160 @@
+[
+  {
+    "id": "Recipe_BakedMushroom",
+    "result": "Item_Mushroom_Baked",
+    "resultCount": 1,
+    "station": "CampFire",
+    "isWeaponUpgrade": false,
+    "successRate": 1,
+    "ingredients": [
+      {
+        "id": "Item_Mushroom",
+        "count": 2
+      }
+    ]
+  },
+  {
+    "id": "Recipe_BakedFish",
+    "result": "Item_Fish_Baked",
+    "resultCount": 1,
+    "station": "CampFire",
+    "isWeaponUpgrade": false,
+    "successRate": 1,
+    "ingredients": [
+      {
+        "id": "Item_Fish",
+        "count": 2
+      }
+    ]
+  },
+  {
+    "id": "Recipe_BakedEgg",
+    "result": "Item_Egg_Baked",
+    "resultCount": 1,
+    "station": "CampFire",
+    "isWeaponUpgrade": false,
+    "successRate": 1,
+    "ingredients": [
+      {
+        "id": "Item_Egg",
+        "count": 5
+      }
+    ]
+  },
+  {
+    "id": "Recipe_Sword",
+    "result": "Item_Sword",
+    "resultCount": 1,
+    "station": "WorkTable",
+    "isWeaponUpgrade": false,
+    "successRate": 1,
+    "ingredients": [
+      {
+        "id": "Item_Wood",
+        "count": 5
+      },
+      {
+        "id": "Item_Stone",
+        "count": 10
+      },
+      {
+        "id": "Item_Iron",
+        "count": 5
+      }
+    ]
+  },
+  {
+    "id": "Recipe_Sword_Upgrade1",
+    "result": "Item_Sword_Refined",
+    "resultCount": 1,
+    "station": "WorkTable",
+    "isWeaponUpgrade": true,
+    "successRate": 0.7,
+    "ingredients": [
+      {
+        "id": "Item_Sword",
+        "count": 1
+      },
+      {
+        "id": "Item_Stone",
+        "count": 5
+      },
+      {
+        "id": "Item_Wood",
+        "count": 5
+      }
+    ]
+  },
+  {
+    "id": "Recipe_Defense",
+    "result": "Item_Shield",
+    "resultCount": 1,
+    "station": "WorkTable",
+    "isWeaponUpgrade": false,
+    "successRate": 1,
+    "ingredients": [
+      {
+        "id": "Item_Iron",
+        "count": 5
+      }
+    ]
+  },
+  {
+    "id": "Recipe_Gun",
+    "result": "Item_Gun",
+    "resultCount": 1,
+    "station": "WorkTable",
+    "isWeaponUpgrade": false,
+    "successRate": 1,
+    "ingredients": [
+      {
+        "id": "Item_Stone",
+        "count": 10
+      },
+      {
+        "id": "Item_Iron",
+        "count": 5
+      }
+    ]
+  },
+  {
+    "id": "Recipe_Fishing",
+    "result": "Item_Fishing",
+    "resultCount": 1,
+    "station": "WorkTable",
+    "isWeaponUpgrade": false,
+    "successRate": 1,
+    "ingredients": [
+      {
+        "id": "Item_Wood",
+        "count": 10
+      },
+      {
+        "id": "Item_Iron",
+        "count": 3
+      }
+    ]
+  },
+  {
+    "id": "Recipe_GlowRing",
+    "result": "Item_GlowRing",
+    "resultCount": 1,
+    "station": "WorkTable",
+    "isWeaponUpgrade": false,
+    "successRate": 1,
+    "ingredients": [
+      {
+        "id": "Item_Stone",
+        "count": 5
+      },
+      {
+        "id": "Item_Iron",
+        "count": 20
+      },
+      {
+        "id": "Item_Glow",
+        "count": 3
+      }
+    ]
+  }
+]

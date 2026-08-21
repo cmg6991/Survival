@@ -33,9 +33,9 @@ void TimeManager::Update(float deltaTime)
 {
     m_gameMinuteTimer += deltaTime;
 
-    if (m_gameMinuteTimer >=1.0f)
+    if (m_gameMinuteTimer >=5.0f)
     {
-        m_gameMinuteTimer -= 1.0f;
+        m_gameMinuteTimer -= 5.0f;
         // 게임 시간 10분 증가
         m_minute += 10;
     }
